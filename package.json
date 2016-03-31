@@ -1,0 +1,50 @@
+{
+  "name": "grenache-grape",
+  "version": "0.0.1",
+  "private": false,
+  "description": "Granache Grape",
+  "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
+  "keywords": [
+    "grenache",
+    "kademlia",
+    "nodejs",
+    "micro-services"
+  ],
+  "dependencies": {
+    "async": "~1.5.2",
+    "bittorrent-dht": "~6.4.0",
+    "debug": "~2.2.0",
+    "lodash": "~4.6.1",
+    "node-uuid": "~1.4.7",
+    "underscore.string": "~3.2.3",
+    "ws": "~1.0.1"
+  },
+  "engine": {
+    "node": ">=0.10"
+  },
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "devDependencies": {
+    "chai": "~3.2.0",
+    "mocha": "~2.2.5"
+  },
+  "scripts": {
+    "test": "make test",
+    "lint": "eslint --config .eslintrc --fix index.js lib/ test/"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitfinexcom/grenache-grape.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bitfinexcom/grenache-grape/issues"
+  },
+  "homepage": "https://github.com/bitfinexcom/grenache-grape",
+  "optionalDependencies": {
+    "eslint": "~1.6.0"
+  }
+}
