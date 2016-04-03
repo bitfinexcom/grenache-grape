@@ -38,8 +38,12 @@ grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 * Grenache Network building
 * DHT interaction APIs for Clients: service discovery, DHT data storage
 
-**2. Client: Grenache Client implementation on specific transports**
-* Client/Worker : offer / request services
+**2. Client: Grenache Client implementation on specific Transports**
+* Client/Worker: offer / request services
+* Patterns: request/reply, publish/subscribe
+* Transports: ZeroMQ, WebSocket
+
+![Grenache Structure](https://raw.githubusercontent.com/bitfinexcom/grenache-grape/master/doc/structure.png)
 
 ### Client Implementations
 
