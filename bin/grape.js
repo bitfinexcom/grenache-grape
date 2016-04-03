@@ -1,6 +1,8 @@
 #!/usr/bin/env node
+'use strict'
 
 var minimist = require('minimist')
+var _ = require('lodash')
 var Grape = require('../lib/Grape')
 
 var argv = minimist(process.argv.slice(2))
@@ -17,7 +19,12 @@ if (!argv.ap) {
 
 var dht_port = argv.dp
 var api_port = argv.ap
-var dht_bootstrap = (argv.bn || '').split(',')
+var dht_bootstrap = _.reduce((argv.bn || '').split(','), (acc, e) => {
+  if (e) {
+    acc.push(e)
+  }
+  return acc  
+}, [])
 
 var g = new Grape({
   dht_port: dht_port,

@@ -22,6 +22,9 @@
   "engine": {
     "node": ">=0.10"
   },
+  "bin": {
+    "grape": "bin/grape.js"
+  },
   "main": "index.js",
   "directories": {
     "example": "examples",
