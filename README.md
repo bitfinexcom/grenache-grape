@@ -1,10 +1,10 @@
 # Grenache Grape
 
-DHT based high-performance microservices framework, by Bitfinex
+[Grenache](https://github.com/bitfinexcom/grenache) Grape Node.JS implementation
 
-### Usage
+### Setup
 
-##### Install
+#### Install
 
 ```
 // Install global (run binary)
@@ -16,7 +16,7 @@ npm install -g grenache-grape
 npm install --save grenache-grape
 ```
 
-##### Run Binary
+#### Run Binary
 
 ```
 // help
@@ -30,34 +30,27 @@ grape --dp 20002 --ap 30002 --bn '127.0.0.1:20001,127.0.0.1:20003'
 grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 ```
 
-### Technology
-* DHT definition: http://www.bittorrent.org/beps/bep_0005.html
+#### Integrate in your Code
 
-#### Definitions
-**1. Grape: Grenache Discovery Node**
-* Grenache Network building
-* DHT interaction APIs for Clients: service discovery, DHT data storage
+```
+var Grape = require('grenache-grape').Grape
 
-**2. Client: Grenache Client implementation on specific Transports**
-* Client/Worker: offer / request services
-* Patterns: request/reply, publish/subscribe
-* Transports: ZeroMQ, WebSocket
+var g = new Grape({
+  dht_port: 20001,
+  dht_bootstrap: [
+    '127.0.0.1:20002'
+  ],
+  api_port: 30001
+})
 
-#### Features
-* Decentralised / Distributed
-* High-Performance
-* Indefinite growth and shapes
+g.start()
+```
 
-#### Structure Example
+### Implementations
 
-![Grenache Structure](https://raw.githubusercontent.com/bitfinexcom/grenache-grape/master/doc/structure.png)
-
-* client 1-9: can offer or request services
-
-### Client Implementations
-
-##### Node.JS
+##### Node.JS Clients
 * https://github.com/bitfinexcom/grenache-nodejs-zmq : ZeroMQ based Grape microservices
 * https://github.com/bitfinexcom/grenache-nodejs-ws : WebSocket based Grape microservices
 
-##### Ruby
+##### Ruby Clients
+* https://github.com/bitfinexcom/grenache-ruby-zmq : ZeroMQ based Grape microservices
