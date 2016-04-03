@@ -1,6 +1,6 @@
 # Grenache Grape
 
-Grenache Grape Node.JS implementation
+[Grenache](https://github.com/bitfinexcom/grenache) Grape Node.JS implementation
 
 ### Setup
 
@@ -45,3 +45,12 @@ var g = new Grape({
 
 g.start()
 ```
+
+### Implementations
+
+##### Node.JS Clients
+* https://github.com/bitfinexcom/grenache-nodejs-zmq : ZeroMQ based Grape microservices
+* https://github.com/bitfinexcom/grenache-nodejs-ws : WebSocket based Grape microservices
+
+##### Ruby Clients
+* https://github.com/bitfinexcom/grenache-ruby-zmq : ZeroMQ based Grape microservices
