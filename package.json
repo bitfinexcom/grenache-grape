@@ -15,6 +15,7 @@
     "bittorrent-dht": "~6.4.0",
     "debug": "~2.2.0",
     "lodash": "~4.6.1",
+    "minimist": "^1.2.0",
     "underscore.string": "~3.2.3",
     "ws": "~1.0.1"
   },
