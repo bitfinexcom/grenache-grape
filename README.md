@@ -68,7 +68,9 @@ API:
 ### Client Implementations
 
 ##### Node.JS
+
 * https://github.com/bitfinexcom/grenache-nodejs-zmq : ZeroMQ based Grape microservices
 * https://github.com/bitfinexcom/grenache-nodejs-ws : WebSocket based Grape microservices
 
 ##### Ruby
+* https://github.com/bitfinexcom/grenache-ruby-zmq : ZeroMQ based Grape microservices
