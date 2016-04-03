@@ -35,10 +35,11 @@ grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 
 #### Definitions
 **1. Grape: Grenache Discovery Node**
-DHT Distributed Nodes
+* Grenache Network building
+* DHT interaction APIs for Clients: service discovery, DHT data storage
 
 **2. Client: Grenache Client implementation on specific transports**
-
+* Client/Worker : offer / request services
 
 ### Client Implementations
 
