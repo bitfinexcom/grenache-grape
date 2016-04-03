@@ -2,7 +2,9 @@
 
 DHT based high-performance microservices framework, by Bitfinex
 
-### Install
+### Usage
+
+##### Install
 
 ```
 // Install global (run binary)
@@ -14,7 +16,7 @@ npm install -g grenache-grape
 npm install --save grenache-grape
 ```
 
-### Run Binary
+##### Run Binary
 
 ```
 // help
@@ -29,6 +31,13 @@ grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 ```
 
 ### Technology
+* DHT definition: http://www.bittorrent.org/beps/bep_0005.html
+
+#### Definitions
+**1. Grape: Grenache Discovery Node**
+DHT Distributed Nodes
+
+**2. Client: Grenache Client implementation on specific transports**
 
 
 ### Client Implementations
