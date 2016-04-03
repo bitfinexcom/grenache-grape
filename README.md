@@ -34,14 +34,25 @@ grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 * DHT definition: http://www.bittorrent.org/beps/bep_0005.html
 
 #### Definitions
-**1. Grape: Grenache Discovery Node**
+
+##### 1. Grape: Grenache Discovery Node
 * Grenache Network building
 * DHT interaction APIs for Clients: service discovery, DHT data storage
 
-**2. Client: Grenache Client implementation on specific Transports**
-* Client/Worker: offer / request services
+API:
+* announce Service
+* lookup Service
+* write to DHT
+
+##### 2. Client: Grenache Client implementation on specific Transports
+* Client/Worker: offer/publish and request/subscribe Services
 * Patterns: request/reply, publish/subscribe
 * Transports: ZeroMQ, WebSocket
+
+API:
+* offer/publish Service: create and announce a Service on the DHT
+* request/subscribe Service: find a Service throught the DHT and connect to it
+
 
 #### Features
 * Decentralised / Distributed
@@ -52,7 +63,7 @@ grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 
 ![Grenache Structure](https://raw.githubusercontent.com/bitfinexcom/grenache-grape/master/doc/structure.png)
 
-* client 1-9: can offer or request services
+* client: can both offer/publish or request/subscribe Services
 
 ### Client Implementations
 
