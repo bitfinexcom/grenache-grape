@@ -44,12 +44,15 @@ grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 * Transports: ZeroMQ, WebSocket
 
 #### Features
-* Decentralised
-* High-performance
+* Decentralised / Distributed
+* High-Performance
+* Indefinite growth and shapes
 
-#### Structure
+#### Structure Example
 
 ![Grenache Structure](https://raw.githubusercontent.com/bitfinexcom/grenache-grape/master/doc/structure.png)
+
+* client 1-9: can offer or request services
 
 ### Client Implementations
 
