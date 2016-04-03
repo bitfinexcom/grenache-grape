@@ -1,10 +1,10 @@
 # Grenache Grape
 
-DHT based high-performance microservices framework, by Bitfinex
+Grenache Grape Node.JS implementation
 
-### Usage
+### Setup
 
-##### Install
+#### Install
 
 ```
 // Install global (run binary)
@@ -16,7 +16,7 @@ npm install -g grenache-grape
 npm install --save grenache-grape
 ```
 
-##### Run Binary
+#### Run Binary
 
 ```
 // help
@@ -30,7 +30,7 @@ grape --dp 20002 --ap 30002 --bn '127.0.0.1:20001,127.0.0.1:20003'
 grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'
 ```
 
-##### Integrate in your Code
+#### Integrate in your Code
 
 ```
 var Grape = require('grenache-grape').Grape
