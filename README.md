@@ -1,6 +1,7 @@
-# Grenache Grape
+# [Grenache](https://github.com/bitfinexcom/grenache) Grape implementation
 
-[Grenache](https://github.com/bitfinexcom/grenache) Grape Node.JS implementation
+### Details
+- [Project Homepage](https://github.com/bitfinexcom/grenache) 
 
 ### Setup
 
