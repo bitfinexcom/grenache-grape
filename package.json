@@ -11,13 +11,13 @@
     "micro-services"
   ],
   "dependencies": {
-    "async": "~1.5.2",
-    "bittorrent-dht": "~6.4.0",
+    "async": "~2.0.0-rc.3",
+    "bittorrent-dht": "~7.0.2",
     "debug": "~2.2.0",
-    "lodash": "~4.6.1",
+    "lodash": "~4.11.1",
     "minimist": "^1.2.0",
-    "underscore.string": "~3.2.3",
-    "ws": "~1.0.1"
+    "underscore.string": "~3.3.4",
+    "ws": "~1.1.0"
   },
   "engine": {
     "node": ">=0.10"
