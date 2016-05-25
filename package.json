@@ -31,11 +31,11 @@
     "test": "test"
   },
   "devDependencies": {
-    "chai": "~3.2.0",
-    "mocha": "~2.2.5"
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5"
   },
   "scripts": {
-    "test": "make test",
+    "test": "mocha test/*",
     "lint": "eslint --config .eslintrc --fix index.js lib/ test/"
   },
   "license": "MIT",
