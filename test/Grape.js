@@ -1,6 +1,6 @@
 'use strict'
 
-var assert = require('chai').assert;
+var assert = require('chai').assert
 
 var Events = require('events')
 
@@ -37,7 +37,7 @@ describe('Grape', () => {
       dht_port: 20000,
       api_port: 20001
     })
-    
+
     grape.stop(done)
   })
 
@@ -50,7 +50,7 @@ describe('Grape', () => {
 
       var grape2 = new Grape({
         dht_port: 30000,
-        api_port: 20001 //same
+        api_port: 20001 // same
       })
 
       grape1.start((err) => {
@@ -70,7 +70,7 @@ describe('Grape', () => {
       })
 
       var grape2 = new Grape({
-        dht_port: 20000,  //same
+        dht_port: 20000, // same
         api_port: 30000
       })
 
