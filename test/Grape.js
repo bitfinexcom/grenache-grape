@@ -31,4 +31,57 @@ describe('Grape', () => {
       })
     })
   })
+
+  it('calling stop on an unstarted Grape is fine', (done) => {
+    var grape = new Grape({
+      dht_port: 20000,
+      api_port: 20001
+    })
+    
+    grape.stop(done)
+  })
+
+  describe('errors', () => {
+    it('should error when api_port is already in use', (done) => {
+      var grape1 = new Grape({
+        dht_port: 20000,
+        api_port: 20001
+      })
+
+      var grape2 = new Grape({
+        dht_port: 30000,
+        api_port: 20001 //same
+      })
+
+      grape1.start((err) => {
+        assert.ifError(err)
+        grape2.start((err) => {
+          assert.ok(err instanceof Error)
+          assert.equal('EADDRINUSE', err.code)
+          grape1.stop(done)
+        })
+      })
+    })
+
+    it('should error when dht_port is already in use', (done) => {
+      var grape1 = new Grape({
+        dht_port: 20000,
+        api_port: 20001
+      })
+
+      var grape2 = new Grape({
+        dht_port: 20000,  //same
+        api_port: 30000
+      })
+
+      grape1.start((err) => {
+        assert.ifError(err)
+        grape2.start((err) => {
+          assert.ok(err instanceof Error)
+          assert.equal('EADDRINUSE', err.code)
+          grape1.stop(done)
+        })
+      })
+    })
+  })
 })

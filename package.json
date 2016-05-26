@@ -35,7 +35,7 @@
     "mocha": "^2.2.5"
   },
   "scripts": {
-    "test": "mocha test/*",
+    "test": "istanbul test ./node_modules/.bin/_mocha -- -R spec",
     "lint": "eslint --config .eslintrc --fix index.js lib/ test/"
   },
   "license": "MIT",
