@@ -41,6 +41,20 @@ describe('Grape', () => {
     grape.stop(done)
   })
 
+  it('start is implicitly called', (done) => {
+    var grape = new Grape({dht_port: 20000, api_port: 20001, dht_bootstrap: ['127.0.0.1:20000']})
+
+    grape.announce('test', 1000, (err, result) => {
+      assert.ifError(err)
+
+      grape.lookup('test', function (err, result) {
+        assert.ifError(err)
+        assert.equal('tcp://127.0.0.1:1000', result)
+        grape.stop(done)
+      })
+    })
+  })
+
   describe('errors', () => {
     it('should error when api_port is already in use', (done) => {
       var grape1 = new Grape({
