@@ -11,7 +11,7 @@ var g1 = new Grape({
 })
 
 g1.start(() => {
-  console.log('grape1: started')       
+  console.log('grape1: started')
 })
 
 var g2 = new Grape({
@@ -23,5 +23,5 @@ var g2 = new Grape({
 })
 
 g2.start(() => {
-  console.log('grape2: started')       
+  console.log('grape2: started')
 })
