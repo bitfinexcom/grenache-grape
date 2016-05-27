@@ -41,15 +41,26 @@ describe('Grape', () => {
     grape.stop(done)
   })
 
-  it('start is implicitly called', (done) => {
-    var grape = new Grape({dht_port: 20000, api_port: 20001, dht_bootstrap: ['127.0.0.1:20000']})
+  describe('lookup', () => {
+    it('start is implicitly called', (done) => {
+      var grape = new Grape({dht_port: 20000, api_port: 20001, dht_bootstrap: ['127.0.0.1:20000']})
 
-    grape.announce('test', 1000, (err, result) => {
-      assert.ifError(err)
-
-      grape.lookup('test', function (err, result) {
+      grape.announce('test', 1000, (err, result) => {
         assert.ifError(err)
-        assert.equal('tcp://127.0.0.1:1000', result)
+
+        grape.lookup('test', function (err, result) {
+          assert.ifError(err)
+          assert.equal('tcp://127.0.0.1:1000', result)
+          grape.stop(done)
+        })
+      })
+    })
+
+    // TODO: confirm we can enforce value is always a string rule
+    it.skip('errors when invalid value is passed', (done) => {
+      var grape = new Grape({dht_port: 20000, api_port: 20001, dht_bootstrap: ['127.0.0.1:20000']})
+      grape.lookup(false, (err) => {
+        assert.ok(err instanceof Error)
         grape.stop(done)
       })
     })
