@@ -1,3 +1,3 @@
 module.exports = {
-	Grape: require('./lib/Grape.js')
+  Grape: require('./lib/Grape.js')
 }

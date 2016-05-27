@@ -24,14 +24,13 @@ if (argv.help) {
     '--bn <IP:PORT[,IP:PORT]>: DHT Bootstrap Nodes\n' +
     '--ap <INT> : Grape API port\n' +
     '\nExamples:\n' +
-    'grape --dp 20001 --ap 30001 --bn \'127.0.0.1:20002,127.0.0.1:20003\'\n' +
-    'grape --dp 20002 --ap 30002 --bn \'127.0.0.1:20001,127.0.0.1:20003\'\n' +
-    'grape --dp 20003 --ap 30003 --bn \'127.0.0.1:20001,127.0.0.1:20002\'\n' +
+    "grape --dp 20001 --ap 30001 --bn '127.0.0.1:20002,127.0.0.1:20003'\n" +
+    "grape --dp 20002 --ap 30002 --bn '127.0.0.1:20001,127.0.0.1:20003'\n" +
+    "grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'\n" +
     ''
   )
   process.exit(-1)
 }
-
 
 var dht_port = argv.dp
 var api_port = argv.ap
@@ -39,7 +38,7 @@ var dht_bootstrap = _.reduce((argv.bn || '').split(','), (acc, e) => {
   if (e) {
     acc.push(e)
   }
-  return acc  
+  return acc
 }, [])
 
 var g = new Grape({

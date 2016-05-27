@@ -32,11 +32,12 @@
   },
   "devDependencies": {
     "chai": "^3.2.0",
-    "mocha": "^2.2.5"
+    "mocha": "^2.2.5",
+    "standard-format": "^2.2.1"
   },
   "scripts": {
     "test": "istanbul test ./node_modules/.bin/_mocha -- -R spec",
-    "lint": "eslint --config .eslintrc --fix index.js lib/ test/"
+    "lint": "standard-format --write"
   },
   "license": "MIT",
   "repository": {
@@ -46,8 +47,5 @@
   "bugs": {
     "url": "https://github.com/bitfinexcom/grenache-grape/issues"
   },
-  "homepage": "https://github.com/bitfinexcom/grenache-grape",
-  "optionalDependencies": {
-    "eslint": "~1.6.0"
-  }
+  "homepage": "https://github.com/bitfinexcom/grenache-grape"
 }
