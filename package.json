@@ -1,6 +1,6 @@
 {
   "name": "grenache-grape",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "description": "Granache Grape",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
@@ -11,13 +11,13 @@
     "micro-services"
   ],
   "dependencies": {
-    "async": "~2.0.0-rc.4",
-    "bittorrent-dht": "~7.2.1",
+    "async": "~2.0.0-rc.6",
+    "bittorrent-dht": "~7.2.2",
     "debug": "~2.2.0",
-    "lodash": "~4.12.0",
+    "lodash": "~4.13.1",
     "minimist": "^1.2.0",
     "underscore.string": "~3.3.4",
-    "uws": "~0.4.1"
+    "uws": "~0.7.0"
   },
   "engine": {
     "node": ">=4.4"
