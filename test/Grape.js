@@ -41,6 +41,24 @@ describe('Grape', () => {
     grape.stop(done)
   })
 
+  it('timeslot returns the same for immediate calls', (done) => {
+    var grape = new Grape({
+      dht_port: 20000,
+      api_port: 20001
+    })
+
+    var now = Date.now()
+
+    var ts1 = grape.timeslot(0, now)
+    var ts2 = grape.timeslot(0, now)
+    assert.equal(ts1, ts2)
+
+    var ts3 = grape.timeslot(-1, now)
+    var ts4 = grape.timeslot(-1, now)
+    assert.equal(ts3, ts4)
+    done()
+  })
+
   describe('lookup', () => {
     it('start is implicitly called', (done) => {
       var grape = new Grape({dht_port: 20000, api_port: 20001, dht_bootstrap: ['127.0.0.1:20000']})
