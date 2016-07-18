@@ -7,7 +7,8 @@ var g1 = new Grape({
   dht_bootstrap: [
     '127.0.0.1:20002'
   ],
-  api_port: 30001
+  api_port: 30001,
+  api_port_http: 40001
 })
 
 g1.start(() => {
@@ -19,7 +20,8 @@ var g2 = new Grape({
   dht_bootstrap: [
     '127.0.0.1:20001'
   ],
-  api_port: 30002
+  api_port: 30002,
+  api_port_http: 40002
 })
 
 g2.start(() => {
