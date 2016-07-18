@@ -11,7 +11,7 @@
     "micro-services"
   ],
   "dependencies": {
-    "async": "~2.0.0-rc.6",
+    "async": "~2.0.0",
     "bittorrent-dht": "~7.2.2",
     "debug": "~2.2.0",
     "lodash": "~4.13.1",
