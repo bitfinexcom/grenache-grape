@@ -2,6 +2,14 @@
 
 var Grape = require('./../lib/Grape')
 
+function onStart(err) {
+  if (err) {
+    console.error(err)
+    process.exit(-1)
+  }
+  console.log('grape: started')
+}
+
 var g1 = new Grape({
   dht_port: 20001,
   dht_bootstrap: [
@@ -11,9 +19,7 @@ var g1 = new Grape({
   api_port_http: 40001
 })
 
-g1.start(() => {
-  console.log('grape1: started')
-})
+g1.start(onStart)
 
 var g2 = new Grape({
   dht_port: 20002,
@@ -24,6 +30,4 @@ var g2 = new Grape({
   api_port_http: 40002
 })
 
-g2.start(() => {
-  console.log('grape2: started')
-})
+g2.start(onStart)
