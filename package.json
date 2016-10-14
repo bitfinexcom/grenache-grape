@@ -12,12 +12,11 @@
   ],
   "dependencies": {
     "async": "~2.0.1",
-    "bittorrent-dht": "~7.2.2",
+    "bittorrent-dht": "~7.4.0",
     "debug": "~2.2.0",
-    "lodash": "~4.13.1",
+    "lodash": "~4.16.2",
     "minimist": "^1.2.0",
-    "underscore.string": "~3.3.4",
-    "uws": "~0.7.9"
+    "uws": "~0.10.9"
   },
   "engine": {
     "node": ">=6.0"
