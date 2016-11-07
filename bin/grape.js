@@ -1,40 +1,48 @@
 #!/usr/bin/env node
 'use strict'
 
-var minimist = require('minimist')
+var yargs = require('yargs')
 var _ = require('lodash')
 var Grape = require('../lib/Grape')
 
-var argv = minimist(process.argv.slice(2))
+const program = require('yargs')
+  .option('dp', {
+    describe: 'DHT listening port',
+    alias: 'dht_port',
+    type: 'number',
+    demand: true
+  })
+  .option('apw', {
+    describe: 'WebSocket api port',
+    alias: 'api_port_http',
+    type: 'number',
+    demand: true
+  })
+  .option('aph', {
+    describe: 'WebSocket api port',
+    alias: 'api_port_ws',
+    type: 'number',
+    demand: true
+  })
+  .option('bn', {
+    describe: 'Bootstrap nodes',
+    alias: 'bootstrap',
+    type: 'string',
+    demand: true
+  })
+  .help('help')
+  .version()
+  .example('grape --dp 20001 --apw 30001 --aph 40001 --bn \'127.0.0.1:20002,127.0.0.1:20003\'')
+  .example('grape --dp 20002 --apw 30002 --aph 40002 --bn \'127.0.0.1:20001,127.0.0.1:20003\'')
+  .example('grape --dp 20003 --apw 30003 --aph 40003 --bn \'127.0.0.1:20001,127.0.0.1:20002\'')
+  .usage('Usage: $0 --dp <val> --awp <val> --aph <val> --bn <val>')
+  .argv
 
-if (!argv.dp) {
-  console.error('Grape: no dht-port (--dp) specified')
-  argv.help = 1
-}
+var dht_port = program.dp
+var api_port = program.apw
+var api_port_http = program.aph
 
-if (!argv.ap) {
-  console.error('Grape: no api-port (--ap) specified')
-  argv.help = 1
-}
-
-if (argv.help) {
-  console.log(
-    '\nGRAPE help\n' +
-    '--dp <INT> : DHT listening port\n' +
-    '--bn <IP:PORT[,IP:PORT]>: DHT Bootstrap Nodes\n' +
-    '--ap <INT> : Grape API port\n' +
-    '\nExamples:\n' +
-    "grape --dp 20001 --ap 30001 --bn '127.0.0.1:20002,127.0.0.1:20003'\n" +
-    "grape --dp 20002 --ap 30002 --bn '127.0.0.1:20001,127.0.0.1:20003'\n" +
-    "grape --dp 20003 --ap 30003 --bn '127.0.0.1:20001,127.0.0.1:20002'\n" +
-    ''
-  )
-  process.exit(-1)
-}
-
-var dht_port = argv.dp
-var api_port = argv.ap
-var dht_bootstrap = _.reduce((argv.bn || '').split(','), (acc, e) => {
+var dht_bootstrap = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
     acc.push(e)
   }
@@ -44,7 +52,8 @@ var dht_bootstrap = _.reduce((argv.bn || '').split(','), (acc, e) => {
 var g = new Grape({
   dht_port: dht_port,
   dht_bootstrap: dht_bootstrap,
-  api_port: api_port
+  api_port: api_port,
+  api_port_http: api_port_http
 })
 
 g.start()
