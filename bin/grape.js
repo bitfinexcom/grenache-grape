@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 'use strict'
 
-var yargs = require('yargs')
-var _ = require('lodash')
-var Grape = require('../lib/Grape')
+const yargs = require('yargs')
+const _ = require('lodash')
+const Grape = require('../lib/Grape')
 
 const program = require('yargs')
   .option('dp', {
@@ -14,13 +14,13 @@ const program = require('yargs')
   })
   .option('apw', {
     describe: 'WebSocket api port',
-    alias: 'api_port_http',
+    alias: 'api_port',
     type: 'number',
     demand: true
   })
   .option('aph', {
-    describe: 'WebSocket api port',
-    alias: 'api_port_ws',
+    describe: 'HTTP api port',
+    alias: 'api_port_http',
     type: 'number',
     demand: true
   })
@@ -38,18 +38,20 @@ const program = require('yargs')
   .usage('Usage: $0 --dp <val> --awp <val> --aph <val> --bn <val>')
   .argv
 
-var dht_port = program.dp
-var api_port = program.apw
-var api_port_http = program.aph
+const dht_port = program.dp
+const api_port = program.apw
+const api_port_http = program.aph
 
-var dht_bootstrap = _.reduce((program.bn || '').split(','), (acc, e) => {
+const dht_bootstrap = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
     acc.push(e)
   }
   return acc
 }, [])
 
-var g = new Grape({
+console.log(dht_port, api_port, api_port_http, dht_bootstrap)
+
+const g = new Grape({
   dht_port: dht_port,
   dht_bootstrap: dht_bootstrap,
   api_port: api_port,
