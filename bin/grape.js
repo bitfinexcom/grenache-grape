@@ -49,8 +49,6 @@ const dht_bootstrap = _.reduce((program.bn || '').split(','), (acc, e) => {
   return acc
 }, [])
 
-console.log(dht_port, api_port, api_port_http, dht_bootstrap)
-
 const g = new Grape({
   dht_port: dht_port,
   dht_bootstrap: dht_bootstrap,
@@ -58,4 +56,4 @@ const g = new Grape({
   api_port_http: api_port_http
 })
 
-g.start()
+g.start(() => {})
