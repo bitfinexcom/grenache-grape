@@ -1,6 +1,6 @@
 {
   "name": "grenache-grape",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "description": "Granache Grape",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
@@ -15,7 +15,7 @@
     "bittorrent-dht": "~7.4.0",
     "debug": "~2.2.0",
     "lodash": "~4.17.2",
-    "uws": "~0.13.0",
+    "uws": "~0.14.1",
     "yargs": "^6.3.0"
   },
   "engine": {
