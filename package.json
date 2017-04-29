@@ -11,11 +11,11 @@
     "micro-services"
   ],
   "dependencies": {
-    "async": "~2.1.4",
-    "bittorrent-dht": "~7.4.0",
+    "async": "~2.1.5",
+    "bittorrent-dht": "~7.5.3",
     "debug": "~2.2.0",
-    "lodash": "~4.17.2",
-    "uws": "~0.14.1",
+    "lodash": "~4.17.4",
+    "uws": "0.14.5",
     "yargs": "^6.3.0"
   },
   "engine": {
