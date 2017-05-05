@@ -51,8 +51,10 @@ g.start()
 ### Implementations
 
 ##### Node.JS Clients
-* https://github.com/bitfinexcom/grenache-nodejs-zmq : ZeroMQ based Grape microservices
 * https://github.com/bitfinexcom/grenache-nodejs-ws : WebSocket based Grape microservices
+* https://github.com/bitfinexcom/grenache-nodejs-http : HTTP based Grape microservices
+* https://github.com/bitfinexcom/grenache-nodejs-zmq : ZeroMQ based Grape microservices
 
 ##### Ruby Clients
-* https://github.com/bitfinexcom/grenache-ruby-zmq : ZeroMQ based Grape microservices
+* https://github.com/bitfinexcom/grenache-ruby-ws : WebSocket based Grape microservices
+* https://github.com/bitfinexcom/grenache-ruby-http : HTTP based Grape microservices
