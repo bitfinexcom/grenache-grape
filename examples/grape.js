@@ -10,7 +10,8 @@ function onStart(err) {
   console.log('grape: started')
 }
 
-var g1 = new Grape({
+const g1 = new Grape({
+  host: '127.0.0.1',
   dht_port: 20001,
   dht_bootstrap: [
     '127.0.0.1:20002'
@@ -21,7 +22,7 @@ var g1 = new Grape({
 
 g1.start(onStart)
 
-var g2 = new Grape({
+const g2 = new Grape({
   dht_port: 20002,
   dht_bootstrap: [
     '127.0.0.1:20001'
