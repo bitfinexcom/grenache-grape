@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 'use strict'
 
-const yargs = require('yargs')
 const _ = require('lodash')
 const Grape = require('../lib/Grape')
 
@@ -9,7 +8,7 @@ const program = require('yargs')
   .option('h', {
     describe: 'Listening host',
     alias: 'host',
-    type: 'string',
+    type: 'string'
   })
   .option('dp', {
     describe: 'DHT listening port',
@@ -43,11 +42,11 @@ const program = require('yargs')
   .usage('Usage: $0 --dp <val> --awp <val> --aph <val> --bn <val>')
   .argv
 
-const dht_port = program.dp
-const api_port = program.apw
-const api_port_http = program.aph
+const portDht = program.dp
+const portApi = program.apw
+const httpPortApi = program.aph
 
-const dht_bootstrap = _.reduce((program.bn || '').split(','), (acc, e) => {
+const bootstrapDht = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
     acc.push(e)
   }
@@ -55,10 +54,10 @@ const dht_bootstrap = _.reduce((program.bn || '').split(','), (acc, e) => {
 }, [])
 
 const g = new Grape({
-  dht_port: dht_port,
-  dht_bootstrap: dht_bootstrap,
-  api_port: api_port,
-  api_port_http: api_port_http
+  dht_port: portDht,
+  dht_bootstrap: bootstrapDht,
+  api_port: portApi,
+  api_port_http: httpPortApi
 })
 
 g.start(() => {})

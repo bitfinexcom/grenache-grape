@@ -1,8 +1,8 @@
 'use strict'
 
-var Grape = require('./../lib/Grape')
+const Grape = require('./../lib/Grape')
 
-function onStart(err) {
+function onStart (err) {
   if (err) {
     console.error(err)
     process.exit(-1)
