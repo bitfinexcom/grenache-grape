@@ -37,11 +37,14 @@
     "eslint-plugin-node": "^4.2.2",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
+    "istanbul": "^0.4.5",
     "mocha": "^2.2.5",
     "standard-format": "^2.2.1"
   },
   "scripts": {
-    "test": "istanbul test ./node_modules/.bin/_mocha -- -R spec"
+    "test": "npm run unit && npm run lint",
+    "unit": "istanbul test ./node_modules/.bin/_mocha -- -R spec",
+    "lint": "standard"
   },
   "license": "MIT",
   "repository": {
