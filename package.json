@@ -1,8 +1,7 @@
 {
   "name": "grenache-grape",
   "version": "0.1.3",
-  "private": false,
-  "description": "Granache Grape",
+  "description": "Granache Grape - DHT for micro-services",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
   "keywords": [
     "grenache",
@@ -25,10 +24,6 @@
     "grape": "bin/grape.js"
   },
   "main": "index.js",
-  "directories": {
-    "example": "examples",
-    "test": "test"
-  },
   "devDependencies": {
     "chai": "^3.2.0",
     "istanbul": "^0.4.5",
@@ -36,7 +31,7 @@
     "standard": "^10.0.2"
   },
   "scripts": {
-    "test": "npm run unit && npm run lint",
+    "test": "npm run lint && npm run unit",
     "unit": "istanbul test ./node_modules/.bin/_mocha -- -R spec",
     "lint": "standard"
   },
@@ -44,9 +39,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/bitfinexcom/grenache-grape.git"
-  },
-  "bugs": {
-    "url": "https://github.com/bitfinexcom/grenache-grape/issues"
-  },
-  "homepage": "https://github.com/bitfinexcom/grenache-grape"
+  }
 }
