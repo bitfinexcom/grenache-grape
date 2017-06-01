@@ -45,6 +45,7 @@ const program = require('yargs')
 const portDht = program.dp
 const portApi = program.apw
 const httpPortApi = program.aph
+const host = program.h
 
 const bootstrapDht = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
@@ -57,7 +58,8 @@ const g = new Grape({
   dht_port: portDht,
   dht_bootstrap: bootstrapDht,
   api_port: portApi,
-  api_port_http: httpPortApi
+  api_port_http: httpPortApi,
+  host: host
 })
 
 g.start(() => {})
