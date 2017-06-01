@@ -5,9 +5,9 @@ const _ = require('lodash')
 const Grape = require('../lib/Grape')
 
 const program = require('yargs')
-  .option('h', {
+  .option('b', {
     describe: 'Listening host',
-    alias: 'host',
+    alias: 'bind',
     type: 'string'
   })
   .option('dp', {
@@ -45,7 +45,7 @@ const program = require('yargs')
 const portDht = program.dp
 const portApi = program.apw
 const httpPortApi = program.aph
-const host = program.h
+const bind = program.b
 
 const bootstrapDht = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
@@ -59,7 +59,7 @@ const g = new Grape({
   dht_bootstrap: bootstrapDht,
   api_port: portApi,
   api_port_http: httpPortApi,
-  host: host
+  host: bind
 })
 
 g.start(() => {})
