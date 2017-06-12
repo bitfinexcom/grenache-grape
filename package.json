@@ -14,7 +14,6 @@
     "bittorrent-dht": "~7.5.3",
     "debug": "~2.2.0",
     "lodash": "~4.17.4",
-    "uws": "~0.14.5",
     "yargs": "^6.3.0"
   },
   "engine": {
