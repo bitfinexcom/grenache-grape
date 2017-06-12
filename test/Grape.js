@@ -12,7 +12,7 @@ describe('Grape', () => {
   it('should be an instance of Events', () => {
     const grape = new Grape({
       dht_port: 20000,
-      api_port: 20001
+      api_port_http: 20001
     })
 
     assert(grape instanceof Events)
@@ -21,7 +21,7 @@ describe('Grape', () => {
   it('should accept callback on starting a grape', (done) => {
     const grape = new Grape({
       dht_port: 20002,
-      api_port: 30000
+      api_port_http: 30000
     })
 
     grape.start((err) => {
@@ -37,7 +37,7 @@ describe('Grape', () => {
   it('calling stop on an unstarted Grape is fine', (done) => {
     const grape = new Grape({
       dht_port: 20000,
-      api_port: 20001
+      api_port_http: 20001
     })
 
     grape.stop(done)
@@ -46,7 +46,7 @@ describe('Grape', () => {
   it('timeslot returns the same for immediate calls', (done) => {
     const grape = new Grape({
       dht_port: 20000,
-      api_port: 20001
+      api_port_http: 20001
     })
 
     const now = Date.now()
@@ -59,6 +59,17 @@ describe('Grape', () => {
     const ts4 = grape.timeslot(-1, now)
     assert.equal(ts3, ts4)
     done()
+  })
+
+  it('requires a port', (done) => {
+    const grape = new Grape({
+      dht_port: 20000
+    })
+
+    grape.start((err) => {
+      assert.ok(err)
+      done()
+    })
   })
 
   describe('lookup', () => {
