@@ -16,12 +16,6 @@ const program = require('yargs')
     type: 'number',
     demand: true
   })
-  .option('apw', {
-    describe: 'WebSocket api port',
-    alias: 'api_port',
-    type: 'number',
-    demand: true
-  })
   .option('aph', {
     describe: 'HTTP api port',
     alias: 'api_port_http',
