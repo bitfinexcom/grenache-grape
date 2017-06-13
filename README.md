@@ -28,7 +28,6 @@ Usage: grape --dp <val> --awp <val> --aph <val> --bn <val>
 Options:
   -b, --bind              Listening host                                [string]
   --dp, --dht_port        DHT listening port                 [number] [required]
-  --apw, --api_port       WebSocket api port                 [number] [required]
   --aph, --api_port_http  HTTP api port                      [number] [required]
   --bn, --bootstrap       Bootstrap nodes                    [string] [required]
   --help                  Show help                                    [boolean]
@@ -38,9 +37,9 @@ Options:
 
 ```
 // Run 3 Grapes
-grape -b 127.0.0.1 --dp 20001 --apw 30001 --aph 30002 --bn '127.0.0.1:20002,127.0.0.1:20003'
-grape --dp 20002 --apw 40001 --aph 40002 --bn '127.0.0.1:20001,127.0.0.1:20003'
-grape --dp 20003 --apw 50001 --aph 50001 --bn '127.0.0.1:20001,127.0.0.1:20002'
+grape -b 127.0.0.1 --dp 20001 --dc 32 --aph 30001 --bn '127.0.0.1:20002,127.0.0.1:20003'
+grape --dp 20002 --aph 40001 --dc 32 --bn '127.0.0.1:20001,127.0.0.1:20003'
+grape --dp 20003 --aph 50001 --dc 32 --bn '127.0.0.1:20001,127.0.0.1:20002'
 ```
 
 ## Integrate in your Code
@@ -49,13 +48,12 @@ grape --dp 20003 --apw 50001 --aph 50001 --bn '127.0.0.1:20001,127.0.0.1:20002'
 const Grape = require('grenache-grape').Grape
 
 const g = new Grape({
-  //host: '127.0.0.1', // if undefined the Grape binds all interfaces
+  // host: '127.0.0.1', // if undefined the Grape binds all interfaces
   dht_port: 20001,
   dht_bootstrap: [
     '127.0.0.1:20002'
   ],
-  api_port: 30001
-  api_port_http: 40001
+  api_port_http: 30001
 })
 
 g.start()
@@ -71,8 +69,8 @@ g.start()
     - `host` &lt;String&gt; IP to bind to. If null, Grape binds to all interfaces
     - `dht_maxTables` &lt;Number&gt; Maximum number of DH tables
     - `dht_port &lt;Number&gt; Port for DHT
+    - `dht_concurrency &lt;Number&gt; Concurrency for DHT
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers
-    - `api_port` &lt;Number&gt; Grenache API Websocket Port
     - `api_port_http` &lt;Number&gt; Grenache API HTTP Port
     - `timeslot` &lt;Number&gt; Timeslot used for lookup
 

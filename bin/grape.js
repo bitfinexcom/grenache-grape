@@ -21,12 +21,6 @@ const program = require('yargs')
     alias: 'dht_concurrency',
     type: 'number'
   })
-  .option('apw', {
-    describe: 'WebSocket api port',
-    alias: 'api_port',
-    type: 'number',
-    demand: true
-  })
   .option('aph', {
     describe: 'HTTP api port',
     alias: 'api_port_http',
@@ -41,14 +35,13 @@ const program = require('yargs')
   })
   .help('help')
   .version()
-  .example('grape --dp 20001 --dc 32 --apw 30001 --aph 40001 --bn \'127.0.0.1:20002,127.0.0.1:20003\'')
-  .example('grape --dp 20002 --dc 32 --dh 127.0.0.1 --apw 30002 --aph 40002 --bn \'127.0.0.1:20001,127.0.0.1:20003\'')
-  .example('grape --dp 20003 --dc 32 --apw 30003 --aph 40003 --bn \'127.0.0.1:20001,127.0.0.1:20002\'')
+  .example('grape --dp 20001 --dc 32 --aph 30001 --bn \'127.0.0.1:20002,127.0.0.1:20003\'')
+  .example('grape --dp 20002 --dc 32 --dh 127.0.0.1 --aph 40001 --bn \'127.0.0.1:20001,127.0.0.1:20003\'')
+  .example('grape --dp 20003 --dc 32 --aph 50001 --bn \'127.0.0.1:20001,127.0.0.1:20002\'')
   .usage('Usage: $0 --dp <val> --awp <val> --aph <val> --bn <val>')
   .argv
 
 const portDht = program.dp
-const portApi = program.apw
 const httpPortApi = program.aph
 const bind = program.b
 
@@ -62,7 +55,6 @@ const bootstrapDht = _.reduce((program.bn || '').split(','), (acc, e) => {
 const g = new Grape({
   dht_port: portDht,
   dht_bootstrap: bootstrapDht,
-  api_port: portApi,
   api_port_http: httpPortApi,
   host: bind
 })
