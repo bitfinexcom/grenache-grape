@@ -36,7 +36,7 @@ const program = require('yargs')
   .help('help')
   .version()
   .example('grape --dp 20001 --dc 32 --aph 30001 --bn \'127.0.0.1:20002,127.0.0.1:20003\'')
-  .example('grape --dp 20002 --dc 32 --dh 127.0.0.1 --aph 40001 --bn \'127.0.0.1:20001,127.0.0.1:20003\'')
+  .example('grape --dp 20002 --dc 32 --b 127.0.0.1 --aph 40001 --bn \'127.0.0.1:20001,127.0.0.1:20003\'')
   .example('grape --dp 20003 --dc 32 --aph 50001 --bn \'127.0.0.1:20001,127.0.0.1:20002\'')
   .usage('Usage: $0 --dp <val> --awp <val> --aph <val> --bn <val>')
   .argv
