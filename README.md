@@ -23,16 +23,17 @@ npm install --save grenache-grape
 ```
 grape --help
 
-Usage: grape --dp <val> --awp <val> --aph <val> --bn <val>
+Usage: grape --dp <dht-port> --aph <http-api-port> --bn <nodes>
+[--dc dht-concurrency] [--b bind-to-address]
 
 Options:
-  -b, --bind              Listening host                                [string]
-  --dp, --dht_port        DHT listening port                 [number] [required]
-  --aph, --api_port_http  HTTP api port                      [number] [required]
-  --bn, --bootstrap       Bootstrap nodes                    [string] [required]
-  --help                  Show help                                    [boolean]
-  --version               Show version number                          [boolean]
-
+  -b, --bind               Listening host                               [string]
+  --dp, --dht_port         DHT listening port                [number] [required]
+  --dc, --dht_concurrency  DHT concurrency                              [number]
+  --aph, --api_port_http   HTTP api port                     [number] [required]
+  --bn, --bootstrap        Bootstrap nodes                   [string] [required]
+  --help                   Show help                                   [boolean]
+  --version                Show version number                         [boolean]
 ```
 
 ```
