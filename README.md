@@ -1,5 +1,7 @@
 # [Grenache](https://github.com/bitfinexcom/grenache) Grape implementation
 
+<img src="logo.png" width="15%" />
+
 Grenache is a micro-framework for connecting microservices. Its simple and optimized for performance.
 
 Internally, Grenache uses Distributed Hash Tables (DHT, known from Bittorrent) for Peer to Peer connections. You can find more details how Grenche internally works at the [Main Project Homepage](https://github.com/bitfinexcom/grenache).
