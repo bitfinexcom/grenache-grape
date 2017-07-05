@@ -25,15 +25,18 @@ npm install --save grenache-grape
 ```
 grape --help
 
-Usage: grape --dp <dht-port> --aph <http-api-port> --bn <nodes>
-[--dc dht-concurrency] [--b bind-to-address]
+Usage: grape --dp <dht-port> --aph <http-api-port> --bn
+<nodes> [--b bind-to-address]
 
 Options:
   -b, --bind               Listening host                               [string]
   --dp, --dht_port         DHT listening port                [number] [required]
   --dc, --dht_concurrency  DHT concurrency                              [number]
-  --aph, --api_port_http   HTTP api port                     [number] [required]
+  --dht_maxTables          DHT max tables                               [number]
   --bn, --bootstrap        Bootstrap nodes                   [string] [required]
+  --aph, --api_port        HTTP api port                     [number] [required]
+  --ts, --timeslot         Timeslot                                     [number]
+  --cache_maxAge           Maximum cache age                            [number]
   --help                   Show help                                   [boolean]
   --version                Show version number                         [boolean]
 ```
@@ -56,7 +59,7 @@ const g = new Grape({
   dht_bootstrap: [
     '127.0.0.1:20002'
   ],
-  api_port_http: 30001
+  api_port: 30001
 })
 
 g.start()
@@ -74,8 +77,9 @@ g.start()
     - `dht_port &lt;Number&gt; Port for DHT
     - `dht_concurrency &lt;Number&gt; Concurrency for DHT
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers
-    - `api_port_http` &lt;Number&gt; Grenache API HTTP Port
+    - `api_port` &lt;Number&gt; Grenache API HTTP Port
     - `timeslot` &lt;Number&gt; Timeslot used for lookup
+    - `cache_maxAge` &lt;Number&gt; Maximum cache age
 
 #### Event: 'ready'
 
