@@ -16,8 +16,7 @@ const g1 = new Grape({
   dht_bootstrap: [
     '127.0.0.1:20002'
   ],
-  api_port: 30001,
-  api_port_http: 30002
+  api_port_http: 30001
 })
 
 g1.start(onStart)
@@ -28,8 +27,7 @@ const g2 = new Grape({
   dht_bootstrap: [
     '127.0.0.1:20001'
   ],
-  api_port: 40001,
-  api_port_http: 40002
+  api_port_http: 40001
 })
 
 g2.start(onStart)
