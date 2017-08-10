@@ -73,8 +73,8 @@ g.start()
  - `options` &lt;Object&gt; Options for the link
     - `host` &lt;String&gt; IP to bind to. If null, Grape binds to all interfaces
     - `dht_maxTables` &lt;Number&gt; Maximum number of DH tables
-    - `dht_port &lt;Number&gt; Port for DHT
-    - `dht_concurrency &lt;Number&gt; Concurrency for DHT
+    - `dht_port` &lt;Number&gt; Port for DHT
+    - `dht_concurrency` &lt;Number&gt; Concurrency for DHT
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers
     - `api_port` &lt;Number&gt; Grenache API HTTP Port
     - `timeslot` &lt;Number&gt; Timeslot used for lookup
