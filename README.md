@@ -36,7 +36,6 @@ Options:
   --bn, --bootstrap        Bootstrap nodes                   [string] [required]
   --aph, --api_port        HTTP api port                     [number] [required]
   --ts, --timeslot         Timeslot                                     [number]
-  --cache_maxAge           Maximum cache age                            [number]
   --help                   Show help                                   [boolean]
   --version                Show version number                         [boolean]
 ```
@@ -79,7 +78,6 @@ g.start()
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers
     - `api_port` &lt;Number&gt; Grenache API HTTP Port
     - `timeslot` &lt;Number&gt; Timeslot used for lookup
-    - `cache_maxAge` &lt;Number&gt; Maximum cache age
 
 #### Event: 'ready'
 
