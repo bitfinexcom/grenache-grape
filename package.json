@@ -11,7 +11,7 @@
   ],
   "dependencies": {
     "async": "~2.5.0",
-    "bittorrent-dht": "git+https://github.com/bitfinexcom/bittorrent-dht.git#6e0c9b0f257b6a6270074d254db21debf3093d1b",
+    "bittorrent-dht": "git+https://github.com/bitfinexcom/bittorrent-dht.git#7db61617f2959a821fca6cda723cf211272e49ab",
     "debug": "~2.2.0",
     "lodash": "~4.17.4",
     "lru": "^3.1.0",

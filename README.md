@@ -37,7 +37,7 @@ Options:
   --aph, --api_port         HTTP api port                    [number] [required]
   --ts, --timeslot          Timeslot                                    [number]
   --cache_maxAge            Maximum cache age                           [number]
-  --nl, --dht_nodeLiveness  Interval in ms to check for dead nodes      [number]
+  --dnl, --dht_nodeLiveness Interval in ms to check for dead nodes      [number]
   --help                    Show help                                  [boolean]
   --version                 Show version number                        [boolean]
 ```

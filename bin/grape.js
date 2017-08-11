@@ -46,7 +46,7 @@ const program = require('yargs')
     describe: 'Maximum cache age',
     type: 'number'
   })
-  .option('nl', {
+  .option('dnl', {
     alias: 'dht_nodeLiveness',
     describe: 'Interval in ms to check for dead nodes',
     type: 'number'
@@ -65,7 +65,7 @@ const bind = program.b
 const timeslot = program.ts
 const maxCacheAge = program.cache_maxAge
 const maxDhtTables = program.dht_maxTables
-const dhtNodeLiveness = program.nl
+const dhtNodeLiveness = program.dnl
 
 const dhtBoostrap = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
