@@ -46,6 +46,11 @@ const program = require('yargs')
     describe: 'Maximum cache age',
     type: 'number'
   })
+  .option('nl', {
+    alias: 'dht_nodeLiveness',
+    describe: 'Interval in ms to check for dead nodes',
+    type: 'number'
+  })
   .help('help')
   .version()
   .example('grape --dp 20001 --dc 32 --aph 30001 --bn \'127.0.0.1:20002,127.0.0.1:20003\'')
@@ -60,6 +65,7 @@ const bind = program.b
 const timeslot = program.ts
 const maxCacheAge = program.cache_maxAge
 const maxDhtTables = program.dht_maxTables
+const dhtNodeLiveness = program.nl
 
 const dhtBoostrap = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
@@ -73,6 +79,7 @@ const g = new Grape({
   dht_port: dhtPort,
   dht_bootstrap: dhtBoostrap,
   dht_maxTables: maxDhtTables,
+  dht_nodeLiveness: dhtNodeLiveness,
   api_port: apiPort,
   timeslot: timeslot,
   cache_maxAge: maxCacheAge

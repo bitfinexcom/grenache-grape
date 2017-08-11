@@ -25,19 +25,21 @@ npm install --save grenache-grape
 ```
 grape --help
 
-Usage: grape --dp <dht-port> --aph <http-api-port> --bn
-<nodes> [--b bind-to-address]
+Usage: grape --dp <dht-port> --aph <http-api-port> --bn <nodes> [--b
+bind-to-address]
 
 Options:
-  -b, --bind               Listening host                               [string]
-  --dp, --dht_port         DHT listening port                [number] [required]
-  --dc, --dht_concurrency  DHT concurrency                              [number]
-  --dht_maxTables          DHT max tables                               [number]
-  --bn, --bootstrap        Bootstrap nodes                   [string] [required]
-  --aph, --api_port        HTTP api port                     [number] [required]
-  --ts, --timeslot         Timeslot                                     [number]
-  --help                   Show help                                   [boolean]
-  --version                Show version number                         [boolean]
+  -b, --bind                Listening host                              [string]
+  --dp, --dht_port          DHT listening port               [number] [required]
+  --dc, --dht_concurrency   DHT concurrency                             [number]
+  --dht_maxTables           DHT max tables                              [number]
+  --bn, --bootstrap         Bootstrap nodes                  [string] [required]
+  --aph, --api_port         HTTP api port                    [number] [required]
+  --ts, --timeslot          Timeslot                                    [number]
+  --cache_maxAge            Maximum cache age                           [number]
+  --nl, --dht_nodeLiveness  Interval in ms to check for dead nodes      [number]
+  --help                    Show help                                  [boolean]
+  --version                 Show version number                        [boolean]
 ```
 
 ```
