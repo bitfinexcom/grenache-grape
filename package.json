@@ -36,7 +36,7 @@
     "unit": "istanbul test ./node_modules/.bin/_mocha -- -R spec",
     "lint": "standard"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/bitfinexcom/grenache-grape.git"
