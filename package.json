@@ -13,6 +13,7 @@
     "async": "^2.5.0",
     "bittorrent-dht": "git+https://github.com/bitfinexcom/bittorrent-dht.git#7db61617f2959a821fca6cda723cf211272e49ab",
     "debug": "^2.2.0",
+    "ed25519-supercop": "^1.0.2",
     "lodash": "^4.17.4",
     "lru": "^3.1.0",
     "yargs": "^6.3.0"
@@ -26,7 +27,6 @@
   "main": "index.js",
   "devDependencies": {
     "chai": "^3.2.0",
-    "ed25519-supercop": "^1.0.2",
     "istanbul": "^0.4.5",
     "mocha": "^2.2.5",
     "standard": "^10.0.2"
