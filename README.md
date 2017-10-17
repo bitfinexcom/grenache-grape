@@ -33,6 +33,7 @@ Options:
   --dp, --dht_port          DHT listening port               [number] [required]
   --dc, --dht_concurrency   DHT concurrency                             [number]
   --dht_maxTables           DHT max tables                              [number]
+  --dht_maxValues           DHT max values                              [number]
   --bn, --bootstrap         Bootstrap nodes                  [string] [required]
   --aph, --api_port         HTTP api port                    [number] [required]
   --ts, --timeslot          Timeslot                                    [number]
@@ -74,7 +75,8 @@ g.start()
 
  - `options` &lt;Object&gt; Options for the link
     - `host` &lt;String&gt; IP to bind to. If null, Grape binds to all interfaces
-    - `dht_maxTables` &lt;Number&gt; Maximum number of DH tables
+    - `dht_maxTables` &lt;Number&gt; Maximum number of DHT tables
+    - `dht_maxValues` &lt;Number&gt; Maximum number of DHT values
     - `dht_port` &lt;Number&gt; Port for DHT
     - `dht_concurrency` &lt;Number&gt; Concurrency for DHT
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers

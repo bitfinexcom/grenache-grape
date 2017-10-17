@@ -25,6 +25,10 @@ const program = require('yargs')
     describe: 'DHT max tables',
     type: 'number'
   })
+  .option('dht_maxValues', {
+    describe: 'DHT max values',
+    type: 'number'
+  })
   .option('bn', {
     describe: 'Bootstrap nodes',
     alias: 'bootstrap',
@@ -65,6 +69,7 @@ const bind = program.b
 const timeslot = program.ts
 const maxCacheAge = program.cache_maxAge
 const maxDhtTables = program.dht_maxTables
+const maxDhtValues = program.dht_maxValues
 const dhtNodeLiveness = program.dnl
 
 const dhtBoostrap = _.reduce((program.bn || '').split(','), (acc, e) => {
@@ -79,6 +84,7 @@ const g = new Grape({
   dht_port: dhtPort,
   dht_bootstrap: dhtBoostrap,
   dht_maxTables: maxDhtTables,
+  dht_maxValues: maxDhtValues,
   dht_nodeLiveness: dhtNodeLiveness,
   api_port: apiPort,
   timeslot: timeslot,
