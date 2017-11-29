@@ -1,6 +1,6 @@
 {
   "name": "grenache-grape",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "Granache Grape - DHT for micro-services",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
   "keywords": [
@@ -10,8 +10,8 @@
     "micro-services"
   ],
   "dependencies": {
-    "async": "^2.5.0",
-    "bittorrent-dht": "git+https://github.com/bitfinexcom/bittorrent-dht.git#7db61617f2959a821fca6cda723cf211272e49ab",
+    "async": "^2.6.0",
+    "bittorrent-dht": "git+https://github.com/bitfinexcom/bittorrent-dht.git#75eeb76c299078c25d863662f9b73ae2dbe023bd",
     "cbq": "0.0.1",
     "debug": "^2.2.0",
     "ed25519-supercop": "^1.0.2",
