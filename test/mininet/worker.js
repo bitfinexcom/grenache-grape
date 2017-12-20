@@ -2,11 +2,8 @@
 
 const PORT = 5000
 
-const Grenache = require('grenache-nodejs-http')
 const { PeerRPCServer } = require('grenache-nodejs-http')
 const Link = require('grenache-nodejs-link')
-
-const _ = require('lodash')
 
 const link = new Link({
   grape: 'http://127.0.0.1:30000'

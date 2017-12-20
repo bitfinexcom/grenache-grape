@@ -3,7 +3,7 @@
 const { PeerRPCClient } = require('grenache-nodejs-http')
 const Link = require('grenache-nodejs-link')
 const link = new Link({
-  grape: 'http://127.0.0.1:30000' 
+  grape: 'http://127.0.0.1:30000'
 })
 
 link.start()
