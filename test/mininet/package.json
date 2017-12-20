@@ -1,0 +1,10 @@
+{
+  "name": "grenache-network",
+  "version": "0.0.0",
+  "description": "Test grenache using Mininet",
+  "dependencies": {
+    "grenache-nodejs-http": "^0.7.1",
+    "grenache-nodejs-link": "^0.7.6",
+    "mininet": "^1.0.0"
+  }
+}
