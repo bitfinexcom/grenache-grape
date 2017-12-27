@@ -68,17 +68,21 @@ describe('Grape', () => {
 
     grape.start((err) => {
       assert.ok(err)
-      done()
+      grape.stop(done)
     })
   })
 
-  describe('lookup', () => {
-    // TODO: confirm we can enforce value is always a string rule
-    it.skip('errors when invalid value is passed', (done) => {
-      const grape = new Grape({dht_port: 20000, api_port: 20001, dht_bootstrap: ['127.0.0.1:20000']})
-      grape.lookup(false, (err) => {
-        assert.ok(err instanceof Error)
-        grape.stop(done)
+  it('keeps running on invalid put payload', (done) => {
+    const grape = new Grape({
+      dht_port: 20000,
+      api_port: 20001
+    })
+
+    grape.start((err) => {
+      if (err) throw err
+      grape.put({ foo: 'bar' }, (err) => {
+        assert.ok(err)
+        done()
       })
     })
   })
