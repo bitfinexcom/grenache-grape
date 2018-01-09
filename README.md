@@ -29,18 +29,18 @@ Usage: grape --dp <dht-port> --aph <http-api-port> --bn <nodes> [--b
 bind-to-address]
 
 Options:
-  -b, --bind                Listening host                              [string]
-  --dp, --dht_port          DHT listening port               [number] [required]
-  --dc, --dht_concurrency   DHT concurrency                             [number]
-  --dht_maxTables           DHT max tables                              [number]
-  --dht_maxValues           DHT max values                              [number]
-  --bn, --bootstrap         Bootstrap nodes                  [string] [required]
-  --aph, --api_port         HTTP api port                    [number] [required]
-  --ts, --timeslot          Timeslot                                    [number]
-  --cache_maxAge            Maximum cache age                           [number]
-  --dnl, --dht_nodeLiveness Interval in ms to check for dead nodes      [number]
-  --help                    Show help                                  [boolean]
-  --version                 Show version number                        [boolean]
+  -b, --bind                 Listening host                             [string]
+  --dp, --dht_port           DHT listening port              [number] [required]
+  --dc, --dht_concurrency    DHT concurrency                            [number]
+  --dht_maxTables            DHT max tables                             [number]
+  --dht_maxValues            DHT max values                             [number]
+  --bn, --bootstrap          Bootstrap nodes                 [string] [required]
+  --aph, --api_port          HTTP api port                   [number] [required]
+  --dht_peer_maxAge, --dpa   Max age for peers in DHT                   [number]
+  --cache_maxAge             Maximum cache age                          [number]
+  --dnl, --dht_nodeLiveness  Interval in ms to check for dead nodes     [number]
+  --help                     Show help                                 [boolean]
+  --version                  Show version number                       [boolean]
 ```
 
 ```
