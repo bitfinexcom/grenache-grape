@@ -64,7 +64,7 @@ describe('Grape', () => {
       if (err) throw err
       grape.put({ foo: 'bar' }, (err) => {
         assert.ok(err)
-        done()
+        grape.stop(done)
       })
     })
   })
