@@ -80,8 +80,8 @@ g.start()
     - `dht_port` &lt;Number&gt; Port for DHT
     - `dht_concurrency` &lt;Number&gt; Concurrency for DHT
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers
+    - `dht_peer_maxAge` &lt;Number&gt; maxAge for DHT peers
     - `api_port` &lt;Number&gt; Grenache API HTTP Port
-    - `timeslot` &lt;Number&gt; Timeslot used for lookup
 
 #### Event: 'ready'
 
