@@ -23,6 +23,8 @@ describe('Grape integration', () => {
     grape2.start(() => {})
 
     grape1.on('ready', () => {
+      grape1.stop()
+      grape2.stop()
       done()
     })
   }).timeout(5000)

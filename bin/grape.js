@@ -41,9 +41,9 @@ const program = require('yargs')
     type: 'number',
     demand: true
   })
-  .option('ts', {
-    describe: 'Timeslot',
-    alias: 'timeslot',
+  .option('dht_peer_maxAge', {
+    describe: 'Max age for peers in DHT',
+    alias: 'dpa',
     type: 'number'
   })
   .option('cache_maxAge', {
@@ -66,7 +66,7 @@ const program = require('yargs')
 const dhtPort = program.dp
 const apiPort = program.aph
 const bind = program.b
-const timeslot = program.ts
+const maxDhtPeerAge = program.dpa
 const maxCacheAge = program.cache_maxAge
 const maxDhtTables = program.dht_maxTables
 const maxDhtValues = program.dht_maxValues
@@ -87,7 +87,7 @@ const g = new Grape({
   dht_maxValues: maxDhtValues,
   dht_nodeLiveness: dhtNodeLiveness,
   api_port: apiPort,
-  timeslot: timeslot,
+  dht_peer_maxAge: maxDhtPeerAge,
   cache_maxAge: maxCacheAge
 })
 
