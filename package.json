@@ -11,12 +11,11 @@
   ],
   "dependencies": {
     "async": "^2.6.0",
-    "bittorrent-dht": "^7.9.0",
+    "bittorrent-dht": "^7.10.0",
     "cbq": "0.0.1",
     "debug": "^2.2.0",
     "ed25519-supercop": "^1.0.2",
     "lodash": "^4.17.4",
-    "lru": "^3.1.0",
     "yargs": "^6.3.0"
   },
   "engine": {
