@@ -83,6 +83,10 @@ g.start()
     - `dht_peer_maxAge` &lt;Number&gt; maxAge for DHT peers
     - `api_port` &lt;Number&gt; Grenache API HTTP Port
 
+#### Event 'grape-ready'
+
+Emitted when the DHT and Grape are fully bootstrapped and ready to go.
+
 #### Event: 'ready'
 
 Emitted when the DHT is fully bootstrapped.

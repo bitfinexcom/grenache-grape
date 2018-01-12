@@ -5,6 +5,12 @@
 const { Grape } = require('./../')
 const assert = require('assert')
 
+// tests a setup with two grapes
+// initally two worker announce their rest service
+// and a client does periodic lookups for the service key
+// just one worker continues to announe to simulate a crashed worker
+// we test that the "crashed" worker is removed in this case
+
 describe('service announces - mixed lookups and 1 worker from 2 killed', () => {
   it('should remove outdated services after ~100ms', (done) => {
     const grape1 = new Grape({
@@ -26,60 +32,52 @@ describe('service announces - mixed lookups and 1 worker from 2 killed', () => {
 
     let ts
     let interAnnounceSameKey
-    grape1.on('ready', () => {
+    grape1.on('grape-ready', () => {
       // announce 1 time, then stop announcing to simulate crashed worker
       grape1.announce('rest:util:net', 1337, () => {
         ts = Date.now()
       })
 
-      interAnnounceSameKey = setInterval(() => {
-        grape1.announce('rest:util:net', 1338, () => {})
-      }, 25)
+      grape1.announce('rest:util:net', 1338, () => {})
+      interAnnounceSameKey = startPeriodicAnnounce()
+      function startPeriodicAnnounce () {
+        return setTimeout(() => {
+          grape1.announce('rest:util:net', 1338, startPeriodicAnnounce)
+        }, 25)
+      }
     })
 
+    let cnt = 0
     grape2.on('announce', () => {
-      // clients keep doing lookups
-      doManyLookups()
+      cnt++
+      if (cnt !== 2) return
+
+      grape2.lookup('rest:util:net', (_, res) => {
+        assert.equal(res.length, 2, 'both worker there')
+
+        // clients keep doing lookups
+        doPeriodicLookup()
+      })
     })
 
     let inter
-    let removed = 0
-    let shutdown = false
-    function doManyLookups () {
-      inter = setInterval(() => {
-        if (removed === 2 && !shutdown) {
-          assert.equal(removed, 2, 'worker removed from both grapes')
-
-          clearInterval(inter)
-          clearInterval(interAnnounceSameKey)
-          grape1.stop(() => { grape2.stop(done) })
-          shutdown = true
-          return
-        }
-
-        grape1.lookup('rest:util:net', (_, res) => {
-          console.log('grape1:', res, 'ms:', Date.now() - ts)
-          if (res.length === 2) {
-            assert.equal(res.length, 2)
-            return
-          }
-
-          if (res.length === 1) {
-            removed++
-          }
-        })
+    function doPeriodicLookup () {
+      inter = setTimeout(() => {
         grape2.lookup('rest:util:net', (_, res) => {
-          console.log('grape2:', res, 'ms:', Date.now() - ts)
+          //console.log('grape2:', res, 'ms:', Date.now() - ts)
           if (res.length === 2) {
-            assert.equal(res.length, 2)
-            return
+            return doPeriodicLookup()
           }
 
           if (res.length === 1) {
-            removed++
+            assert.equal(res.length, 1, 'worker removed')
+
+            clearTimeout(inter)
+            clearTimeout(interAnnounceSameKey)
+            grape1.stop(() => { grape2.stop(done) })
           }
         })
-      }, 10)
+      }, 25)
     }
   }).timeout(5000)
 })

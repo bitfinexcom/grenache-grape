@@ -25,7 +25,7 @@ describe('service announces - mixed lookups and killed worker', () => {
     grape2.start(() => {})
 
     let ts
-    grape1.on('ready', () => {
+    grape1.on('grape-ready', () => {
       // announce 1 time, then stop announcing to simulate crashed worker
       grape1.announce('rest:util:net', 1337, () => {
         ts = Date.now()
@@ -34,33 +34,34 @@ describe('service announces - mixed lookups and killed worker', () => {
 
     grape2.on('announce', () => {
       // clients keep doing lookups
-      doManyLookups()
+      doPeriodicLookup()
     })
 
     let inter
     let removed = 0
-    let shutdown = false
-    function doManyLookups () {
-      inter = setInterval(() => {
-        if (removed === 2 && !shutdown) {
+
+    function doPeriodicLookup () {
+      inter = setTimeout(() => {
+
+        if (removed === 2) {
           assert.equal(removed, 2, 'worker removed from both grapes')
-          clearInterval(inter)
+          clearTimeout(inter)
           grape1.stop(() => { grape2.stop(done) })
-          shutdown = true
           return
         }
 
         grape1.lookup('rest:util:net', (_, res) => {
-          console.log('grape1:', res, 'ms:', Date.now() - ts)
+          //console.log('grape1:', res, 'ms:', Date.now() - ts)
           if (!res.length) {
             removed++
             return
           }
 
           assert.deepEqual(res, [ '127.0.0.1:1337' ])
+          doPeriodicLookup()
         })
         grape2.lookup('rest:util:net', (_, res) => {
-          console.log('grape2:', res, 'ms:', Date.now() - ts)
+          //console.log('grape2:', res, 'ms:', Date.now() - ts)
           if (!res.length) {
             removed++
             return
@@ -68,7 +69,7 @@ describe('service announces - mixed lookups and killed worker', () => {
 
           assert.deepEqual(res, [ '127.0.0.1:1337' ])
         })
-      }, 8)
+      }, 25)
     }
   }).timeout(5000)
 })
