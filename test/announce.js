@@ -36,7 +36,50 @@ describe('service announce', () => {
     })
   }).timeout(5000)
 
-  it('should not cache dead peers', (done) => {
+  it('should remove outdated services', (done) => {
+    const grape1 = new Grape({
+      dht_port: 20002,
+      dht_bootstrap: [ '127.0.0.1:20001' ],
+      api_port: 40001,
+      dht_peer_maxAge: 100
+    })
+
+    grape1.start(() => {})
+
+    const grape2 = new Grape({
+      dht_port: 20001,
+      dht_bootstrap: [ '127.0.0.1:20002' ],
+      api_port: 30002,
+      dht_peer_maxAge: 100
+    })
+
+    grape2.start(() => {})
+
+    grape1.on('ready', () => {
+      grape1.announce('rest:util:net', 1337, () => {})
+    })
+
+    grape2.on('announce', () => {
+      grape2.lookup('rest:util:net', (err, res) => {
+        assert.equal(err, null)
+        assert.deepEqual(res, [ '127.0.0.1:1337' ])
+
+        setTimeout(() => {
+          lookup()
+        }, 150)
+      })
+    })
+
+    function lookup () {
+      grape2.lookup('rest:util:net', (err, res) => {
+        assert.equal(err, null)
+        assert.deepEqual(res, [])
+        grape2.stop(() => { grape1.stop(done) })
+      })
+    }
+  }).timeout(5000)
+
+  it('should not cache dead peers when doing lookups', (done) => {
     let lookups = 0
 
     const grape1 = new Grape({
@@ -91,46 +134,4 @@ describe('service announce', () => {
     }
   })
 
-  it('should remove outdated services', (done) => {
-    const grape1 = new Grape({
-      dht_port: 20002,
-      dht_bootstrap: [ '127.0.0.1:20001' ],
-      api_port: 40001,
-      dht_peer_maxAge: 100
-    })
-
-    grape1.start(() => {})
-
-    const grape2 = new Grape({
-      dht_port: 20001,
-      dht_bootstrap: [ '127.0.0.1:20002' ],
-      api_port: 30002,
-      dht_peer_maxAge: 100
-    })
-
-    grape2.start(() => {})
-
-    grape1.on('ready', () => {
-      grape1.announce('rest:util:net', 1337, () => {})
-    })
-
-    grape2.on('announce', () => {
-      grape2.lookup('rest:util:net', (err, res) => {
-        assert.equal(err, null)
-        assert.deepEqual(res, [ '127.0.0.1:1337' ])
-
-        setTimeout(() => {
-          lookup()
-        }, 150)
-      })
-    })
-
-    function lookup () {
-      grape2.lookup('rest:util:net', (err, res) => {
-        assert.equal(err, null)
-        assert.deepEqual(res, [])
-        grape2.stop(() => { grape1.stop(done) })
-      })
-    }
-  }).timeout(5000)
 })
