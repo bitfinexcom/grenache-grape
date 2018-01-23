@@ -36,6 +36,61 @@ describe('service announce', () => {
     })
   }).timeout(5000)
 
+  it('should not cache dead peers', (done) => {
+    let lookups = 0
+
+    const grape1 = new Grape({
+      dht_port: 20002,
+      dht_bootstrap: [ '127.0.0.1:20001' ],
+      api_port: 40001,
+      dht_peer_maxAge: 100
+    })
+
+    grape1.start(() => {})
+
+    const grape2 = new Grape({
+      dht_port: 20001,
+      dht_bootstrap: [ '127.0.0.1:20002' ],
+      api_port: 30002,
+      dht_peer_maxAge: 100
+    })
+
+    grape2.start(() => {})
+
+    grape1.on('ready', () => {
+      grape1.announce('test', 1337, () => {
+        loop()
+
+        function loop () {
+          lookup((a, b) => {
+            if (!a && !b) return stop()
+            lookups++
+            if (a) assert.deepEqual(a, '127.0.0.1:1337')
+            if (b) assert.deepEqual(b, '127.0.0.1:1337')
+            setTimeout(loop, 5)
+          })
+        }
+      })
+    })
+
+    function stop () {
+      grape1.stop(_ => {
+        grape2.stop(_ => {
+          assert(lookups > 10)
+          done()
+        })
+      })
+    }
+
+    function lookup (cb) {
+      grape1.lookup('test', (_, a) => {
+        grape2.lookup('test', (_, b) => {
+          cb(a[0], b[0])
+        })
+      })
+    }
+  })
+
   it('should remove outdated services', (done) => {
     const grape1 = new Grape({
       dht_port: 20002,
