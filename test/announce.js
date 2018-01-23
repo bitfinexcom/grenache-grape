@@ -110,10 +110,10 @@ describe('service announce', () => {
       })
     })
 
-    function lookup (cb) {
+    function lookup (onlookup) {
       grape1.lookup('test', (_, a) => {
         grape2.lookup('test', (_, b) => {
-          cb(a, b)
+          onlookup(a, b)
         })
       })
     }
@@ -179,12 +179,12 @@ describe('service announce', () => {
       })
     }
 
-    function lookup (cb) {
+    function lookup (onlookup) {
       g2.lookup('A', (_, g2a) => {
         g2.lookup('B', (_, g2b) => {
           g3.lookup('A', (_, g3a) => {
             g3.lookup('B', (_, g3b) => {
-              cb({A: g2a, B: g2b}, {A: g3a, B: g3b})
+              onlookup({A: g2a, B: g2b}, {A: g3a, B: g3b})
             })
           })
         })
