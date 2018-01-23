@@ -157,6 +157,7 @@ describe('service announce', () => {
               assert.deepEqual(g2l.B, ['127.0.0.1:2000'])
               assert.deepEqual(g3l.B, ['127.0.0.1:2000'])
               setTimeout(run, 50)
+              clearInterval(interval)
               stop()
             })
             return
