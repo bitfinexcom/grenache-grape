@@ -78,7 +78,51 @@ describe('service announce', () => {
       })
     }
   })
+
+  it('should not cache dead peers when another one is announcing', (done) => {
+    let lookups = 0
+    const {grape1, grape2, stop} = createTwoGrapes()
+
+    grape1.on('ready', () => {
+      const one = startAnnouncing(grape1, 'test', 2000)
+      const two = startAnnouncing(grape2, 'test', 2001)
+      grape1.announce('test', 1337, () => {
+        setTimeout(loop, 50)
+        const dead = '127.0.0.1:1337'
+
+        function loop () {
+          lookup((a, b) => {
+            if (!a.includes(dead) && !b.includes(dead)) {
+              clearInterval(one)
+              clearInterval(two)
+              assert(lookups > 5)
+              stop(done)
+              return
+            }
+            lookups++
+            assert(a.includes('127.0.0.1:2000'))
+            assert(b.includes('127.0.0.1:2000'))
+            assert(a.includes('127.0.0.1:2001'))
+            assert(b.includes('127.0.0.1:2001'))
+            setTimeout(loop, 5)
+          })
+        }
+      })
+    })
+
+    function lookup (cb) {
+      grape1.lookup('test', (_, a) => {
+        grape2.lookup('test', (_, b) => {
+          cb(a, b)
+        })
+      })
+    }
+  })
 })
+
+function startAnnouncing (grape, name, port) {
+  return setInterval(_ => grape.announce(name, port), 20)
+}
 
 function createTwoGrapes () {
   const grape1 = new Grape({
