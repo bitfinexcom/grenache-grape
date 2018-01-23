@@ -118,31 +118,104 @@ describe('service announce', () => {
       })
     }
   })
+
+  it('should work when services die and come back', function (done) {
+    const [g0, g1, g2, g3] = createGrapes(4)
+    const interval = startAnnouncing(g0, 'A', 3000)
+
+    g1.on('ready', () => {
+      g1.announce('B', 2000, () => {
+        setTimeout(run, 50)
+        let ticks = 0
+
+        function run () {
+          if (!ticks++) {
+            lookup((g2l, g3l) => {
+              assert.deepEqual(g2l.A, ['127.0.0.1:3000'])
+              assert.deepEqual(g3l.A, ['127.0.0.1:3000'])
+              assert.deepEqual(g2l.B, ['127.0.0.1:2000'])
+              assert.deepEqual(g3l.B, ['127.0.0.1:2000'])
+              setTimeout(run, 50)
+            })
+            return
+          }
+          if (ticks++ === 5) {
+            startAnnouncing(g1, 'B', 2000)
+            lookup((g2l, g3l) => {
+              assert.deepEqual(g2l.A, ['127.0.0.1:3000'])
+              assert.deepEqual(g3l.A, ['127.0.0.1:3000'])
+              assert.deepEqual(g2l.B, [])
+              assert.deepEqual(g3l.B, [])
+              setTimeout(run, 50)
+            })
+            return
+          }
+          if (ticks++ === 20) {
+            lookup((g2l, g3l) => {
+              assert.deepEqual(g2l.A, ['127.0.0.1:3000'])
+              assert.deepEqual(g3l.A, ['127.0.0.1:3000'])
+              assert.deepEqual(g2l.B, ['127.0.0.1:2000'])
+              assert.deepEqual(g3l.B, ['127.0.0.1:2000'])
+              setTimeout(run, 50)
+              stop()
+            })
+            return
+          }
+          setTimeout(run, 50)
+        }
+      })
+    })
+
+    function stop () {
+      g0.stop(_ => {
+        g1.stop(_ => {
+          g2.stop(_ => {
+            g3.stop(_ => {
+              done()
+            })
+          })
+        })
+      })
+    }
+
+    function lookup (cb) {
+      g2.lookup('A', (_, g2a) => {
+        g2.lookup('B', (_, g2b) => {
+          g3.lookup('A', (_, g3a) => {
+            g3.lookup('B', (_, g3b) => {
+              cb({A: g2a, B: g2b}, {A: g3a, B: g3b})
+            })
+          })
+        })
+      })
+    }
+  })
 })
 
 function startAnnouncing (grape, name, port) {
   return setInterval(_ => grape.announce(name, port), 20)
 }
 
+function createGrapes (n) {
+  const grapes = []
+
+  for (let i = 0; i < n; i++) {
+    const grape = new Grape({
+      dht_port: 20001 + i,
+      dht_bootstrap: [ '127.0.0.1:' + (20001 + (i + 1) % 2) ],
+      api_port: 40001 + i,
+      dht_peer_maxAge: 100
+    })
+
+    grape.start(() => {})
+    grapes.push(grape)
+  }
+
+  return grapes
+}
+
 function createTwoGrapes () {
-  const grape1 = new Grape({
-    dht_port: 20002,
-    dht_bootstrap: [ '127.0.0.1:20001' ],
-    api_port: 40001,
-    dht_peer_maxAge: 100
-  })
-
-  grape1.start(() => {})
-
-  const grape2 = new Grape({
-    dht_port: 20001,
-    dht_bootstrap: [ '127.0.0.1:20002' ],
-    api_port: 30002,
-    dht_peer_maxAge: 100
-  })
-
-  grape2.start(() => {})
-
+  const [grape1, grape2] = createGrapes(2)
   return {grape1, grape2, stop}
 
   function stop (done) {
