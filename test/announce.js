@@ -134,7 +134,7 @@ describe('service announce', () => {
         })
       })
     })
-  })
+  }).timeout(20000)
 
   it('should work when services die and come back', (done) => {
     createGrapes(4, (grapes, stop) => {
