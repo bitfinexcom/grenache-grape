@@ -119,13 +119,31 @@ describe('service announce', () => {
     }
   })
 
-  it('should work when services die and come back', function (done) {
+  it('should announce a simple service to lots of grapes', (done) => {
+    createGrapes(100, (grapes, stop) => {
+      grapes[1].announce('B', 2000, (err) => {
+        assert.equal(err, null)
+        grapes[2].lookup('B', function (err, l) {
+          assert.equal(err, null)
+          assert.deepEqual(l, ['127.0.0.1:2000'])
+          grapes[3].lookup('B', function (err, l) {
+            assert.equal(err, null)
+            assert.deepEqual(l, ['127.0.0.1:2000'])
+            stop(done)
+          })
+        })
+      })
+    })
+  })
+
+  it('should work when services die and come back', (done) => {
     createGrapes(4, (grapes, stop) => {
       const [g0, g1, g2, g3] = grapes
       const one = startAnnouncing(g0, 'A', 3000)
       let two
 
-      g1.announce('B', 2000, () => {
+      g1.announce('B', 2000, (err) => {
+        assert.equal(err, null)
         setTimeout(run, 50)
         let ticks = 0
 
@@ -182,13 +200,14 @@ describe('service announce', () => {
     })
   }).timeout(20000)
 
-  it('should work when services die and come back (lots of grapes)', function (done) {
+  it('should work when services die and come back (lots of grapes)', (done) => {
     createGrapes(100, (grapes, stop) => {
       const [g0, g1, g2, g3] = grapes
       const one = startAnnouncing(g0, 'A', 3000)
       let two
 
-      g1.announce('B', 2000, () => {
+      g1.announce('B', 2000, (err) => {
+        assert.equal(err, null)
         setTimeout(run, 50)
         let ticks = 0
 
