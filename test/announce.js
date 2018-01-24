@@ -187,15 +187,20 @@ describe('service announce', () => {
       })
 
       function lookup (onlookup) {
-        g2.lookup('A', (_, g2a) => {
-          g2.lookup('B', (_, g2b) => {
-            g3.lookup('A', (_, g3a) => {
-              g3.lookup('B', (_, g3b) => {
-                onlookup({A: g2a, B: g2b}, {A: g3a, B: g3b})
-              })
-            })
+        let missing = 4
+        let res = [{}, {}]
+
+        get(g2, 'A')
+        get(g2, 'B')
+        get(g3, 'A')
+        get(g3, 'B')
+
+        function get (grape, name) {
+          grape.lookup(name, (_, l) => {
+            res[grape === g2 ? 0 : 1][name] = l
+            if (!--missing) onlookup(res[0], res[1])
           })
-        })
+        }
       }
     })
   }).timeout(20000)
@@ -251,15 +256,20 @@ describe('service announce', () => {
       })
 
       function lookup (onlookup) {
-        g2.lookup('A', (_, g2a) => {
-          g2.lookup('B', (_, g2b) => {
-            g3.lookup('A', (_, g3a) => {
-              g3.lookup('B', (_, g3b) => {
-                onlookup({A: g2a, B: g2b}, {A: g3a, B: g3b})
-              })
-            })
+        let missing = 4
+        let res = [{}, {}]
+
+        get(g2, 'A')
+        get(g2, 'B')
+        get(g3, 'A')
+        get(g3, 'B')
+
+        function get (grape, name) {
+          grape.lookup(name, (_, l) => {
+            res[grape === g2 ? 0 : 1][name] = l
+            if (!--missing) onlookup(res[0], res[1])
           })
-        })
+        }
       }
     })
   }).timeout(20000)
