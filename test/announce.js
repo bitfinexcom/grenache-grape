@@ -123,10 +123,10 @@ describe('service announce', () => {
     createGrapes(100, (grapes, stop) => {
       grapes[1].announce('B', 2000, (err) => {
         assert.equal(err, null)
-        grapes[2].lookup('B', function (err, l) {
+        grapes[2].lookup('B', (err, l) => {
           assert.equal(err, null)
           assert.deepEqual(l, ['127.0.0.1:2000'])
-          grapes[3].lookup('B', function (err, l) {
+          grapes[3].lookup('B', (err, l) => {
             assert.equal(err, null)
             assert.deepEqual(l, ['127.0.0.1:2000'])
             stop(done)
