@@ -120,7 +120,7 @@ describe('service announce', () => {
   })
 
   it('should work when services die and come back', function (done) {
-    createGrapes(4, grapes => {
+    createGrapes(4, (grapes, stop) => {
       const [g0, g1, g2, g3] = grapes
       const one = startAnnouncing(g0, 'A', 3000)
       let two
@@ -160,22 +160,13 @@ describe('service announce', () => {
               assert.deepEqual(g3l.B, ['127.0.0.1:2000'])
               clearInterval(one)
               clearInterval(two)
-              setTimeout(stop, 100)
+              setTimeout(_ => stop(done), 100)
             })
             return
           }
           setTimeout(run, 50)
         }
       })
-
-      function stop () {
-        loop()
-
-        function loop () {
-          if (!grapes.length) return done()
-          grapes.pop().stop(loop)
-        }
-      }
 
       function lookup (onlookup) {
         g2.lookup('A', (_, g2a) => {
@@ -192,7 +183,7 @@ describe('service announce', () => {
   }).timeout(20000)
 
   it('should work when services die and come back (lots of grapes)', function (done) {
-    createGrapes(100, grapes => {
+    createGrapes(100, (grapes, stop) => {
       const [g0, g1, g2, g3] = grapes
       const one = startAnnouncing(g0, 'A', 3000)
       let two
@@ -232,22 +223,13 @@ describe('service announce', () => {
               assert.deepEqual(g3l.B, ['127.0.0.1:2000'])
               clearInterval(one)
               clearInterval(two)
-              setTimeout(stop, 100)
+              setTimeout(_ => stop(done), 100)
             })
             return
           }
           setTimeout(run, 50)
         }
       })
-
-      function stop () {
-        loop()
-
-        function loop () {
-          if (!grapes.length) return done()
-          grapes.pop().stop(loop)
-        }
-      }
 
       function lookup (onlookup) {
         g2.lookup('A', (_, g2a) => {
@@ -282,12 +264,21 @@ function createGrapes (n, onstart) {
 
     grape.start(() => {
       if (--missing) return
-      if (onstart) onstart(grapes)
+      if (onstart) onstart(grapes, stop)
     })
     grapes.push(grape)
   }
 
   return grapes
+
+  function stop (done) {
+    loop()
+
+    function loop () {
+      if (!grapes.length) return done()
+      grapes.pop().stop(loop)
+    }
+  }
 }
 
 function createTwoGrapes () {
