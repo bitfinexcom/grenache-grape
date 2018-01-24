@@ -172,7 +172,7 @@ describe('service announce', () => {
         loop()
 
         function loop () {
-          if (!grapes.length) return done() 
+          if (!grapes.length) return done()
           grapes.pop().stop(loop)
         }
       }
@@ -244,7 +244,7 @@ describe('service announce', () => {
         loop()
 
         function loop () {
-          if (!grapes.length) return done() 
+          if (!grapes.length) return done()
           grapes.pop().stop(loop)
         }
       }
@@ -280,7 +280,7 @@ function createGrapes (n, onstart) {
       dht_peer_maxAge: 100
     })
 
-    grape.start((err) => {
+    grape.start(() => {
       if (--missing) return
       if (onstart) onstart(grapes)
     })
