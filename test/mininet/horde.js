@@ -1,13 +1,13 @@
 const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 
-const {h1, h2, h3, h4} = tapenet.topologies.basic(50)
+const {h1, h2} = tapenet.topologies.basic(50)
 
 tapenet('50 grapes, worker + client, 1000 requests', function (t) {
   bootstrap(tapenet, t)
   horde(t)
 
-  t.run(h3, function () {
+  t.run(h1, function () {
     tapenet.on('horde', function (bootstrap) {
       const grape = require('./helpers/grape')
       const { PeerRPCServer } = require('grenache-nodejs-http')
@@ -23,10 +23,10 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
 
         const service = peer.transport('server')
         service.listen(5000)
-        
+
         link.startAnnouncing('rpc_test', service.port, null, (err) => {
           t.error(err, 'no announce error')
-          h3.emit('service', bootstrap)
+          h1.emit('service', bootstrap)
         })
 
         service.on('request', (rid, key, payload, handler) => {
@@ -36,8 +36,8 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
     })
   })
 
-  t.run(h4, function () {
-    h3.on('service', function (bootstrap) {
+  t.run(h2, function () {
+    h2.on('service', function (bootstrap) {
       const grape = require('./helpers/grape')
       const { PeerRPCClient } = require('grenache-nodejs-http')
       const Link = require('grenache-nodejs-link')
@@ -53,7 +53,7 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
         const actual = []
 
         peer.init()
-        requestTimes(rts)  
+        requestTimes(rts)
 
         function requestTimes (n) {
           if (n === 0) {
@@ -81,8 +81,8 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
 })
 
 function horde (t) {
-  // first two hosts are bootstrappers
-  // next two are service+client
+  // first two hosts are service + client
+  // next two are bootstrappers
   for (let i = 4; i < 50; i++) {
     t.run(tapenet.hosts[i], () => {
       const grape = require('./helpers/grape')

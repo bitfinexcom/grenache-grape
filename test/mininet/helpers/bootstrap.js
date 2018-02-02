@@ -1,7 +1,10 @@
 module.exports = bootstrap
 
 function bootstrap (tapenet, t) {
-  t.run(tapenet.hosts[0], function () {
+  const h3 = tapenet.hosts[2]
+  const h4 = tapenet.hosts[3]
+
+  t.run(h3, function () {
     const { Grape } = require('../../')
 
     const grape = new Grape({
@@ -12,12 +15,12 @@ function bootstrap (tapenet, t) {
 
     grape.start(() => {
       t.pass('grape 1 bootstrapped and ready')
-      h1.emit('bootstrap', `${global.ip}:20001`)
+      h3.emit('bootstrap', `${global.ip}:20001`)
     })
   })
 
-  t.run(tapenet.hosts[1], function () {
-    h1.on('bootstrap', function (node) {
+  t.run(h4, function () {
+    h3.on('bootstrap', function (node) {
       const { Grape } = require('../../')
 
       const grape = new Grape({
