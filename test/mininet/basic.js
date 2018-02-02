@@ -1,53 +1,18 @@
 const test = require('tapenet')
+const bootstrap = require('./helpers/bootstrap')
 
 const {h1, h2, h3, h4} = test.topologies.basic(4)
 
 test('4 grapes, worker + client, 1000 requests', function (t) {
-  t.run(h1, function () {
-    const { Grape } = require('../../')
-
-    const grape = new Grape({
-      dht_port: 20001,
-      dht_bootstrap: [],
-      api_port: 40001
-    })
-
-    grape.start(() => {
-      t.pass('grape 1 bootstrapped and ready')
-      h1.emit('bootstrap', `${global.ip}:20001`)
-    })
-  })
-
-  t.run(h2, function () {
-    h1.on('bootstrap', function (node) {
-      const { Grape } = require('../../')
-
-      const grape = new Grape({
-        dht_port: 20001,
-        dht_bootstrap: [ node ],
-        api_port: 40001
-      })
-
-      grape.start(() => {
-        t.pass('grape 2 bootstrapped and ready')
-        h2.emit('ready', [node, `${global.ip}:20001`])
-      })
-    })
-  })
+  bootstrap(t, h1, h2)
 
   t.run(h3, function () {
     h2.on('ready', function (bootstrap) {
-      const { Grape } = require('../../')
+      const grape = require('./helpers/grape')
       const { PeerRPCServer } = require('grenache-nodejs-http')
       const Link = require('grenache-nodejs-link')
 
-      const grape = new Grape({
-        dht_port: 20001,
-        dht_bootstrap: bootstrap,
-        api_port: 40001
-      })
-
-      grape.start(() => {
+      grape(bootstrap, () => {
         const link = new Link({ grape: 'http://127.0.0.1:40001' })
         link.start()
 
@@ -70,17 +35,11 @@ test('4 grapes, worker + client, 1000 requests', function (t) {
 
   t.run(h4, function () {
     h3.on('service', function (bootstrap) {
-      const { Grape } = require('../../')
+      const grape = require('./helpers/grape')
       const { PeerRPCClient } = require('grenache-nodejs-http')
       const Link = require('grenache-nodejs-link')
 
-      const grape = new Grape({
-        dht_port: 20001,
-        dht_bootstrap: bootstrap,
-        api_port: 40001
-      })
-
-      grape.start(() => {
+      grape(bootstrap, () => {
         const link = new Link({ grape: 'http://127.0.0.1:40001' })
         link.start()
 
