@@ -4,7 +4,11 @@
   "description": "Test grenache using Mininet",
   "dependencies": {
     "grenache-nodejs-http": "^0.7.1",
-    "grenache-nodejs-link": "^0.7.6",
-    "mininet": "^1.0.0"
+    "grenache-nodejs-link": "mafintosh/grenache-nodejs-link#start-announcing",
+    "mininet": "^1.0.0",
+    "tapenet": "^1.3.3"
+  },
+  "scripts": {
+    "test": "tapenet *.js"
   }
 }
