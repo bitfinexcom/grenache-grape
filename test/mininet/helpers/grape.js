@@ -1,6 +1,7 @@
-module.exports = grape
+module.exports = createGrape
 
-function grape (bootstrap, cb) {
+function createGrape (bootstrap, opts = {}, cb) {
+  if (typeof opts === 'function') return createGrape(bootstrap, undefined, opts)
   const { Grape } = require('../../../')
 
   const grape = new Grape({
@@ -9,5 +10,10 @@ function grape (bootstrap, cb) {
     api_port: 40001
   })
 
-  grape.start(cb)
+  if (opts.ready) {
+    grape.on('ready', cb)
+    grape.start(() => {})
+  } else {
+    grape.start(cb)
+  }
 }

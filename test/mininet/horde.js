@@ -1,17 +1,19 @@
 const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 
-const {h1, h2, h3, h4} = tapenet.topologies.basic(4)
+const {h1, h2, h3, h4} = tapenet.topologies.basic(50)
 
-tapenet('4 grapes, worker + client, 1000 requests', function (t) {
+tapenet('50 grapes, worker + client, 1000 requests', function (t) {
   bootstrap(tapenet, t)
+  horde(t)
 
   t.run(h3, function () {
-    tapenet.on('bootstrap', function (bootstrap) {
+    tapenet.on('horde', function (bootstrap) {
       const grape = require('./helpers/grape')
       const { PeerRPCServer } = require('grenache-nodejs-http')
       const Link = require('grenache-nodejs-link')
 
+      t.pass('horde is ready')
       grape(bootstrap, () => {
         const link = new Link({ grape: 'http://127.0.0.1:40001' })
         link.start()
@@ -77,3 +79,25 @@ tapenet('4 grapes, worker + client, 1000 requests', function (t) {
     })
   })
 })
+
+function horde (t) {
+  // first two hosts are bootstrappers
+  // next two are service+client
+  for (let i = 4; i < 50; i++) {
+    t.run(tapenet.hosts[i], () => {
+      const grape = require('./helpers/grape')
+      let missing = 50 - 4
+
+      tapenet.on('horde:grape', () => {
+        missing--
+      })
+
+      tapenet.on('bootstrap', bootstrap => {
+        grape(bootstrap, {ready: true}, () => {
+          if (missing !== 1) return tapenet.emit('horde:grape')
+          tapenet.emit('horde', bootstrap)
+        })
+      })
+    })
+  }
+}
