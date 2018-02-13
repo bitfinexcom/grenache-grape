@@ -1,9 +1,10 @@
 const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 
-const {h1, h2} = tapenet.topologies.basic(50)
+const nodes = 50
+const {h1, h2} = tapenet.topologies.basic(nodes)
 
-tapenet('50 grapes, worker + client, 1000 requests', function (t) {
+tapenet(nodes + ' grapes, worker + client, 1000 requests', function (t) {
   bootstrap(tapenet, t)
   horde(t)
 
@@ -24,7 +25,7 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
         const service = peer.transport('server')
         service.listen(5000)
 
-        link.startAnnouncing('rpc_test', service.port, null, (err) => {
+        link.startAnnouncing('rpc_test', service.port, {timeout: 20000}, (err) => {
           t.error(err, 'no announce error')
           h1.emit('service', bootstrap)
         })
@@ -37,11 +38,11 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
   })
 
   t.run(h2, function () {
-    h2.on('service', function (bootstrap) {
+    h1.on('service', function (bootstrap) {
       const grape = require('./helpers/grape')
       const { PeerRPCClient } = require('grenache-nodejs-http')
       const Link = require('grenache-nodejs-link')
-
+      t.pass('bootstraping client')
       grape(bootstrap, () => {
         const link = new Link({ grape: 'http://127.0.0.1:40001' })
         link.start()
@@ -52,6 +53,7 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
         const expected = []
         const actual = []
 
+        t.pass('client bootstrapped, running requests')
         peer.init()
         requestTimes(rts)
 
@@ -83,21 +85,23 @@ tapenet('50 grapes, worker + client, 1000 requests', function (t) {
 function horde (t) {
   // first two hosts are service + client
   // next two are bootstrappers
-  for (let i = 4; i < 50; i++) {
-    t.run(tapenet.hosts[i], () => {
+  for (let i = 4; i < nodes; i++) {
+    t.run(tapenet.hosts[i], `
       const grape = require('./helpers/grape')
-      let missing = 50 - 4
+      let missing = ${nodes} - 4
+      let nodes = null
 
       tapenet.on('horde:grape', () => {
         missing--
+        if (!missing && ${i} === 4) tapenet.emit('horde', nodes)
       })
 
       tapenet.on('bootstrap', bootstrap => {
+        nodes = bootstrap
         grape(bootstrap, {ready: true}, () => {
-          if (missing !== 1) return tapenet.emit('horde:grape')
-          tapenet.emit('horde', bootstrap)
+          tapenet.emit('horde:grape')
         })
       })
-    })
+    `)
   }
 }
