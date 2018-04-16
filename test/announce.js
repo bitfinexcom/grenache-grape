@@ -209,7 +209,7 @@ describe('service announce', () => {
   }).timeout(20000)
 
   it('should work when services die and come back (lots of grapes)', (done) => {
-    createGrapes(100, (grapes, stop) => {
+    createGrapes(40, (grapes, stop) => {
       const [g0, g1, g2, g3] = grapes
       const one = startAnnouncing(g0, 'A', 3000)
       let two
