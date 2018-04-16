@@ -6,10 +6,8 @@ const assert = require('assert')
 const { PassThrough } = require('stream')
 
 const {
-  createGrapes,
   createTwoGrapes
 } = require('./helper.js')
-
 
 const request = require('request')
 
@@ -26,6 +24,7 @@ describe('dos vector', () => {
         uri: 'http://127.0.0.1:40001',
         method: 'POST'
       }).on('error', (err) => {
+        if (err) throw err
         stop(done)
       })
       const writer = new PassThrough()
@@ -57,7 +56,6 @@ describe('dos vector', () => {
 
       writer.push('garbage')
       writer.end('')
-
     })
   }).timeout(5000)
 })

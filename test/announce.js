@@ -8,7 +8,6 @@ const {
   createTwoGrapes
 } = require('./helper.js')
 
-
 describe('service announce', () => {
   it('should find services', (done) => {
     const {grape1, grape2, stop} = createTwoGrapes()
