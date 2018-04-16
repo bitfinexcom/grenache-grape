@@ -39,6 +39,7 @@ Options:
   --dht_peer_maxAge, --dpa   Max age for peers in DHT                   [number]
   --cache_maxAge             Maximum cache age                          [number]
   --dnl, --dht_nodeLiveness  Interval in ms to check for dead nodes     [number]
+  --mps, --max_payload_size  Interval in ms to check for dead nodes     [number]
   --help                     Show help                                 [boolean]
   --version                  Show version number                       [boolean]
 ```
