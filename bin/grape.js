@@ -55,9 +55,8 @@ const program = require('yargs')
     describe: 'Interval in ms to check for dead nodes',
     type: 'number'
   })
-  .option('mps', {
-    alias: 'max_payload_size',
-    describe: 'Interval in ms to check for dead nodes',
+  .option('check_maxPayloadSize', {
+    describe: 'Limit for max payload size',
     type: 'number'
   })
   .help('help')
@@ -76,7 +75,7 @@ const maxCacheAge = program.cache_maxAge
 const maxDhtTables = program.dht_maxTables
 const maxDhtValues = program.dht_maxValues
 const dhtNodeLiveness = program.dnl
-const maxPayloadSize = program.mps
+const maxPayloadSize = program.check_maxPayloadSize
 
 const dhtBoostrap = _.reduce((program.bn || '').split(','), (acc, e) => {
   if (e) {
@@ -95,7 +94,7 @@ const g = new Grape({
   api_port: apiPort,
   dht_peer_maxAge: maxDhtPeerAge,
   cache_maxAge: maxCacheAge,
-  maxPayloadSize: maxPayloadSize
+  check_maxPayloadSize: maxPayloadSize
 })
 
 g.start(() => {})
