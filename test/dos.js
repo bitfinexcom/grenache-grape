@@ -23,15 +23,16 @@ describe('dos vector', () => {
       const req = request({
         uri: 'http://127.0.0.1:40001',
         method: 'POST'
-      }).on('error', (err) => {
-        if (err) throw err
+      }).on('error', () => {
         stop(done)
       })
+
       const writer = new PassThrough()
-      writer.pipe(req)
+      writer
+        .pipe(req)
 
       for (let i = 0; i < 999999; i++) {
-        writer.push('blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;')
+        writer.push('"pl":"blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;')
       }
     })
   }).timeout(10000)
