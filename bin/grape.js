@@ -74,6 +74,7 @@ const maxDhtPeerAge = program.dpa
 const maxCacheAge = program.cache_maxAge
 const maxDhtTables = program.dht_maxTables
 const maxDhtValues = program.dht_maxValues
+const maxDhtConcurrency = program.dht_concurrency
 const dhtNodeLiveness = program.dnl
 const maxPayloadSize = program.check_maxPayloadSize
 
@@ -90,6 +91,7 @@ const g = new Grape({
   dht_bootstrap: dhtBoostrap,
   dht_maxTables: maxDhtTables,
   dht_maxValues: maxDhtValues,
+  dht_concurrency: maxDhtConcurrency,
   dht_nodeLiveness: dhtNodeLiveness,
   api_port: apiPort,
   dht_peer_maxAge: maxDhtPeerAge,
