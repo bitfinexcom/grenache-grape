@@ -123,3 +123,7 @@ Emitted when a peer announces itself in order to be stored in the DHT.
 ### Ruby Clients
 * https://github.com/bitfinexcom/grenache-ruby-ws: WebSocket based Grape microservices
 * https://github.com/bitfinexcom/grenache-ruby-http: HTTP based Grape microservices
+
+
+### CLI Clients
+* https://github.com/bitfinexcom/grenache-cli: Command Line Interface for Grape microservices
