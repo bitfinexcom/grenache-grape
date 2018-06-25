@@ -29,14 +29,13 @@
   "main": "index.js",
   "devDependencies": {
     "chai": "^3.2.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^2.2.5",
+    "mocha": "^5.2.0",
     "request": "^2.85.0",
     "standard": "^10.0.2"
   },
   "scripts": {
     "test": "npm run lint && npm run unit",
-    "unit": "istanbul test ./node_modules/.bin/_mocha -- -R spec",
+    "unit": "mocha",
     "lint": "standard"
   },
   "license": "Apache-2.0",
