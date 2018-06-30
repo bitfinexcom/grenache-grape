@@ -111,6 +111,37 @@ Emitted when a peer announces itself in order to be stored in the DHT.
 Emitted when a peer announces itself in order to be stored in the DHT.
 
 
+## Benchmarking
+
+```
+# spin up grapes
+
+--count       grapes count (default: 50)
+
+[DEBUG=*] node benchmark/grapes.js [--count]
+
+# examples:
+
+node benchmark/grapes.js
+DEBUG=* benchmark/grapes.js --count=100
+```
+
+```
+# spin up rpc workers:
+
+Options:
+
+--count       worker count (default: 50)
+--interval    announcement interval
+
+[DEBUG=*] node benchmark/workers.js [count]
+
+# examples:
+
+node benchmark/grapes.js
+DEBUG=* benchmark/grapes.js 100
+```
+
 ## Implementations
 
 ### Node.JS Clients
