@@ -2,6 +2,7 @@
 
 'use strict'
 
+// const util = require('util')
 const assert = require('assert')
 const {
   createGrapes,
@@ -15,7 +16,11 @@ describe('service announce', () => {
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => {})
     })
-
+/*
+    grape1.on('node', node => {
+      console.log(util.inspect(node))
+    })
+*/
     grape2.on('announce', () => {
       grape2.lookup('rest:util:net', (err, res) => {
         assert.equal(err, null)
