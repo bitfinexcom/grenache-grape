@@ -34,11 +34,28 @@ describe('Grape integration', () => {
     })
   }).timeout(5000)
 
+  /**
+   * This test demonstrates a simple way to create a Kademlia cloud of nodes
+   * and to grow it as needed. The first node in the cloud (the known node) does
+   * not bootstrap, since there are no more nodes to bootstrap to at the moment.
+   * The second and all subsequent nodes bootstrap to the known node. All they
+   * know before joining the cloud is the IP address and the port number of the
+   * known node. As they join the cloud, they learn about each other.
+   */
   it('bootstraps to at least one known node', done => { // see line 25 in helper.js
     addGrape(run, done)
   }).timeout(5000)
 })
-
+/**
+ * Test the Kademlia cloud by announcing two services, 'public:trade:bitfinex'
+ * and 'public:trade:bitstamp', on the first two nodes of the cloud, and making
+ * sure both services are found by the third node.
+ *
+ * @param    {Array} grapes - all the grapes (3) in the cloud
+ * @param   {Object} grape - the grape we just added
+ * @param {Function} stop - function to call to stop the grapes
+ * @param {Function} done - function to call to end the test
+ */
 function run (grapes, grape, stop, done) {
   var count1 = 0
   var count2 = 0
