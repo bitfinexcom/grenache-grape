@@ -30,7 +30,7 @@
   "devDependencies": {
     "chai": "^3.2.0",
     "mocha": "^5.2.0",
-    "request": "^2.85.0",
+    "request": "^2.88.0",
     "standard": "^10.0.2"
   },
   "scripts": {
