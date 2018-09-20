@@ -23,7 +23,7 @@ function getValue (h, cb) {
 
 describe('put-get-bep44', () => {
   it('works with hashes', (done) => {
-    const {grape1, grape2, stop} = createTwoGrapes()
+    const { grape1, grape2, stop } = createTwoGrapes()
 
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => {})

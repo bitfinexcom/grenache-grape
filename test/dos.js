@@ -13,7 +13,7 @@ const request = require('request')
 
 describe('dos vector', () => {
   it('rejects too large payloads', (done) => {
-    const {grape1, grape2, stop} = createTwoGrapes()
+    const { grape1, grape2, stop } = createTwoGrapes()
 
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => {})
@@ -38,7 +38,7 @@ describe('dos vector', () => {
   }).timeout(10000)
 
   it('does not crash on invalid payloads', (done) => {
-    const {grape1, grape2, stop} = createTwoGrapes()
+    const { grape1, grape2, stop } = createTwoGrapes()
 
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => {})
@@ -49,7 +49,7 @@ describe('dos vector', () => {
         uri: 'http://127.0.0.1:40001',
         method: 'POST'
       }).on('data', (data) => {
-        assert.equal(data.toString(), 'ERR_GRAPE_PAYLOAD_INVALID')
+        assert.strictEqual(data.toString(), 'ERR_GRAPE_PAYLOAD_INVALID')
         stop(done)
       })
       const writer = new PassThrough()

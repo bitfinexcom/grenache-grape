@@ -37,7 +37,7 @@ function createGrapes (n, onstart) {
 exports.createTwoGrapes = createTwoGrapes
 function createTwoGrapes () {
   const [grape1, grape2] = createGrapes(2)
-  return {grape1, grape2, stop}
+  return { grape1, grape2, stop }
 
   function stop (done) {
     grape1.stop(_ => {
