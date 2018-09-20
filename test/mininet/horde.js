@@ -2,7 +2,7 @@ const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 
 const nodes = 50
-const {h1, h2} = tapenet.topologies.basic(nodes)
+const { h1, h2 } = tapenet.topologies.basic(nodes)
 
 tapenet(nodes + ' grapes, worker + client, 1000 requests', function (t) {
   bootstrap(tapenet, t)
@@ -25,7 +25,7 @@ tapenet(nodes + ' grapes, worker + client, 1000 requests', function (t) {
         const service = peer.transport('server')
         service.listen(5000)
 
-        link.startAnnouncing('rpc_test', service.port, {timeout: 20000}, (err) => {
+        link.startAnnouncing('rpc_test', service.port, { timeout: 20000 }, (err) => {
           t.error(err, 'no announce error')
           h1.emit('service', bootstrap)
         })
@@ -67,7 +67,7 @@ tapenet(nodes + ' grapes, worker + client, 1000 requests', function (t) {
           const payload = 'hello-' + n
           expected.push(payload + ': world')
 
-          peer.request('rpc_test', payload, {timeout: 10000}, (err, data) => {
+          peer.request('rpc_test', payload, { timeout: 10000 }, (err, data) => {
             if (err) {
               t.error(err, 'no error')
               t.end()

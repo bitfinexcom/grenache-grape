@@ -1,7 +1,7 @@
 const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 
-const {h1, h2} = tapenet.topologies.basic(4)
+const { h1, h2 } = tapenet.topologies.basic(4)
 
 tapenet('4 grapes, worker + client, 1000 requests', function (t) {
   bootstrap(tapenet, t)
@@ -63,7 +63,7 @@ tapenet('4 grapes, worker + client, 1000 requests', function (t) {
           const payload = 'hello-' + n
           expected.push(payload + ': world')
 
-          peer.request('rpc_test', payload, {timeout: 10000}, (err, data) => {
+          peer.request('rpc_test', payload, { timeout: 10000 }, (err, data) => {
             if (err) {
               t.error(err, 'no error')
               t.end()
