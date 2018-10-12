@@ -1,6 +1,6 @@
 {
   "name": "grenache-grape",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "Granache Grape - DHT for micro-services",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
   "keywords": [
@@ -15,7 +15,7 @@
     "cbq": "0.0.1",
     "debug": "^4.0.1",
     "ed25519-supercop": "^1.2.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "raw-body": "^2.3.2",
     "record-cache": "^1.1.0",
     "yargs": "^12.0.2"
