@@ -117,7 +117,6 @@ Emitted when a peer announces itself in order to be stored in the DHT.
 * https://github.com/bitfinexcom/grenache-nodejs-ws: WebSocket based Grape microservices
 * https://github.com/bitfinexcom/grenache-nodejs-http: HTTP based Grape microservices
 * https://github.com/bitfinexcom/grenache-nodejs-zmq: ZeroMQ based Grape microservices
-* https://github.com/bitfinexcom/grenache-nodejs-ws-tls: WebSocket based Grape microservices with TLS support
 
 
 ### Ruby Clients
