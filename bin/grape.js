@@ -99,4 +99,6 @@ const g = new Grape({
   check_maxPayloadSize: maxPayloadSize
 })
 
-g.start(() => {})
+g.start((err) => {
+  if (err) throw err
+})
