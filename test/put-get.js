@@ -21,7 +21,7 @@ function getValue (h, cb) {
   })
 }
 
-describe('put-get-bep44', () => {
+describe('put-get', () => {
   it('works with hashes', (done) => {
     const { grape1, grape2, stop } = createTwoGrapes()
 
@@ -40,17 +40,13 @@ describe('put-get-bep44', () => {
         body: { rid: 'test', data: data }
       }, (err, res, hash) => {
         if (err) throw err
-
         getValue(hash, (err, res) => {
           if (err) throw err
-
           assert.strictEqual(res.v, 'hello world')
 
           getValue({ hash: hash }, (err, res) => {
             if (err) throw err
-
             assert.strictEqual(res.v, 'hello world')
-
             stop(done)
           })
         })

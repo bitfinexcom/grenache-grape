@@ -10,7 +10,7 @@
     "micro-services"
   ],
   "dependencies": {
-    "@hyperswarm/dht": "0.1.0",
+    "@hyperswarm/dht": "^1.0.1",
     "async": "^2.6.1",
     "debug": "^4.0.1",
     "lodash": "^4.17.11",
@@ -33,6 +33,7 @@
   },
   "scripts": {
     "test": "npm run lint && npm run unit",
+    "pg": "mocha test/put-get.js",
     "unit": "mocha",
     "lint": "standard"
   },
