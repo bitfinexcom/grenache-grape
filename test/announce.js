@@ -11,7 +11,6 @@ const {
 describe('service announce', () => {
   it('should find services', (done) => {
     const { grape1, grape2, stop } = createTwoGrapes()
-
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => {})
     })
@@ -36,7 +35,7 @@ describe('service announce', () => {
       grape2.lookup('rest:util:net', (err, res) => {
         assert.strictEqual(err, null)
         assert.deepStrictEqual(res, [ '127.0.0.1:1337' ])
-        setTimeout(lookup, 300)
+        setTimeout(lookup, 300) // 300 because maxAge is at 200 in helper
       })
     })
 
@@ -60,7 +59,7 @@ describe('service announce', () => {
         function loop () {
           lookup((a, b) => {
             if (!a && !b) {
-              assert(lookups > 10)
+              assert(lookups > 10, 'lookups greater than 10')
               stop(done)
               return
             }
