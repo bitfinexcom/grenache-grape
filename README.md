@@ -105,6 +105,85 @@ Emitted when a peer announces itself in order to be stored in the DHT.
 
 Emitted when a peer announces itself in order to be stored in the DHT.
 
+## RPC API
+
+### Immutable Get
+
+#### `POST /get` `{data: hash}`
+#### `POST /get` `{data: {hash, m: false}}`
+
+`hash`: A hex string of the hash of the stored value. If `hash` is supplied inside an object, supply an `m` property set to false to disambiguate between mutable/immutable storage.
+
+#### `POST /get` `{data: {hash}}` **Deprecated** **Legacy**
+
+A `hash` in an object with no `m` property should be considered legacy and upgraded to one of the above forms.
+
+#### Response Body
+
+The response body of an Immutable Get takes the following form:
+
+```js
+{ id: <hex string of responding node id>,
+  seq: null, // always null for immutable gets
+  sig: null, // always null for immutable gets
+  v: <stored value>,
+  k: <hash hex string>,
+  m: false // always false for immutable gets
+}
+```
+
+### Immutable Put
+
+#### `POST /put` `{data: {v}}`
+
+The `v` property is the value to store. 
+
+#### Response Body
+
+The response body will be a hex string containing a hash of the value. This can be passed to a `POST /get` request to fetch the stored value.
+
+### Mutable Get
+
+#### `POST /get` `{data: {key}}`
+#### `POST /get` `{data: {hash, m: true}}`
+
+`key`: A hex string of the public key for the signed data. 
+
+Mutable data is stored using a public key, so `hash` is a misnomer. However for backwards compatiblity `hash` can also be used to supply the public key for the mutable data. For best results use `hash` with `m: true` (or use `key` instead).
+
+#### `POST /get` `{data: {hash}}` **Deprecated** **Legacy**
+
+A `hash` in an object with no `m` property should be considered legacy and upgraded to one of the above forms. If this form is used, the request will first attempt a to get the value from the immutable store before attempting the mutable store, so this will be the slowest way to reference mutable data.
+
+#### Response Body
+
+The response body of a Mutable Get takes the following form:
+
+```js
+{ id: <hex string of responding node id>,
+  seq: <monotonically increasing sequence number>,
+  sig: <signature hex string>,
+  v: <stored value>,
+  k: <public key hex string>,
+  salt: <hex string of salt - if any>
+  m: true // always true for mutable gets
+}
+```
+
+### Mutable Put
+
+#### `POST /put` `{data: {k, v, sig, [seq, salt]}}`
+
+`k`: The signed public key as a hex string. Required
+`v`: The value to store. Required
+`sig`: The signature as a hex string corresponding to the public key and value (and salt if supplied). Required
+`seq`: The sequence number, used for versioning. Optional
+`salt`: The salt as a hex string representing a buffer with minimum 16 bytes and maximum 64 bytes.
+
+
+#### Response Body
+
+The response body will be a hex string representing of the public key.
 
 ## Implementations
 
