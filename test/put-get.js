@@ -43,7 +43,6 @@ describe('put-get', () => {
         getValue(hash, (err, res) => {
           if (err) throw err
           assert.strictEqual(res.v, 'hello world')
-
           getValue({ hash: hash }, (err, res) => {
             if (err) throw err
             assert.strictEqual(res.v, 'hello world')
