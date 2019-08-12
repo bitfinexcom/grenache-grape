@@ -42,11 +42,36 @@ describe('put-get', () => {
         if (err) throw err
         getValue(hash, (err, res) => {
           if (err) throw err
+          assert.strictEqual(typeof res.id, 'string')
+          assert.strictEqual(res.id.length, 64)
+          assert.strictEqual(typeof res.k, 'string')
+          assert.strictEqual(res.k.length, 64)
           assert.strictEqual(res.v, 'hello world')
-          getValue({ hash: hash }, (err, res) => {
+          assert.strictEqual(res.m, false)
+          assert.strictEqual(res.seq, null)
+          assert.strictEqual(res.sig, null)
+          getValue({ hash: hash, m: false }, (err, res) => {
             if (err) throw err
+            assert.strictEqual(typeof res.id, 'string')
+            assert.strictEqual(res.id.length, 64)
+            assert.strictEqual(typeof res.k, 'string')
+            assert.strictEqual(res.k.length, 64)
             assert.strictEqual(res.v, 'hello world')
-            stop(done)
+            assert.strictEqual(res.m, false)
+            assert.strictEqual(res.seq, null)
+            assert.strictEqual(res.sig, null)
+            getValue({ hash: hash }, (err, res) => {
+              if (err) throw err
+              assert.strictEqual(typeof res.id, 'string')
+              assert.strictEqual(res.id.length, 64)
+              assert.strictEqual(typeof res.k, 'string')
+              assert.strictEqual(res.k.length, 64)
+              assert.strictEqual(res.v, 'hello world')
+              assert.strictEqual(res.m, false)
+              assert.strictEqual(res.seq, null)
+              assert.strictEqual(res.sig, null)
+              stop(done)
+            })
           })
         })
       })
