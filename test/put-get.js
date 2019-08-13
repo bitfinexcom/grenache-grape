@@ -34,7 +34,8 @@ describe('put-get', () => {
     const { body: hash } = await post({
       uri: 'http://127.0.0.1:40001/put',
       json: true,
-      body: { rid: 'test', data: data }    })
+      body: { rid: 'test', data: data }
+    })
 
     const normative = await getValue(hash)
     assert.strictEqual(typeof normative.id, 'string')

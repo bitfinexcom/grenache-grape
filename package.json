@@ -10,7 +10,7 @@
     "micro-services"
   ],
   "dependencies": {
-    "@hyperswarm/dht": "^1.0.1",
+    "@hyperswarm/dht": "^1.1.0-rc1",
     "async": "^2.6.1",
     "debug": "^4.0.1",
     "lodash": "^4.17.11",
