@@ -116,7 +116,7 @@ Emitted when a peer announces itself in order to be stored in the DHT.
 
 #### `POST /get` `{data: {hash}}` **Deprecated** **Legacy**
 
-A `hash` in an object with no `m` property should be considered legacy and upgraded to one of the above forms.
+A `hash` in an object with no `m` property should be considered legacy and upgraded to one of the above forms. If this form is used, the request will first attempt a to get the value from the mutable store before attempting the immutable store, so this will be the slowest way to reference immutable data.
 
 #### Response Body
 
@@ -153,7 +153,7 @@ Mutable data is stored using a public key, so `hash` is a misnomer. However for 
 
 #### `POST /get` `{data: {hash}}` **Deprecated** **Legacy**
 
-A `hash` in an object with no `m` property should be considered legacy and upgraded to one of the above forms. If this form is used, the request will first attempt a to get the value from the immutable store before attempting the mutable store, so this will be the slowest way to reference mutable data.
+A `hash` in an object with no `m` property should be considered legacy and upgraded to one of the above forms.
 
 #### Response Body
 
@@ -179,7 +179,6 @@ The response body of a Mutable Get takes the following form:
 `sig`: The signature as a hex string corresponding to the public key and value (and salt if supplied). Required
 `seq`: The sequence number, used for versioning. Optional
 `salt`: The salt as a hex string representing a buffer with minimum 16 bytes and maximum 64 bytes.
-
 
 #### Response Body
 

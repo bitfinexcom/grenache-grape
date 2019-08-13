@@ -26,6 +26,7 @@
   },
   "main": "index.js",
   "devDependencies": {
+    "@hyperswarm/hypersign": "0.0.0",
     "chai": "^3.2.0",
     "events.once": "^2.0.2",
     "mocha": "^5.2.0",
