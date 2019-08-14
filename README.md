@@ -165,7 +165,7 @@ The response body of a Mutable Get takes the following form:
   sig: <signature hex string>,
   v: <stored value>,
   k: <public key hex string>,
-  salt: <hex string of salt - if any>
+  salt: <hex string hash of salt - if any>
   m: true // always true for mutable gets
 }
 ```
@@ -178,7 +178,7 @@ The response body of a Mutable Get takes the following form:
 `v`: The value to store. Required
 `sig`: The signature as a hex string corresponding to the public key and value (and salt if supplied). Required
 `seq`: The sequence number, used for versioning. Optional
-`salt`: The salt as a hex string representing a buffer with minimum 16 bytes and maximum 64 bytes.
+`salt`: The salt as a normal string, this will be internally hashed before sending
 
 #### Response Body
 
