@@ -142,7 +142,7 @@ describe('put-get', () => {
     const value = 'hello world'
     const sig = hypersign.sign(Buffer.from(value), {
       keypair,
-      salt: hypersign.salt(salt)
+      salt: Buffer.from(salt)
     })
 
     const data = {
@@ -168,7 +168,7 @@ describe('put-get', () => {
     assert.strictEqual(normative.m, true)
     assert.strictEqual(normative.seq, 0)
     assert.strictEqual(normative.sig, sig.toString('hex'))
-    assert.strictEqual(normative.salt, hypersign.salt(salt).toString('hex'))
+    assert.strictEqual(normative.salt, salt.toString('hex'))
 
     const explicit = await getValue({ hash: hexKey, m: true, salt })
     assert.strictEqual(typeof explicit.id, 'string')
@@ -178,7 +178,7 @@ describe('put-get', () => {
     assert.strictEqual(explicit.m, true)
     assert.strictEqual(explicit.seq, 0)
     assert.strictEqual(explicit.sig, sig.toString('hex'))
-    assert.strictEqual(explicit.salt, hypersign.salt(salt).toString('hex'))
+    assert.strictEqual(explicit.salt, salt.toString('hex'))
 
     const legacy = await getValue({ hash: hexKey, salt })
     assert.strictEqual(typeof legacy.id, 'string')
@@ -189,7 +189,7 @@ describe('put-get', () => {
     assert.strictEqual(legacy.m, true)
     assert.strictEqual(legacy.seq, 0)
     assert.strictEqual(legacy.sig, sig.toString('hex'))
-    assert.strictEqual(legacy.salt, hypersign.salt(salt).toString('hex'))
+    assert.strictEqual(legacy.salt, salt.toString('hex'))
 
     stop()
   }).timeout(5000)
