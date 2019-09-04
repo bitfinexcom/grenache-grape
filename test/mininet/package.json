@@ -8,6 +8,7 @@
     "tapenet": "^1.4.0"
   },
   "scripts": {
-    "test": "tapenet *.js"
+    "test": "tapenet scale.js",
+    "hs": "tapenet hs/*.js"
   }
 }
