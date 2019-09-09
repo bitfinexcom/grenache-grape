@@ -1,46 +1,29 @@
 const tapenet = require('tapenet')
-const nodes = 1002
-const topology = tapenet.topologies.basic(nodes)
+const bootstrap = require('./helpers/bootstrap')
+const { 
+  NODES = 1002,
+  RTS = 1000
+} = process.env
+
+const topology = tapenet.topologies.basic(NODES)
 const { h1: announcer, h2: bootstrapper } = topology 
 
-function bootstrap ({t, h, nodeCount}) {
-  t.run(h, `
-    const dht = require('@hyperswarm/dht')
-    const node = dht({
-      boostrap: [],
-    })
-    node.once('listening', () => {
-      const { port } = node.address()
-      tapenet.emit('bootstrap', {
-        nodeCount: ${nodeCount},
-        port,
-        bootstrap: [ip + ':' + port]
-      })
-    })
-    node.once('error', (err) => {
-      throw err
-    })
-    tapenet.on('done', () => {
-      node.destroy()
-    })
-  `)
-}
-
-tapenet(`1 bootstrap, 1 announcing, ${nodes-2} lookup peers, 1000 lookups per peer`, (t) => {
-  bootstrap({t, h: bootstrapper, nodeCount: nodes})
+tapenet(`1 bootstrap, 1 announcing, ${NODES - 2} lookup peers, ${RTS} lookups per peer`, (t) => {
+  bootstrap({t, h: bootstrapper, nodeCount: +NODES, rts: +RTS})
 
   t.run(announcer, function () {
     
-    tapenet.on('bootstrap', ({bootstrap, port, nodeCount}) => {
+    tapenet.on('bootstrap', ({bootstrap, bsPort, nodeCount, rts}) => {
       const crypto = require('crypto')
       const dht = require('@hyperswarm/dht')
       const topic = crypto.randomBytes(32)
       const peer = dht({ bootstrap })
       var started = Date.now()
       peer.on('listening', () => {
-        peer.announce(topic, { port }, (err) => {
+        const { port } = peer.address()
+        peer.announce(topic, (err) => {
           t.error(err, 'no announce error')
-          h1.emit('ready', {bootstrap, topic, port})
+          h1.emit('ready', {bootstrap, topic, bsPort, h1Port: port, rts})
         })
       })
       const lookupNodeCount = nodeCount - 2
@@ -52,6 +35,7 @@ tapenet(`1 bootstrap, 1 announcing, ${nodes-2} lookup peers, 1000 lookups per pe
           tapenet.emit('done')
           setImmediate(() => {
             peer.destroy()
+            t.end()
           })
         }
       })
@@ -64,7 +48,7 @@ tapenet(`1 bootstrap, 1 announcing, ${nodes-2} lookup peers, 1000 lookups per pe
     if (id === 'h1' || id === 'h2') continue
     const host = topology[id]
     t.run(host, function () {
-      h1.on('ready', ({bootstrap, topic, port}) => {
+      h1.on('ready', ({bootstrap, topic, bsPort, h1Port, rts}) => {
         const dht = require('@hyperswarm/dht')
         const peer = dht({ bootstrap, ephemeral: true })
         tapenet.on('done', () => {
@@ -72,14 +56,11 @@ tapenet(`1 bootstrap, 1 announcing, ${nodes-2} lookup peers, 1000 lookups per pe
         })
         peer.on('listening', () => {
           const started = Date.now()
-          const expected = []
-          const actual = []
-          const rts = 1000
+
           lookups(rts)
   
           function lookups (n) {
             if (n === 0) {
-              t.same(actual, expected, 'correct data returned in correct order')
               t.pass(`${rts} round trips took ${Date.now() - started} ms`)
               tapenet.emit('host-done')
               return
@@ -90,8 +71,9 @@ tapenet(`1 bootstrap, 1 announcing, ${nodes-2} lookup peers, 1000 lookups per pe
               const hasResult = result.length > 0
               t.is(hasResult, true, 'lookup has a result')
               if (hasResult === false) return
-              const { node } = result[0]
-              t.is(node.port, port)
+              const [{node, peers}] = result
+              t.is(node.port, bsPort)
+              t.is(peers[0].port, h1Port)
               lookups(n - 1)
             })
           }

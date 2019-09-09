@@ -1,65 +1,50 @@
 const tapenet = require('tapenet')
+const bootstrap = require('./helpers/bootstrap')
 const nodes = 3
+const rts = 10
 const { h1, h2, h3 } = tapenet.topologies.basic(nodes)
 
-function bootstrap ({t, h}) {
-  t.run(h, () => {
-    const dht = require('@hyperswarm/dht')
-    const node = dht()
-    node.once('listening', () => {
-      const { port } = node.address()
-      tapenet.emit('bootstrap', {
-        port,
-        bootstrap: [`${ip}:${port}`]
-      })
-    })
-    node.once('error', (err) => {
-      throw err
-    })
-    tapenet.on('done', () => {
-      node.destroy()
-    })
-  })
-}
-
 tapenet(`${nodes} peers, 1000 lookups`, (t) => {
-  bootstrap({t, h: h3})
+  bootstrap({t, h: h3, rts})
 
   t.run(h1, function () {
     
-    tapenet.on('bootstrap', ({bootstrap, port}) => {
+    tapenet.on('bootstrap', ({bootstrap, bsPort, rts}) => {
       const crypto = require('crypto')
       const dht = require('@hyperswarm/dht')
       const topic = crypto.randomBytes(32)
+      const started = Date.now()
       const peer = dht({ bootstrap })
-
       peer.on('listening', () => {
-        peer.announce(topic, { port }, (err) => {
+        const { port } = peer.address()
+        peer.announce(topic, (err) => {
           t.error(err, 'no announce error')
-          h1.emit('ready', {bootstrap, topic, port})
+          h1.emit('ready', {bootstrap, topic, h1Port: port, bsPort, rts})
         })
       })
 
       tapenet.on('done', () => {
         peer.destroy()
+        t.pass(`scenario took ${Date.now() - started} ms`)
       })
 
     })
   })
 
   t.run(h2, function () {
-    h1.on('ready', ({bootstrap, topic, port}) => {
+    h1.on('ready', ({bootstrap, topic, h1Port, bsPort, rts}) => {
       const dht = require('@hyperswarm/dht')
-      const peer = dht({ bootstrap })
+      console.log(bootstrap, port)
+      const peer = dht({ bootstrap, ephemeral: true })
 
       peer.on('listening', () => {
         const started = Date.now()
         const expected = []
         const actual = []
-        const rts = 1000
-        requestTimes(rts)
+        
+        lookups(rts)
 
-        function requestTimes (n) {
+        function lookups (n) {
           if (n === 0) {
             t.same(actual, expected, 'correct data returned in correct order')
             t.pass(`${rts} round trips took ${Date.now() - started} ms`)
@@ -68,10 +53,12 @@ tapenet(`${nodes} peers, 1000 lookups`, (t) => {
             t.end()
             return
           }
-          peer.lookup(topic, topic, (err, [{node}]) => {
+          peer.lookup(topic, topic, (err, result) => {
             t.error(err, 'no lookup error')
-            t.is(node.port, port)
-            requestTimes(n - 1)
+            const [{node, peers}] = result
+            t.is(node.port, bsPort)
+            t.is(peers[0].port, h1Port)
+            lookups(n - 1)
           })
         }
       })
