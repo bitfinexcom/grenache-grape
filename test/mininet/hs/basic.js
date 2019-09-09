@@ -1,6 +1,4 @@
 const tapenet = require('tapenet')
-
-const rts = 10
 const nodes = 3
 const { h1, h2, h3 } = tapenet.topologies.basic(nodes)
 
@@ -12,22 +10,24 @@ function bootstrap ({t, h}) {
       const { port } = node.address()
       tapenet.emit('bootstrap', {
         port,
-        bootstrap: [`${ip}:${port}`],
-        closeDht: () => node.destroy()
+        bootstrap: [`${ip}:${port}`]
       })
     })
     node.once('error', (err) => {
       throw err
     })
+    tapenet.on('done', () => {
+      node.destroy()
+    })
   })
 }
 
-tapenet(`${nodes} peers, ${rts} lookups`, (t) => {
+tapenet(`${nodes} peers, 1000 lookups`, (t) => {
   bootstrap({t, h: h3})
 
   t.run(h1, function () {
     
-    tapenet.on('bootstrap', ({bootstrap, port, closeDht}) => {
+    tapenet.on('bootstrap', ({bootstrap, port}) => {
       const crypto = require('crypto')
       const dht = require('@hyperswarm/dht')
       const topic = crypto.randomBytes(32)
@@ -42,10 +42,7 @@ tapenet(`${nodes} peers, ${rts} lookups`, (t) => {
 
       tapenet.on('done', () => {
         peer.destroy()
-        closeDht()
-        t.end()
       })
-
 
     })
   })
@@ -59,7 +56,7 @@ tapenet(`${nodes} peers, ${rts} lookups`, (t) => {
         const started = Date.now()
         const expected = []
         const actual = []
-
+        const rts = 1000
         requestTimes(rts)
 
         function requestTimes (n) {
@@ -68,6 +65,7 @@ tapenet(`${nodes} peers, ${rts} lookups`, (t) => {
             t.pass(`${rts} round trips took ${Date.now() - started} ms`)
             peer.destroy()
             tapenet.emit('done')
+            t.end()
             return
           }
           peer.lookup(topic, topic, (err, [{node}]) => {

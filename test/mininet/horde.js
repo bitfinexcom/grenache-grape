@@ -1,7 +1,7 @@
 const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 
-const nodes = 50
+const nodes = 1000
 const { h1, h2 } = tapenet.topologies.basic(nodes)
 
 tapenet(nodes + ' grapes, worker + client, 1000 requests', function (t) {
