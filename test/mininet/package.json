@@ -5,6 +5,7 @@
   "dependencies": {
     "grenache-nodejs-http": "^0.7.1",
     "grenache-nodejs-link": "bitfinexcom/grenache-nodejs-link",
+    "mininet": "^2.7.0",
     "tapenet": "^1.4.0"
   },
   "scripts": {

@@ -4,10 +4,11 @@ function bootstrap ({t, h, nodeCount, rts}) {
     const node = dht({
       boostrap: [],
     })
+    const nodeCount = ${nodeCount}
     node.once('listening', () => {
       const { port } = node.address()
       tapenet.emit('bootstrap', {
-        nodeCount: ${nodeCount},
+        nodeCount,
         rts: ${rts},
         bsPort: port,
         bootstrap: [ip + ':' + port]
@@ -17,7 +18,14 @@ function bootstrap ({t, h, nodeCount, rts}) {
       throw err
     })
     tapenet.on('done', () => {
-      try { peer.destroy() } catch (e) { }
+      node.destroy()
+    })
+    var total = 1 // 1 for bootstrap
+    node.on('add-node', () => {
+      total += 1
+      if (total === nodeCount) {
+        tapenet.emit('dht-ready')
+      }
     })
   `)
 }

@@ -1,8 +1,8 @@
 const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 const { 
-  NODES = 1002,
-  RTS = 1000
+  NODES = 102,
+  RTS = 100
 } = process.env
 
 const topology = tapenet.topologies.basic(NODES)
@@ -33,10 +33,8 @@ tapenet(`1 bootstrap, 1 announcing, ${NODES - 2} lookup peers, ${RTS} lookups pe
         if (count === lookupNodeCount) {
           t.pass(`scenario took ${Date.now() - started} ms`)
           tapenet.emit('done')
-          setImmediate(() => {
-            peer.destroy()
-            t.end()
-          })
+          peer.destroy()
+          t.end()
         }
       })
 
@@ -50,11 +48,11 @@ tapenet(`1 bootstrap, 1 announcing, ${NODES - 2} lookup peers, ${RTS} lookups pe
     t.run(host, function () {
       h1.on('ready', ({bootstrap, topic, bsPort, h1Port, rts}) => {
         const dht = require('@hyperswarm/dht')
-        const peer = dht({ bootstrap, ephemeral: true })
+        const peer = dht({ bootstrap, ephemeral: false })
         tapenet.on('done', () => {
           peer.destroy()
         })
-        peer.on('listening', () => {
+        tapenet.on('dht-ready', () => {
           const started = Date.now()
 
           lookups(rts)
@@ -84,3 +82,4 @@ tapenet(`1 bootstrap, 1 announcing, ${NODES - 2} lookup peers, ${RTS} lookups pe
 
   
 })
+
