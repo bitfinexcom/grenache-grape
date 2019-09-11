@@ -30,7 +30,7 @@ tapenet(`1 bootstrap, 1 lookup, ${NODES - 2} announcing peers, ${RTS} lookups`, 
         tapenet.on('done', () => {
           try { peer.destroy() } catch (e) {}
         })
-        peer.on('listening', () => {
+        peer.on('ready', () => {
           const started = Date.now()
 
           lookups(rts)

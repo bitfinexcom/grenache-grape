@@ -5,7 +5,7 @@ function bootstrap ({t, h, nodeCount, rts}) {
       boostrap: [],
     })
     const nodeCount = ${nodeCount}
-    node.once('listening', () => {
+    node.ready(() => {
       const { port } = node.address()
       tapenet.emit('bootstrap', {
         nodeCount,
@@ -20,13 +20,12 @@ function bootstrap ({t, h, nodeCount, rts}) {
     tapenet.on('done', () => {
       node.destroy()
     })
-    var total = 1 // 1 for bootstrap
-    node.on('add-node', () => {
-      total += 1
-      if (total === nodeCount) {
-        tapenet.emit('dht-ready')
-      }
+    tapenet.once('rebootstrap', () => {
+      node.bootstrap(() => {
+        tapenet.emit('peer-rebootstrapped')
+      })
     })
+
   `)
 }
 
