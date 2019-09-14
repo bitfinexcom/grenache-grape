@@ -1,7 +1,7 @@
 const tapenet = require('tapenet')
 const bootstrap = require('./helpers/bootstrap')
 const { 
-  NODES = 102,
+  NODES = 1002,
   RTS = 1
 } = process.env
 
@@ -36,12 +36,12 @@ tapenet(`1 bootstrap, 1 announcing, ${NODES - 2} lookup peers, ${RTS} lookups pe
           }
         })
         tapenet.on('peer-rebootstrapped', () => {
-          rebootstrapCount++
-          // console.log(rebootstrapCount, nodeCount)
           if (rebootstrapCount === nodeCount) {
             started = Date.now()
             tapenet.emit('ready')
-          }          
+          } else { 
+            rebootstrapCount++
+          }      
         })
         tapenet.on('host-done', () => {
           doneCount++
