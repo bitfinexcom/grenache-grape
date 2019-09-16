@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Test grenache using Mininet",
   "dependencies": {
+    "bittorrent-dht": "^9.0.3",
     "grenache-nodejs-http": "^0.7.1",
     "grenache-nodejs-link": "bitfinexcom/grenache-nodejs-link",
     "mininet": "^2.7.0",
