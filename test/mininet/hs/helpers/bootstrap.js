@@ -1,23 +1,21 @@
-function bootstrap ({t, h, nodeCount, rts}) {
+'use strict'
+
+function bootstrap ({t, hosts, state = {}, size}) {
+  const [ h ] = hosts //currently only supporting one bootstrap host
   t.run(h, `
     const dht = require('@hyperswarm/dht')
-    const node = dht({
-      boostrap: [],
-    })
-    const nodeCount = ${nodeCount}
+    const node = dht({ boostrap: []})
     node.ready(() => {
       const { port } = node.address()
       tapenet.emit('bootstrap', {
-        nodeCount,
-        rts: ${rts},
-        bsPort: port,
+        ...${JSON.stringify(state)},
         bootstrap: [ip + ':' + port]
-      })
+      }, ${size})
     })
     node.once('error', (err) => {
       throw err
     })
-    tapenet.on('done', () => {
+    tapenet.once('done', () => {
       node.destroy()
     })
     tapenet.once('rebootstrap', () => {
