@@ -1,7 +1,8 @@
+'use strict'
 const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
 const { 
-  NODES = 102,
+  NODES = 252,
   RTS = 1000
 } = process.env
 
@@ -11,7 +12,7 @@ const {
   ...lookups 
 } = tapenet.topologies.basic(NODES)
 
-tapenet(`1 bootstrap, 1 announcing, ${NODES - 2} lookup peers, ${RTS} lookups per peer`, (t) => {
+tapenet(`1 announcing peer, ${NODES - 2} lookup peers, ${RTS} lookups per peer`, (t) => {
   const state = { rts: +RTS }
   const scenario = [
     {

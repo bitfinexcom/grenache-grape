@@ -6,11 +6,13 @@
     "bittorrent-dht": "^9.0.3",
     "grenache-nodejs-http": "^0.7.1",
     "grenache-nodejs-link": "bitfinexcom/grenache-nodejs-link",
+    "lodash.mergewith": "^4.6.2",
     "mininet": "^2.7.0",
     "tapenet": "^1.4.0"
   },
   "scripts": {
     "test": "tapenet scale.js",
     "hs": "tapenet hs/*.js"
-  }
+  },
+  "devDependencies": {}
 }
