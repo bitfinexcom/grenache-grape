@@ -65,8 +65,12 @@ tapenet(`1 lookup peer, ${NODES - 2} announcing peers, ${NODES - 2} topics, ${RT
             const hasResult = result.length > 0
             t.is(hasResult, true, 'lookup has a result')
             if (hasResult === false) return
+            const { port } = peer.address()
             const expected = new Set([
-              ...bootstrap, 
+              ...bootstrap,
+              // the lookup node is non-ephemeral, so
+              // it may also respond to its own lookup:
+              `${ip}:${port}`,
               ...Object.values(cfg).map(({host, port}) => {
               return `${host}:${port}`
               })

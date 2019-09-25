@@ -4,14 +4,14 @@ const bootstrap = require('./bootstrap')
 function spinup (size, {t, scenario, state, bs}) {
   bootstrap({t, hosts: bs, state, size})
   mediate(t, bs[0])
-  
+  const procs = []
   const noop = (t, p, s, cb) => { cb(null) } 
   for (let i = 0; i < scenario.length; i++) {
     const {options = {}, ready = noop, run = noop} = scenario[i]
     const containers = arrarify(scenario[i].containers)
     let count = 0
     for (const container of containers) {
-      t.run(container, `
+      procs.push(t.run(container, `
         const merge = require('lodash.mergewith')
         tapenet.once('next-${i}', (state) => {
           const ready = ${fnStringify(ready)}
@@ -35,13 +35,18 @@ function spinup (size, {t, scenario, state, bs}) {
             })
             tapenet.once('run-${i}', ($shared) => {
               state.$shared = $shared
+              var doneCalled = false
               run (t, peer, state, () => {
+                if (doneCalled) return
+                doneCalled = true
                 tapenet.emit('ran-${i}')
                 tapenet.emit('host-done')
               })
             })
           })
-          tapenet.once('done', () => { peer.destroy() })
+          tapenet.once('done', () => { 
+            peer.destroy() 
+          })
           ${count > 0 ? `` : `
             let count = 0
             tapenet.on('ran-${i}', () => {
@@ -56,10 +61,11 @@ function spinup (size, {t, scenario, state, bs}) {
             })
           `}
         })
-      `)
+      `))
       count++
     }
   }
+  return procs
 }
 
 function mediate (t, h) {
@@ -114,5 +120,6 @@ function * iterate (containers) {
   }
 }
 
+spinup.arrarify = arrarify
 
 module.exports = spinup
