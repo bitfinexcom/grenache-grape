@@ -94,13 +94,13 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (
               })
             ])
 
-            // const peersMatch = result.every(({node, peers}) => {
-            //   const { host, port } = node
-            //   return expected.has(`${host}:${port}`) && peers.every(({host, port}) => {
-            //     return expected.has(`${host}:${port}`)
-            //   })
-            // })
-            // t.ok(peersMatch, 'peers match')
+            const peersMatch = result.every(({node, peers}) => {
+              const { host, port } = node
+              return expected.has(`${host}:${port}`) && peers.every(({host, port}) => {
+                return expected.has(`${host}:${port}`)
+              })
+            })
+            t.ok(peersMatch, 'peers match')
             lookups(n - 1, i)
           })
         }
