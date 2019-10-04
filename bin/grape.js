@@ -16,6 +16,11 @@ const program = require('yargs')
     type: 'number',
     demand: true
   })
+  .option('de', {
+    describe: 'DHT node epemerality',
+    alias: 'dht_ephemeral',
+    type: 'number'
+  })
   .option('dht_maxValues', {
     describe: 'DHT max values',
     type: 'number'
@@ -54,6 +59,7 @@ const program = require('yargs')
   .usage('Usage: $0 --dp <dht-port> --aph <http-api-port> --bn <nodes> [--b bind-to-address]')
   .argv
 
+const dhtEphemeral = program.de
 const dhtPort = program.dp
 const apiPort = program.aph
 const bind = program.b
@@ -71,6 +77,7 @@ const dhtBoostrap = _.reduce((program.bn || '').split(','), (acc, e) => {
 
 const g = new Grape({
   host: bind,
+  dht_ephemeral: dhtEphemeral,
   dht_port: dhtPort,
   dht_bootstrap: dhtBoostrap,
   dht_maxValues: maxDhtValues,

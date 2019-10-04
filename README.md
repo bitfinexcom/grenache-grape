@@ -31,6 +31,7 @@ bind-to-address]
 Options:
   -b, --bind                 Listening host                             [string]
   --dp, --dht_port           DHT listening port              [number] [required]
+  --de, --dht_ephemeral      DHT node epemerality                       [number]
   --dht_maxValues            DHT max values                             [number]
   --bn, --bootstrap          Bootstrap nodes                 [string] [required]
   --aph, --api_port          HTTP api port                   [number] [required]
@@ -73,6 +74,7 @@ g.start()
 
  - `options` &lt;Object&gt; Options for the link
     - `host` &lt;String&gt; IP to bind to. If null, Grape binds to all interfaces
+    - `dht_ephemeral` &lt;Boolean&gt; Whether to join the DHT (false) or just query it (true). Default is false
     - `dht_maxValues` &lt;Number&gt; Maximum number of DHT values
     - `dht_port` &lt;Number&gt; Port for DHT
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers
