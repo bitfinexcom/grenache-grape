@@ -1,38 +1,35 @@
-module.exports = bootstrap
+'use strict'
 
-function bootstrap (tapenet, t) {
-  const h3 = tapenet.hosts[2]
-  const h4 = tapenet.hosts[3]
-
-  t.run(h3, function () {
-    const { Grape } = require('../../')
-
-    const grape = new Grape({
-      dht_port: 20001,
+function bootstrap ({t, hosts, state = {}, size}) {
+  const [ h ] = hosts //currently only supporting one bootstrap host
+  t.run(h, `
+    const { Grape } = require('../..')
+    const node = new Grape({ 
       dht_bootstrap: [],
+      dht_ephemeral: true,
       api_port: 40001
     })
-
-    grape.start(() => {
-      t.pass('grape 1 bootstrapped and ready')
-      h3.emit('bootstrap', `${global.ip}:20001`)
+    node.start()
+    node.on('ready', () => {
+      const { port } = node.address()
+      tapenet.emit('bootstrap', {
+        ...${JSON.stringify(state)},
+        bootstrap: [ip + ':' + port]
+      }, ${size})
     })
-  })
-
-  t.run(h4, function () {
-    h3.on('bootstrap', function (node) {
-      const { Grape } = require('../../')
-
-      const grape = new Grape({
-        dht_port: 20001,
-        dht_bootstrap: [ node ],
-        api_port: 40001
-      })
-
-      grape.start(() => {
-        t.pass('grape 2 bootstrapped and ready')
-        tapenet.emit('bootstrap', [node, `${global.ip}:20001`])
+    node.once('error', (err) => {
+      throw err
+    })
+    tapenet.once('done', () => {
+      node.stop()
+    })
+    tapenet.once('rebootstrap', () => {
+      node.dht.bootstrap(() => {
+        tapenet.emit('peer-rebootstrapped')
       })
     })
-  })
+
+  `)
 }
+
+module.exports = bootstrap

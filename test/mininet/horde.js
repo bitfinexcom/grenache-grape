@@ -1,107 +1,92 @@
+'use strict'
 const tapenet = require('tapenet')
-const bootstrap = require('./helpers/bootstrap')
+const spinup = require('./helpers/spinup')
+const { 
+  NODES = 253,
+  RTS = 100
+} = process.env
 
-const nodes = 1000
-const { h1, h2 } = tapenet.topologies.basic(nodes)
+const { 
+  h1: bootstrapper, 
+  h2: server,
+  h3: client,
+  ...horde 
+} = tapenet.topologies.basic(NODES)
 
-tapenet(nodes + ' grapes, worker + client, 1000 requests', function (t) {
-  bootstrap(tapenet, t)
-  horde(t)
-
-  t.run(h1, function () {
-    tapenet.on('horde', function (bootstrap) {
-      const grape = require('./helpers/grape')
-      const { PeerRPCServer } = require('grenache-nodejs-http')
-      const Link = require('grenache-nodejs-link')
-
-      t.pass('horde is ready')
-      grape(bootstrap, () => {
+tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES} grapes, ${RTS} lookups`, (t) => {
+  const state = { rts: +RTS }
+  const scenario = [
+    {
+      containers: horde,
+      options: { dht_ephemeral: false },
+    },
+    {
+      containers: [server],
+      options: { api_port: 40001, dht_ephemeral: false },
+      ready(t, peer, state, next) {
+        const crypto = require('crypto')
+        const topic = crypto.randomBytes(32).toString('base64')
+        next(null, {...state, topic})
+      },
+      run (t, peer, { topic }, done) {
+        
+        const { PeerRPCServer } = require('grenache-nodejs-http')
+        const Link = require('grenache-nodejs-link')
+        
         const link = new Link({ grape: 'http://127.0.0.1:40001' })
         link.start()
 
-        const peer = new PeerRPCServer(link, {})
-        peer.init()
+        const srv = new PeerRPCServer(link, {})
+        srv.init()
 
-        const service = peer.transport('server')
-        service.listen(5000)
-
-        link.startAnnouncing('rpc_test', service.port, { timeout: 20000 }, (err) => {
-          t.error(err, 'no announce error')
-          h1.emit('service', bootstrap)
-        })
+        const service = srv.transport('server')
+        service.listen(2000)
 
         service.on('request', (rid, key, payload, handler) => {
           handler.reply(null, payload + ': world')
         })
-      })
-    })
-  })
-
-  t.run(h2, function () {
-    h1.on('service', function (bootstrap) {
-      const grape = require('./helpers/grape')
-      const { PeerRPCClient } = require('grenache-nodejs-http')
-      const Link = require('grenache-nodejs-link')
-      t.pass('bootstraping client')
-      grape(bootstrap, () => {
+        link.startAnnouncing(topic, service.port, { timeout: 20000 }, (err) => {
+          t.error(err, 'no announce error')
+          done()
+        })
+      }
+    },
+    { 
+      containers: [client],
+      options: { api_port: 40001, dht_ephemeral: false },
+      run (t, peer, { rts, topic }, done) {
+        const { PeerRPCClient } = require('grenache-nodejs-http')
+        const Link = require('grenache-nodejs-link')
         const link = new Link({ grape: 'http://127.0.0.1:40001' })
         link.start()
-
-        const peer = new PeerRPCClient(link, {})
-        const started = Date.now()
-        const rts = 1000
+        const client = new PeerRPCClient(link, {})
+        client.init()
         const expected = []
         const actual = []
-
-        t.pass('client bootstrapped, running requests')
-        peer.init()
-        requestTimes(rts)
-
-        function requestTimes (n) {
+        const started = Date.now()
+        requests(rts)
+        function requests (n) {
           if (n === 0) {
             t.same(actual, expected, 'correct data returned in correct order')
             t.pass(`${rts} round trips took ${Date.now() - started} ms`)
-            return t.end()
+            done()
+            return
           }
 
           const payload = 'hello-' + n
           expected.push(payload + ': world')
-
-          peer.request('rpc_test', payload, { timeout: 10000 }, (err, data) => {
-            if (err) {
-              t.error(err, 'no error')
-              t.end()
-              return
-            }
+          // clear the cache every time 
+          // otherwise we're only testing the cache
+          link.cache = {}
+          client.request(topic, payload, { timeout: 10000 }, (err, data) => {
+            t.error(err, 'no request error')
             actual.push(data)
-            requestTimes(n - 1)
+            requests(n - 1)
           })
         }
-      })
-    })
-  })
+      }
+    }
+  ]
+  spinup(NODES, {t, scenario, state, bs: [bootstrapper]})
 })
 
-function horde (t) {
-  // first two hosts are service + client
-  // next two are bootstrappers
-  for (let i = 4; i < nodes; i++) {
-    t.run(tapenet.hosts[i], `
-      const grape = require('./helpers/grape')
-      let missing = ${nodes} - 4
-      let nodes = null
-
-      tapenet.on('horde:grape', () => {
-        missing--
-        if (!missing && ${i} === 4) tapenet.emit('horde', nodes)
-      })
-
-      tapenet.on('bootstrap', bootstrap => {
-        nodes = bootstrap
-        grape(bootstrap, {ready: true}, () => {
-          tapenet.emit('horde:grape')
-        })
-      })
-    `)
-  }
-}

@@ -66,7 +66,7 @@ function spinup (size, {t, scenario, state, bs}) {
         tapenet.once('next-${i}', (state) => {
           const ready = ${fnStringify(ready)}
           const run = ${fnStringify(run)}
-          const { Grape } = require('../../..')
+          const { Grape } = require('../..')
           const { bootstrap } = state
           const peer = new Grape({ 
             dht_bootstrap: bootstrap, 
