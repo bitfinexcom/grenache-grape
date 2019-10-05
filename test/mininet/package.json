@@ -7,7 +7,7 @@
     "grenache-nodejs-http": "^0.7.1",
     "grenache-nodejs-link": "bitfinexcom/grenache-nodejs-link",
     "lodash.mergewith": "^4.6.2",
-    "mininet": "^2.7.0",
+    "mininet": "git+https://github.com/davidmarkclements/mininet.git",
     "tapenet": "^1.4.0"
   },
   "scripts": {

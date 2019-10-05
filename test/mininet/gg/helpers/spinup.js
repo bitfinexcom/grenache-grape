@@ -6,19 +6,21 @@ function spinup (size, {t, scenario, state, bs}) {
   mediate(t, bs[0])
   const procs = []
   const noop = (t, p, s, cb) => { cb(null) } 
+  
   for (let i = 0; i < scenario.length; i++) {
-    const {options = {}, worker = false, ready = noop, run = noop} = scenario[i]
+    const {options = {}, grapeless = false, ready = noop, run = noop} = scenario[i]
     const containers = arrarify(scenario[i].containers)
     let count = 0
-
-    if (worker) {
+    if (grapeless) {
       for (const container of containers) {
         procs.push(t.run(container, `
           const merge = require('lodash.mergewith')
           tapenet.once('next-${i}', (state) => {
             const ready = ${fnStringify(ready)}
             const run = ${fnStringify(run)}
-            tapenet.emit('peer-ready')
+            process.nextTick(() => {
+              tapenet.emit('peer-ready')
+            })
             state.$index = ${count}
             ready(t, peer, state, (err, nextState = state) => {
               if (err) throw err
@@ -70,6 +72,7 @@ function spinup (size, {t, scenario, state, bs}) {
             dht_bootstrap: bootstrap, 
             ...${JSON.stringify(options)} 
           })
+          peer.start()
           peer.on('ready', () => {
             tapenet.emit('peer-ready')
             state.$index = ${count}
@@ -96,7 +99,7 @@ function spinup (size, {t, scenario, state, bs}) {
             })
           })
           tapenet.once('done', () => { 
-            peer.destroy() 
+            peer.stop() 
           })
           ${count > 0 ? `` : `
             let count = 0

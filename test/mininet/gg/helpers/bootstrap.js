@@ -9,6 +9,7 @@ function bootstrap ({t, hosts, state = {}, size}) {
       dht_ephemeral: true,
       api_port: 40001
     })
+    node.start()
     node.on('ready', () => {
       const { port } = node.address()
       tapenet.emit('bootstrap', {
@@ -20,7 +21,7 @@ function bootstrap ({t, hosts, state = {}, size}) {
       throw err
     })
     tapenet.once('done', () => {
-      node.destroy()
+      node.stop()
     })
     tapenet.once('rebootstrap', () => {
       node.dht.bootstrap(() => {
