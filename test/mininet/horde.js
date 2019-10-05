@@ -3,7 +3,7 @@ const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
 const { 
   NODES = 253,
-  RTS = 100
+  RTS = 1000
 } = process.env
 
 const { 
