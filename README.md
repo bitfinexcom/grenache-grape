@@ -100,12 +100,16 @@ Emitted when the DHT finds a new node.
 
 #### Event: 'warning'
 
-Emitted when a peer announces itself in order to be stored in the DHT.
+Emitted when a warning occurs in the DHT.
 
 
 #### Event: 'announce'
 
 Emitted when a peer announces itself in order to be stored in the DHT.
+
+#### Event: 'unannounce'
+
+Emitted when a peer unannounces itself in order to be removed from the DHT.
 
 ## RPC API
 
