@@ -87,7 +87,7 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
             if (expectToExclude) {
               const { host, port } = expectToExclude
               const match = peers.some((peer) => {
-                const [ p, h ] = peer.split(':')
+                const [p, h] = peer.split(':')
                 return p === port && h === host
               })
               t.is(match, false, 'lookup result does not contain unannounced peer')

@@ -48,7 +48,7 @@ function spinup (size, { t, scenario, state, bs }) {
           tapenet.once('done', () => { 
             peer.destroy() 
           })
-          ${count > 0 ? `` : `
+          ${count > 0 ? '' : `
             let count = 0
             tapenet.on('ran-${i}', () => {
               count++

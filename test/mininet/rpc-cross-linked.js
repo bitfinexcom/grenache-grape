@@ -30,7 +30,7 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
         const { PeerRPCServer } = require('grenache-nodejs-http')
         const Link = require('grenache-nodejs-link')
         const servicePort = 5000
-        const link = new Link({ grape: `http://127.0.0.1:40001` })
+        const link = new Link({ grape: 'http://127.0.0.1:40001' })
         link.start()
 
         const srv = new PeerRPCServer(link, {})

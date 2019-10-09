@@ -42,7 +42,7 @@ function spinup (size, { t, scenario, state, bs }) {
                 tapenet.emit('host-done')
               })
             })
-            ${count > 0 ? `` : `
+            ${count > 0 ? '' : `
               let count = 0
               tapenet.on('ran-${i}', () => {
                 count++
@@ -102,7 +102,7 @@ function spinup (size, { t, scenario, state, bs }) {
           tapenet.once('done', () => { 
             peer.stop() 
           })
-          ${count > 0 ? `` : `
+          ${count > 0 ? '' : `
             let count = 0
             tapenet.on('ran-${i}', () => {
               count++
