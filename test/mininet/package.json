@@ -2,15 +2,15 @@
   "name": "grenache-network",
   "version": "0.0.0",
   "description": "Test grenache using Mininet",
-  "dependencies": {
+  "devDependencies": {
     "bittorrent-dht": "^9.0.3",
     "grenache-nodejs-http": "^0.7.1",
     "grenache-nodejs-link": "bitfinexcom/grenache-nodejs-link",
-    "lodash.mergewith": "^4.6.2"
+    "lodash.mergewith": "^4.6.2",
+    "tapenet": "^1.4.0"
   },
   "scripts": {
     "test": "tapenet scale.js",
     "hs": "tapenet hs/*.js"
-  },
-  "devDependencies": {}
+  }
 }
