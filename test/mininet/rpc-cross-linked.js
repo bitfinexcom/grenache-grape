@@ -27,7 +27,22 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
       containers: [server],
       options: { api_port: 40001, dht_ephemeral: false },
       ready (t, _, state, next) {
-        next(null, { ...state, serverHost: ip })
+        const { PeerRPCServer } = require('grenache-nodejs-http')
+        const Link = require('grenache-nodejs-link')
+        const servicePort = 5000
+        const link = new Link({ grape: `http://127.0.0.1:40001` })
+        link.start()
+
+        const srv = new PeerRPCServer(link, {})
+        srv.init()
+
+        const service = srv.transport('server')
+        service.listen(servicePort)
+
+        service.on('request', (rid, key, payload, handler) => {
+          handler.reply(null, payload + ': world')
+        })
+        next(null, { ...state, serverHost: ip, servicePort })
       }
     },
     {
@@ -45,23 +60,11 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
         const topic = crypto.randomBytes(32).toString('base64')
         next(null, { ...state, topic })
       },
-      run (t, _, { topic, serverHost }, done) {
-        const { PeerRPCServer } = require('grenache-nodejs-http')
+      run (t, _, { topic, serverHost, servicePort }, done) {
         const Link = require('grenache-nodejs-link')
-
         const link = new Link({ grape: `http://${serverHost}:40001` })
         link.start()
-
-        const srv = new PeerRPCServer(link, {})
-        srv.init()
-
-        const service = srv.transport('server')
-        service.listen(5000)
-
-        service.on('request', (rid, key, payload, handler) => {
-          handler.reply(null, payload + ': world')
-        })
-        link.startAnnouncing(topic, service.port, { timeout: 20000 }, (err) => {
+        link.startAnnouncing(topic, servicePort, { timeout: 20000 }, (err) => {
           t.error(err, 'no announce error')
           done()
         })

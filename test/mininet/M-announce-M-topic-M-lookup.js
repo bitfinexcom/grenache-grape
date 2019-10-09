@@ -29,7 +29,7 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
       options: { ephemeral: false },
       ready (t, peer, state, next) {
         const crypto = require('crypto')
-        const topic = crypto.randomBytes(32)
+        const topic = crypto.randomBytes(32).toString('hex')
         const { $shared, $index } = state
         const { port } = peer.address()
         $shared.cfg[$index] = { host: ip, port }
@@ -69,10 +69,10 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
             done()
             return
           }
-          peer.lookup(topic, (err, result) => {
+          peer.lookup(topic, (err, peers) => {
             t.error(err, 'no lookup error')
             if (err) return
-            const hasResult = result.length > 0
+            const hasResult = peers.length > 0
             t.is(hasResult, true, 'lookup has a result')
             if (hasResult === false) return
             const expected = new Set([
@@ -82,12 +82,10 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
               })
             ])
 
-            const peersMatch = result.every(({ node, peers }) => {
-              const { host, port } = node
-              return expected.has(`${host}:${port}`) && peers.every(({ host, port }) => {
-                return expected.has(`${host}:${port}`)
-              })
+            const peersMatch = peers.every((peer) => {
+              return expected.has(peer)
             })
+
             t.ok(peersMatch, 'peers match')
             lookups(n - 1, i)
           })
