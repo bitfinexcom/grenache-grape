@@ -17,7 +17,7 @@ function createGrapes (n, onstart) {
   for (let i = 0; i < n; i++) {
     const grape = new Grape({
       dht_port: 20001 + i,
-      dht_bootstrap: [ '127.0.0.1:20000' ],
+      dht_bootstrap: ['127.0.0.1:20000'],
       api_port: 40001 + i,
       dht_peer_maxAge: 200
     })
