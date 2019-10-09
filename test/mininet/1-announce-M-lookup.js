@@ -48,7 +48,7 @@ tapenet(`1 announcing peer, ${NODES - 2} lookup peers, ${RTS} lookups per peer`,
             const hasResult = peers.length > 0
             t.is(hasResult, true, 'lookup has a result')
             if (hasResult === false) return
-            t.is(peers[0].split(':')[1], announcerPort, 'is announcer port')
+            t.is(+peers[0].split(':')[1], announcerPort, 'is announcer port')
             lookups(n - 1)
           })
         }
