@@ -1,21 +1,21 @@
+/* global ip */
 'use strict'
 const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
 
-const { 
+const {
   NODES = 101,
   RTS = 10
 } = process.env
 
 const topology = tapenet.topologies.basic(NODES)
-const { h1: bootstrapper, ...rest } = topology 
+const { h1: bootstrapper, ...rest } = topology
 const nodes = spinup.arrarify(rest)
 const announcers = nodes.slice(0, nodes.length / 2)
 const lookups = nodes.slice(nodes.length / 2)
 
 tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, ${announcers.length} topics, ${RTS} lookups per topic`, (t) => {
- 
-  const state = { 
+  const state = {
     rts: +RTS,
     announcerCount: announcers.length,
     $shared: {
@@ -32,10 +32,10 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
         const topic = crypto.randomBytes(32)
         const { $shared, $index } = state
         const { port } = peer.address()
-        $shared.cfg[$index] = {host: ip, port}
+        $shared.cfg[$index] = { host: ip, port }
         $shared.topics[$index] = topic
 
-        // unnanounce half of the peers 
+        // unnanounce half of the peers
         // when triggered at a later stage
         if ($index % 2) {
           tapenet.on('trigger-unnanounce', () => {
@@ -43,7 +43,7 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
           })
         }
 
-        next(null, {...state, topic})
+        next(null, { ...state, topic })
       },
       run (t, peer, { topic }, done) {
         peer.announce(topic, (err) => {
@@ -52,13 +52,13 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
         })
       }
     },
-    { 
+    {
       containers: lookups,
       options: { ephemeral: false },
       ready (t, peer, state, next) {
         const { $shared, $index, announcerCount } = state
         const { port } = peer.address()
-        $shared.cfg[$index + announcerCount] = {host: ip, port}
+        $shared.cfg[$index + announcerCount] = { host: ip, port }
         next(null, state)
       },
       run (t, peer, { rts, $shared, bootstrap }, done) {
@@ -84,15 +84,15 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
             t.is(hasResult, true, 'lookup has a result')
             if (hasResult === false) return
             const expected = new Set([
-              ...bootstrap, 
-              ...Object.values(cfg).map(({host, port}) => {
-              return `${host}:${port}`
+              ...bootstrap,
+              ...Object.values(cfg).map(({ host, port }) => {
+                return `${host}:${port}`
               })
             ])
 
-            const peersMatch = result.every(({node, peers}) => {
+            const peersMatch = result.every(({ node, peers }) => {
               const { host, port } = node
-              return expected.has(`${host}:${port}`) && peers.every(({host, port}) => {
+              return expected.has(`${host}:${port}`) && peers.every(({ host, port }) => {
                 return expected.has(`${host}:${port}`)
               })
             })
@@ -103,6 +103,5 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, 
       }
     }
   ]
-  spinup(NODES, {t, scenario, state, bs: [bootstrapper]})
-  
+  spinup(NODES, { t, scenario, state, bs: [bootstrapper] })
 })

@@ -1,7 +1,7 @@
 'use strict'
 
-function bootstrap ({t, hosts, state = {}, size}) {
-  const [ h ] = hosts //currently only supporting one bootstrap host
+function bootstrap ({ t, hosts, state = {}, size }) {
+  const [ h ] = hosts // currently only supporting one bootstrap host
   t.run(h, `
     const { Grape } = require('../..')
     const node = new Grape({ 

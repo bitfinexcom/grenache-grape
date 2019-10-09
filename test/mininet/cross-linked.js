@@ -1,18 +1,19 @@
+/* global ip */
 'use strict'
 const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
-const { 
+const {
   NODES = 253,
   RTS = 1000
 } = process.env
 
-const { 
-  h1: bootstrapper, 
+const {
+  h1: bootstrapper,
   h2: rpcServer,
   h3: rpcClient,
   h4: server,
   h5: client,
-  ...horde 
+  ...horde
 } = tapenet.topologies.basic(NODES)
 
 tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES} grapes, ${RTS} lookups`, (t) => {
@@ -20,35 +21,34 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
   const scenario = [
     {
       containers: horde,
-      options: { dht_ephemeral: false },
+      options: { dht_ephemeral: false }
     },
     {
       containers: [server],
       options: { api_port: 40001, dht_ephemeral: false },
-      ready(t, _, state, next) {
-        next(null, {...state, serverHost: ip})
+      ready (t, _, state, next) {
+        next(null, { ...state, serverHost: ip })
       }
     },
     {
       containers: [client],
       options: { api_port: 40001, dht_ephemeral: false },
-      ready(t, _, state, next) {
-        next(null, {...state, clientHost: ip})
+      ready (t, _, state, next) {
+        next(null, { ...state, clientHost: ip })
       }
     },
     {
       containers: [rpcServer],
       grapeless: true,
-      ready(t, _, state, next) {
+      ready (t, _, state, next) {
         const crypto = require('crypto')
         const topic = crypto.randomBytes(32).toString('base64')
-        next(null, {...state, topic})
+        next(null, { ...state, topic })
       },
       run (t, _, { topic, serverHost }, done) {
-        
         const { PeerRPCServer } = require('grenache-nodejs-http')
         const Link = require('grenache-nodejs-link')
-        
+
         const link = new Link({ grape: `http://${serverHost}:40001` })
         link.start()
 
@@ -67,7 +67,7 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
         })
       }
     },
-    { 
+    {
       containers: [rpcClient],
       grapeless: true,
       run (t, peer, { rts, topic, clientHost }, done) {
@@ -91,7 +91,7 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
 
           const payload = 'hello-' + n
           expected.push(payload + ': world')
-          // clear the cache every time 
+          // clear the cache every time
           // otherwise we're only testing the cache
           link.cache = {}
           client.request(topic, payload, { timeout: 10000 }, (err, data) => {
@@ -103,5 +103,5 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
       }
     }
   ]
-  spinup(NODES, {t, scenario, state, bs: [bootstrapper]})
+  spinup(NODES, { t, scenario, state, bs: [bootstrapper] })
 })

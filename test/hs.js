@@ -5,7 +5,6 @@ const nodes = 2000
 const { h1, h2 } = tapenet.topologies.basic(nodes)
 
 tapenet(nodes + ' grapes start and connect', async function (t) {
-  
   for (let i = 2; i < nodes; i++) {
     t.run(tapenet.hosts[i], `
       tapenet.on('bootstrap', (bootstrap) => {

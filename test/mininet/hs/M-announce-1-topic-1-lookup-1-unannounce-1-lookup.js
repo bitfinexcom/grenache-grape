@@ -1,28 +1,28 @@
+/* global ip */
 'use strict'
 const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
 const crypto = require('crypto')
 
-const { 
+const {
   NODES = 252,
   RTS = 1000
 } = process.env
 
 const topology = tapenet.topologies.basic(NODES)
-const { h1: lookup, h2: bootstrapper, ...announcers } = topology 
+const { h1: lookup, h2: bootstrapper, ...announcers } = topology
 
 tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 ephemeral lookup peer, ${RTS} lookups, unannounce on one peer, ${RTS} lookups`, (t) => {
- 
-  const state = { 
+  const state = {
     rts: +RTS,
     topic: crypto.randomBytes(32),
-    $shared: { 
+    $shared: {
       cfg: {}
     }
   }
   const scenario = [
     {
-      containers: announcers, 
+      containers: announcers,
       ready (t, peer, state, next) {
         // only ever announcing on 20 nodes
         if (state.$index >= 20) {
@@ -31,7 +31,7 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
         }
         const { $shared, $index } = state
         const { port } = peer.address()
-        $shared.cfg[$index] = {host: ip, port}
+        $shared.cfg[$index] = { host: ip, port }
         next(null, state)
       },
       run (t, peer, { topic, $index }, done) {
@@ -47,7 +47,7 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
               if (err) throw err
               const { port } = peer.address()
               const host = ip
-              tapenet.emit('unannounced', {host, port})
+              tapenet.emit('unannounced', { host, port })
             })
           })
         }
@@ -57,7 +57,7 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
         })
       }
     },
-    { 
+    {
       containers: [lookup],
       options: { ephemeral: true },
       run (t, peer, { rts, topic }, done) {
@@ -84,9 +84,9 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
             const hasResult = result.length > 0
             t.is(hasResult, true, 'lookup has a result')
             if (hasResult === false) return
-            if (expectToExclude) { 
+            if (expectToExclude) {
               const { host, port } = expectToExclude
-              const match = result.some(({node}) => {
+              const match = result.some(({ node }) => {
                 return node.port === port && node.host === host
               })
               t.is(match, false, 'lookup result does not contain unannounced peer')
@@ -97,6 +97,5 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
       }
     }
   ]
-  spinup(NODES, {t, scenario, state, bs: [bootstrapper]})
-  
+  spinup(NODES, { t, scenario, state, bs: [bootstrapper] })
 })

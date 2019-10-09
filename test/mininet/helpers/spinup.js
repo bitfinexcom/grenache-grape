@@ -1,14 +1,15 @@
+/* global tapenet */
 'use strict'
 const bootstrap = require('./bootstrap')
 
-function spinup (size, {t, scenario, state, bs}) {
-  bootstrap({t, hosts: bs, state, size})
+function spinup (size, { t, scenario, state, bs }) {
+  bootstrap({ t, hosts: bs, state, size })
   mediate(t, bs[0])
   const procs = []
-  const noop = (t, p, s, cb) => { cb(null) } 
-  
+  const noop = (t, p, s, cb) => { cb(null) }
+
   for (let i = 0; i < scenario.length; i++) {
-    const {options = {}, grapeless = false, ready = noop, run = noop} = scenario[i]
+    const { options = {}, grapeless = false, ready = noop, run = noop } = scenario[i]
     const containers = arrarify(scenario[i].containers)
     let count = 0
     if (grapeless) {
@@ -155,10 +156,10 @@ function mediate (t, h) {
   })
 }
 
-function fnStringify (fn) { 
+function fnStringify (fn) {
   const str = fn.toString()
-  const isShorthandMethod = fn.name && 
-    str.indexOf(fn.name) > -1 && 
+  const isShorthandMethod = fn.name &&
+    str.indexOf(fn.name) > -1 &&
     /^(\s?)+function/.test(str) === false
   return isShorthandMethod ? 'function ' + str : str
 }

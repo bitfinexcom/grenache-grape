@@ -1,27 +1,27 @@
 'use strict'
 const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
-const { 
+const {
   NODES = 252,
   RTS = 1000
 } = process.env
 
-const { 
-  h1: announcer, 
-  h2: bootstrapper, 
-  ...lookups 
+const {
+  h1: announcer,
+  h2: bootstrapper,
+  ...lookups
 } = tapenet.topologies.basic(NODES)
 
 tapenet(`1 announcing peer, ${NODES - 2} lookup peers, ${RTS} lookups per peer`, (t) => {
   const state = { rts: +RTS }
   const scenario = [
     {
-      containers: [announcer], 
+      containers: [announcer],
       ready (t, peer, state, next) {
         const crypto = require('crypto')
         const topic = crypto.randomBytes(32)
         const { port } = peer.address()
-        next(null, {...state, announcerPort: port, topic})
+        next(null, { ...state, announcerPort: port, topic })
       },
       run (t, peer, { topic }, done) {
         peer.announce(topic, (err) => {
@@ -30,7 +30,7 @@ tapenet(`1 announcing peer, ${NODES - 2} lookup peers, ${RTS} lookups per peer`,
         })
       }
     },
-    { 
+    {
       containers: lookups,
       options: { ephemeral: false },
       run (t, peer, { rts, topic, announcerPort }, done) {
@@ -56,6 +56,5 @@ tapenet(`1 announcing peer, ${NODES - 2} lookup peers, ${RTS} lookups per peer`,
       }
     }
   ]
-  spinup(NODES, {t, scenario, state, bs: [bootstrapper]})
+  spinup(NODES, { t, scenario, state, bs: [bootstrapper] })
 })
-

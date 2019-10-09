@@ -1,32 +1,32 @@
+/* global ip */
 'use strict'
 const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
 const crypto = require('crypto')
 
-const { 
+const {
   NODES = 252,
   RTS = 1000
 } = process.env
 
 const topology = tapenet.topologies.basic(NODES)
-const { h1: lookup, h2: bootstrapper, ...announcers } = topology 
+const { h1: lookup, h2: bootstrapper, ...announcers } = topology
 
 tapenet(`1 lookup peer, ${NODES - 2} announcing peers, ${RTS} lookups, same topic`, (t) => {
- 
-  const state = { 
+  const state = {
     rts: +RTS,
     topic: crypto.randomBytes(32),
-    $shared: { 
+    $shared: {
       cfg: {}
     }
   }
   const scenario = [
     {
-      containers: announcers, 
+      containers: announcers,
       ready (t, peer, state, next) {
         const { $shared, $index } = state
         const { port } = peer.address()
-        $shared.cfg[$index] = {host: ip, port}
+        $shared.cfg[$index] = { host: ip, port }
         next(null, state)
       },
       run (t, peer, { topic }, done) {
@@ -36,7 +36,7 @@ tapenet(`1 lookup peer, ${NODES - 2} announcing peers, ${RTS} lookups, same topi
         })
       }
     },
-    { 
+    {
       containers: [lookup],
       options: { ephemeral: false },
       run (t, peer, { rts, topic, bootstrap, $shared }, done) {
@@ -55,17 +55,17 @@ tapenet(`1 lookup peer, ${NODES - 2} announcing peers, ${RTS} lookups, same topi
             const hasResult = result.length > 0
             t.is(hasResult, true, 'lookup has a result')
             if (hasResult === false) return
-   
+
             const expected = new Set([
-              ...bootstrap, 
-              ...Object.values(cfg).map(({host, port}) => {
-              return `${host}:${port}`
+              ...bootstrap,
+              ...Object.values(cfg).map(({ host, port }) => {
+                return `${host}:${port}`
               })
             ])
 
-            const peersMatch = result.every(({node, peers}) => {
+            const peersMatch = result.every(({ node, peers }) => {
               const { host, port } = node
-              return expected.has(`${host}:${port}`) && peers.every(({host, port}) => {
+              return expected.has(`${host}:${port}`) && peers.every(({ host, port }) => {
                 return expected.has(`${host}:${port}`)
               })
             })
@@ -76,6 +76,5 @@ tapenet(`1 lookup peer, ${NODES - 2} announcing peers, ${RTS} lookups, same topi
       }
     }
   ]
-  spinup(NODES, {t, scenario, state, bs: [bootstrapper]})
-  
+  spinup(NODES, { t, scenario, state, bs: [bootstrapper] })
 })
