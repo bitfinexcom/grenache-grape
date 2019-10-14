@@ -11,8 +11,11 @@ const {
 const topology = tapenet.topologies.basic(NODES)
 const { h1: bootstrapper, ...rest } = topology
 const nodes = spinup.arrarify(rest)
-const announcers = nodes.slice(0, nodes.length / 2)
-const lookups = nodes.slice(nodes.length / 2)
+const announcers = nodes.slice(0, Math.ceil(nodes.length / 2))
+const lookups = nodes.slice(
+  announcers.length, 
+  announcers.length + Math.floor(nodes.length / 2)
+)
 
 tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (${Math.ceil(announcers.length / 2)} will crash), ${announcers.length} topics, ${RTS} lookups per topic`, (t) => {
   const state = {
@@ -47,7 +50,7 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (
               t.pass('announcing peer force crashed')
               done()
             })
-            peer.destroy()
+            peer.stop()
           })
         }
       }
@@ -84,7 +87,7 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (
           peer.lookup(topic, (err, peers) => {
             t.error(err, 'no lookup error')
             if (err) return
-            const hasResult = peer.length > 0
+            const hasResult = peers.length > 0
             t.is(hasResult, true, 'lookup has a result')
             if (hasResult === false) return
             const expected = new Set([

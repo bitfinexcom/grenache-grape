@@ -3,15 +3,18 @@
 const tapenet = require('tapenet')
 const spinup = require('./helpers/spinup')
 const {
-  NODES = 252,
+  NODES = 251,
   RTS = 1000
 } = process.env
 
 const topology = tapenet.topologies.basic(NODES)
 const { h1: bootstrapper, ...rest } = topology
 const nodes = spinup.arrarify(rest)
-const putters = nodes.slice(0, nodes.length / 2)
-const getters = nodes.slice(nodes.length / 2)
+const putters = nodes.slice(0, Math.ceil(nodes.length / 2))
+const getters = nodes.slice(
+  putters.length, 
+  putters.length + Math.floor(nodes.length / 2)
+)
 
 tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per peer`, (t) => {
   const state = {
@@ -26,7 +29,7 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
       containers: putters,
       ready (t, peer, state, next) {
         const crypto = require('crypto')
-        const hypersign = require('@hyperswarm/hypersign')
+        const hypersign = require('@hyperswarm/hypersign')()
         const keypair = hypersign.keypair()
         const { publicKey: key } = keypair
         const value = crypto.randomBytes(32).toString('hex')
@@ -35,7 +38,7 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
           keypair
         })
         $shared.kv[$index] = { sig, key, value }
-        next(null, { ...state, key, value })
+        next(null, { ...state, key, value, sig })
       },
       run (t, peer, { key, value, sig }, done) {
         peer.put({ k: key, v: value, sig }, (err) => {

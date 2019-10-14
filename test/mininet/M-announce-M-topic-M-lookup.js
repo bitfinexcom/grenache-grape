@@ -11,8 +11,11 @@ const {
 const topology = tapenet.topologies.basic(NODES)
 const { h1: bootstrapper, ...rest } = topology
 const nodes = spinup.arrarify(rest)
-const announcers = nodes.slice(0, nodes.length / 2)
-const lookups = nodes.slice(nodes.length / 2)
+const announcers = nodes.slice(0, Math.ceil(nodes.length / 2))
+const lookups = nodes.slice(
+  announcers.length, 
+  announcers.length + Math.floor(nodes.length / 2)
+)
 
 tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers, ${announcers.length} topics, ${RTS} lookups per topic`, (t) => {
   const state = {
