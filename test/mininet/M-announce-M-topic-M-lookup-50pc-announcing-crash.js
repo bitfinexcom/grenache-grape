@@ -13,7 +13,7 @@ const { h1: bootstrapper, ...rest } = topology
 const nodes = spinup.arrarify(rest)
 const announcers = nodes.slice(0, Math.ceil(nodes.length / 2))
 const lookups = nodes.slice(
-  announcers.length, 
+  announcers.length,
   announcers.length + Math.floor(nodes.length / 2)
 )
 

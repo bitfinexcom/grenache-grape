@@ -12,7 +12,7 @@ const { h1: bootstrapper, ...rest } = topology
 const nodes = spinup.arrarify(rest)
 const putters = nodes.slice(0, Math.ceil(nodes.length / 2))
 const getters = nodes.slice(
-  putters.length, 
+  putters.length,
   putters.length + Math.floor(nodes.length / 2)
 )
 
