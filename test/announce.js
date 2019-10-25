@@ -2,74 +2,81 @@
 
 'use strict'
 
-const assert = require('assert')
+const { test } = require('tap')
+const { when, once } = require('nonsynchronous')
 const {
   createGrapes,
   createTwoGrapes
 } = require('./helper.js')
 
-describe('service announce', () => {
-  it('should find services', (done) => {
-    const { grape1, grape2, stop } = createTwoGrapes()
-    grape1.on('ready', () => {
-      grape1.announce('rest:util:net', 1337, () => {})
+test('service announce', async () => {
+  test('should find services', { timeout: 5000 }, async ({ error, strictSame }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    grape1.announce('rest:util:net', 1337, () => {})
+
+    await once(grape2, 'announce')
+
+    const until = when()
+
+    grape2.lookup('rest:util:net', (err, res) => {
+      error(err)
+      strictSame(res, ['127.0.0.1:1337'])
+      until()
     })
 
-    grape2.on('announce', () => {
-      grape2.lookup('rest:util:net', (err, res) => {
-        assert.strictEqual(err, null)
-        assert.deepStrictEqual(res, ['127.0.0.1:1337'])
-        stop(done)
-      })
-    })
-  }).timeout(5000)
+    await until.done()
+    await stop()
+  })
 
-  it('should remove outdated services', (done) => {
-    const { grape1, grape2, stop } = createTwoGrapes()
+  test('should remove outdated services', { timeout: 5000 }, async ({ error, strictSame }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.on('ready', () => {
-      grape1.announce('rest:util:net', 1337, () => {})
-    })
+    grape1.announce('rest:util:net', 1337, () => {})
 
-    grape2.on('announce', () => {
-      grape2.lookup('rest:util:net', (err, res) => {
-        assert.strictEqual(err, null)
-        assert.deepStrictEqual(res, ['127.0.0.1:1337'])
-        setTimeout(lookup, 300) // 300 because maxAge is at 200 in helper
-      })
+    await once(grape2, 'announce')
+
+    const until = when()
+
+    grape2.lookup('rest:util:net', (err, res) => {
+      error(err)
+      strictSame(res, ['127.0.0.1:1337'])
+      setTimeout(lookup, 300) // 300 because maxAge is at 200 in helper
     })
 
     function lookup () {
       grape2.lookup('rest:util:net', (err, res) => {
-        assert.strictEqual(err, null)
-        assert.deepStrictEqual(res, [])
-        stop(done)
+        error(err)
+        strictSame(res, [])
+        until()
       })
     }
-  }).timeout(5000)
 
-  it('should not cache dead peers when doing lookups', (done) => {
+    await until.done()
+    await stop()
+  })
+
+  test('should not cache dead peers when doing lookups', async ({ ok, strictSame }) => {
     let lookups = 0
-    const { grape1, grape2, stop } = createTwoGrapes()
+    const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.on('ready', () => {
-      grape1.announce('test', 1337, () => {
-        loop()
+    const until = when()
+    grape1.announce('test', 1337, () => {
+      loop()
 
-        function loop () {
-          lookup((a, b) => {
-            if (!a && !b) {
-              assert(lookups > 10, 'lookups greater than 10')
-              stop(done)
-              return
-            }
-            lookups++
-            if (a) assert.deepStrictEqual(a, '127.0.0.1:1337')
-            if (b) assert.deepStrictEqual(b, '127.0.0.1:1337')
-            setTimeout(loop, 10)
-          })
-        }
-      })
+      function loop () {
+        lookup((a, b) => {
+          if (!a && !b) {
+            ok(lookups > 10, 'lookups greater than 10')
+            until()
+            return
+          }
+          lookups++
+          if (a) strictSame(a, '127.0.0.1:1337')
+          if (b) strictSame(b, '127.0.0.1:1337')
+          setTimeout(loop, 10)
+        })
+      }
     })
 
     function lookup (cb) {
@@ -79,37 +86,39 @@ describe('service announce', () => {
         })
       })
     }
+
+    await until.done()
+    await stop()
   })
 
-  it('should not cache dead peers when another one is announcing', (done) => {
+  test('should not cache dead peers when another one is announcing', async ({ ok }) => {
     let lookups = 0
-    const { grape1, grape2, stop } = createTwoGrapes()
+    const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.on('ready', () => {
-      const one = startAnnouncing(grape1, 'test', 2000)
-      const two = startAnnouncing(grape2, 'test', 2001)
-      grape1.announce('test', 1337, () => {
-        setTimeout(loop, 100)
-        const dead = '127.0.0.1:1337'
+    const one = startAnnouncing(grape1, 'test', 2000)
+    const two = startAnnouncing(grape2, 'test', 2001)
+    const until = when()
+    grape1.announce('test', 1337, () => {
+      setTimeout(loop, 100)
+      const dead = '127.0.0.1:1337'
 
-        function loop () {
-          lookup((a, b) => {
-            if (!a.includes(dead) && !b.includes(dead)) {
-              clearInterval(one)
-              clearInterval(two)
-              assert(lookups > 5)
-              stop(done)
-              return
-            }
-            lookups++
-            assert(a.includes('127.0.0.1:2000'))
-            assert(b.includes('127.0.0.1:2000'))
-            assert(a.includes('127.0.0.1:2001'))
-            assert(b.includes('127.0.0.1:2001'))
-            setTimeout(loop, 10)
-          })
-        }
-      })
+      function loop () {
+        lookup((a, b) => {
+          if (!a.includes(dead) && !b.includes(dead)) {
+            clearInterval(one)
+            clearInterval(two)
+            ok(lookups > 5)
+            until()
+            return
+          }
+          lookups++
+          ok(a.includes('127.0.0.1:2000'))
+          ok(b.includes('127.0.0.1:2000'))
+          ok(a.includes('127.0.0.1:2001'))
+          ok(b.includes('127.0.0.1:2001'))
+          setTimeout(loop, 10)
+        })
+      }
     })
 
     function lookup (onlookup) {
@@ -119,33 +128,39 @@ describe('service announce', () => {
         })
       })
     }
+
+    await until.done()
+    await stop()
   })
 
-  it('should announce a simple service to lots of grapes', (done) => {
-    createGrapes(100, (grapes, stop) => {
+  test('should announce a simple service to lots of grapes', { timeout: 20000 }, async ({ error, strictSame }) => {
+    const until = when()
+    await createGrapes(100, (grapes, stop) => {
       grapes[1].announce('B', 2000, (err) => {
-        assert.strictEqual(err, null)
+        error(err)
         grapes[2].lookup('B', (err, l) => {
-          assert.strictEqual(err, null)
-          assert.deepStrictEqual(l, ['127.0.0.1:2000'])
+          error(err)
+          strictSame(l, ['127.0.0.1:2000'])
           grapes[3].lookup('B', (err, l) => {
-            assert.strictEqual(err, null)
-            assert.deepStrictEqual(l, ['127.0.0.1:2000'])
-            stop(done)
+            error(err)
+            strictSame(l, ['127.0.0.1:2000'])
+            stop(until)
           })
         })
       })
     })
-  }).timeout(20000)
+    await until.done()
+  })
 
-  it('should work when services die and come back', (done) => {
-    createGrapes(4, (grapes, stop) => {
+  test('should work when services die and come back', { timeout: 20000 }, async ({ strictSame, error }) => {
+    const until = when()
+    await createGrapes(4, (grapes, stop) => {
       const [g0, g1, g2, g3] = grapes
       const one = startAnnouncing(g0, 'A', 3000)
       let two
 
       g1.announce('B', 2000, (err) => {
-        assert.strictEqual(err, null)
+        error(err)
         setTimeout(run, 100)
         let ticks = 0
 
@@ -153,20 +168,20 @@ describe('service announce', () => {
           ticks++
           if (ticks === 1) {
             lookup((g2l, g3l) => {
-              assert.deepStrictEqual(g2l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g3l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g2l.B, ['127.0.0.1:2000'])
-              assert.deepStrictEqual(g3l.B, ['127.0.0.1:2000'])
+              strictSame(g2l.A, ['127.0.0.1:3000'])
+              strictSame(g3l.A, ['127.0.0.1:3000'])
+              strictSame(g2l.B, ['127.0.0.1:2000'])
+              strictSame(g3l.B, ['127.0.0.1:2000'])
               setTimeout(run, 100)
             })
             return
           }
           if (ticks === 6) {
             lookup((g2l, g3l) => {
-              assert.deepStrictEqual(g2l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g3l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g2l.B, [])
-              assert.deepStrictEqual(g3l.B, [])
+              strictSame(g2l.A, ['127.0.0.1:3000'])
+              strictSame(g3l.A, ['127.0.0.1:3000'])
+              strictSame(g2l.B, [])
+              strictSame(g3l.B, [])
               two = startAnnouncing(g1, 'B', 2000)
               setTimeout(run, 100)
             })
@@ -174,13 +189,15 @@ describe('service announce', () => {
           }
           if (ticks === 20) {
             lookup((g2l, g3l) => {
-              assert.deepStrictEqual(g2l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g3l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g2l.B, ['127.0.0.1:2000'])
-              assert.deepStrictEqual(g3l.B, ['127.0.0.1:2000'])
+              strictSame(g2l.A, ['127.0.0.1:3000'])
+              strictSame(g3l.A, ['127.0.0.1:3000'])
+              strictSame(g2l.B, ['127.0.0.1:2000'])
+              strictSame(g3l.B, ['127.0.0.1:2000'])
               clearInterval(one)
               clearInterval(two)
-              setTimeout(_ => stop(done), 100)
+              setTimeout(() => {
+                stop(until)
+              }, 100)
             })
             return
           }
@@ -205,16 +222,18 @@ describe('service announce', () => {
         }
       }
     })
-  }).timeout(20000)
+    await until.done()
+  })
 
-  it('should work when services die and come back (lots of grapes)', (done) => {
-    createGrapes(40, (grapes, stop) => {
+  test('should work when services die and come back (lots of grapes)', { timeout: 20000 }, async ({ error, strictSame }) => {
+    const until = when()
+    await createGrapes(40, (grapes, stop) => {
       const [g0, g1, g2, g3] = grapes
       const one = startAnnouncing(g0, 'A', 3000)
       let two
 
       g1.announce('B', 2000, (err) => {
-        assert.strictEqual(err, null)
+        error(err)
         setTimeout(run, 100)
         let ticks = 0
 
@@ -222,20 +241,20 @@ describe('service announce', () => {
           ticks++
           if (ticks === 1) {
             lookup((g2l, g3l) => {
-              assert.deepStrictEqual(g2l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g3l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g2l.B, ['127.0.0.1:2000'])
-              assert.deepStrictEqual(g3l.B, ['127.0.0.1:2000'])
+              strictSame(g2l.A, ['127.0.0.1:3000'])
+              strictSame(g3l.A, ['127.0.0.1:3000'])
+              strictSame(g2l.B, ['127.0.0.1:2000'])
+              strictSame(g3l.B, ['127.0.0.1:2000'])
               setTimeout(run, 100)
             })
             return
           }
           if (ticks === 6) {
             lookup((g2l, g3l) => {
-              assert.deepStrictEqual(g2l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g3l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g2l.B, [])
-              assert.deepStrictEqual(g3l.B, [])
+              strictSame(g2l.A, ['127.0.0.1:3000'])
+              strictSame(g3l.A, ['127.0.0.1:3000'])
+              strictSame(g2l.B, [])
+              strictSame(g3l.B, [])
               two = startAnnouncing(g1, 'B', 2000)
               setTimeout(run, 100)
             })
@@ -243,13 +262,15 @@ describe('service announce', () => {
           }
           if (ticks === 20) {
             lookup((g2l, g3l) => {
-              assert.deepStrictEqual(g2l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g3l.A, ['127.0.0.1:3000'])
-              assert.deepStrictEqual(g2l.B, ['127.0.0.1:2000'])
-              assert.deepStrictEqual(g3l.B, ['127.0.0.1:2000'])
+              strictSame(g2l.A, ['127.0.0.1:3000'])
+              strictSame(g3l.A, ['127.0.0.1:3000'])
+              strictSame(g2l.B, ['127.0.0.1:2000'])
+              strictSame(g3l.B, ['127.0.0.1:2000'])
               clearInterval(one)
               clearInterval(two)
-              setTimeout(_ => stop(done), 100)
+              setTimeout(() => {
+                stop(until)
+              }, 100)
             })
             return
           }
@@ -274,9 +295,12 @@ describe('service announce', () => {
         }
       }
     })
-  }).timeout(20000)
+    await until.done()
+  })
 })
 
 function startAnnouncing (grape, name, port) {
-  return setInterval(_ => grape.announce(name, port), 20)
+  const ivl = setInterval(_ => grape.announce(name, port), 20)
+  ivl.unref()
+  return ivl
 }

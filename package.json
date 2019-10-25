@@ -27,15 +27,16 @@
   "main": "index.js",
   "devDependencies": {
     "@hyperswarm/hypersign": "^2.0.0",
-    "chai": "^3.2.0",
     "events.once": "^2.0.2",
-    "mocha": "^5.2.0",
+    "get-port": "^5.0.0",
+    "nonsynchronous": "^1.2.0",
     "request": "^2.88.0",
-    "standard": "^14.3.1"
+    "standard": "^14.3.1",
+    "tap": "^14.8.2"
   },
   "scripts": {
     "test": "npm run lint && npm run unit",
-    "unit": "mocha",
+    "unit": "tap -j16 -R classic --no-esm --test-ignore='mininet|helper.js'",
     "lint": "standard"
   },
   "license": "Apache-2.0",

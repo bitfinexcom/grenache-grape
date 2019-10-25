@@ -1,47 +1,56 @@
 'use strict'
 const { Grape } = require('./../')
-
+const { when, once } = require('nonsynchronous')
+const getPort = require('get-port')
 exports.createGrapes = createGrapes
-function createGrapes (n, onstart) {
-  const grapes = []
-  let missing = n
 
+async function createGrapes (n, onstart = () => {}) {
+  const grapes = []
+  const bsPort = await getPort()
   const bootstrap = new Grape({
-    dht_port: 20000,
+    dht_port: bsPort,
     dht_bootstrap: false,
-    api_port: 40000,
+    api_port: await getPort(),
     dht_peer_maxAge: 200
   })
   bootstrap.start()
-
-  for (let i = 0; i < n; i++) {
+  await once(bootstrap, 'ready')
+  const dhtPorts = await Promise.all([...Array(n)].map(() => getPort()))
+  const apiPorts = await Promise.all([...Array(n)].map(() => getPort()))
+  for (const [i, port] of dhtPorts.entries()) {
     const grape = new Grape({
-      dht_port: 20001 + i,
-      dht_bootstrap: ['127.0.0.1:20000'],
-      api_port: 40001 + i,
+      dht_port: port,
+      dht_bootstrap: [`127.0.0.1:${bsPort}`],
+      api_port: apiPorts[i],
       dht_peer_maxAge: 200
     })
-    grape.start(() => {
-      if (--missing) return
-      if (onstart) onstart(grapes, stop)
-    })
+    grape.start()
+    await once(grape, 'ready')
     grapes.push(grape)
   }
+  onstart(grapes, stop)
   grapes.stop = stop
   return grapes
 
   function stop (done = () => {}) {
+    const until = when()
     bootstrap.stop(loop)
     function loop () {
-      if (!grapes.length) return done()
+      if (!grapes.length) {
+        until()
+        done()
+        return
+      }
       grapes.pop().stop(loop)
     }
+    return until.done()
   }
 }
 
 exports.createTwoGrapes = createTwoGrapes
-function createTwoGrapes () {
-  const grapes = createGrapes(2)
+
+async function createTwoGrapes () {
+  const grapes = await createGrapes(2)
   const { stop } = grapes
   const [grape1, grape2] = grapes
   return { grape1, grape2, stop }

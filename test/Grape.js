@@ -1,71 +1,72 @@
-/* eslint-env mocha */
-
 'use strict'
-
-const assert = require('chai').assert
-
 const Events = require('events')
-
+const { promisifyOf, when } = require('nonsynchronous')
+const { test } = require('tap')
+const getPort = require('get-port')
 const Grape = require('./../lib/Grape')
+const stop = promisifyOf('stop')
+const start = promisifyOf('start')
 
-describe('Grape', () => {
-  it('should be an instance of Events', () => {
+test('Grape', async () => {
+  test('should be an instance of Events', async ({ ok }) => {
     const grape = new Grape({
-      dht_port: 20000,
-      api_port: 20001
+      dht_port: await getPort(),
+      api_port: await getPort()
     })
 
-    assert(grape instanceof Events)
+    ok(grape instanceof Events)
+    await stop(grape)()
   })
 
-  it('should accept callback on starting a grape', (done) => {
+  test('should accept callback on starting a grape', async ({ error }) => {
     const grape = new Grape({
-      dht_port: 20002,
-      api_port: 30000
+      dht_port: await getPort(),
+      api_port: await getPort()
     })
-
+    const until = when()
     grape.start((err) => {
-      assert.ifError(err)
+      error(err)
 
       grape.stop((err) => {
-        assert.ifError(err)
-        done()
+        error(err)
+        until()
       })
     })
+    await until.done()
   })
 
-  it('calling stop on an unstarted Grape is fine', (done) => {
+  test('calling stop on an unstarted Grape will not throw', async () => {
     const grape = new Grape({
-      dht_port: 20000,
-      api_port: 20001
+      dht_port: await getPort(),
+      api_port: await getPort()
     })
-
-    grape.stop(done)
+    await stop(grape)()
   })
 
-  it('requires a port', (done) => {
+  test('requires an api port', async ({ ok }) => {
     const grape = new Grape({
-      dht_port: 20000
+      dht_port: await getPort()
     })
-
+    const until = when()
     grape.start((err) => {
-      assert.ok(err)
-      grape.stop(done)
+      ok(err)
+      grape.stop(until)
     })
+    await until.done()
   })
 
-  it('keeps running on invalid put payload', (done) => {
+  test('keeps running on invalid put payload', async ({ ok }) => {
     const grape = new Grape({
-      dht_port: 20000,
-      api_port: 20001
+      dht_port: await getPort(),
+      api_port: await getPort()
     })
-
-    grape.start((err) => {
-      if (err) throw err
-      grape.put({ foo: 'bar' }, (err) => {
-        assert.ok(err)
-        grape.stop(done)
-      })
+    await start(grape)()
+    const until = when()
+    grape.put({ foo: 'bar' }, (err) => {
+      ok(err)
+      until()
     })
+    await until.done()
+    await stop(grape)()
   })
 })

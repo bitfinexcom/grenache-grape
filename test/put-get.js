@@ -2,7 +2,7 @@
 
 'use strict'
 
-const assert = require('assert')
+const { test } = require('tap')
 const request = require('request')
 const once = require('events.once')
 const { promisify } = require('util')
@@ -13,9 +13,9 @@ const {
 
 const post = promisify(request.post)
 
-async function getValue (h) {
+async function getValue (h, port) {
   const res = await post({
-    uri: 'http://127.0.0.1:40001/get',
+    uri: `http://127.0.0.1:${port}/get`,
     json: true,
     body: { rid: 'test', data: h }
   })
@@ -25,57 +25,58 @@ async function getValue (h) {
   return res.body
 }
 
-describe('put-get', () => {
-  it('stores and retrieves immutable data', async () => {
-    const { grape1, grape2, stop } = createTwoGrapes()
-    await once(grape1, 'ready')
+test('put-get', async () => {
+  test('stores and retrieves immutable data', { timeout: 5000 }, async ({ is }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
     grape1.announce('rest:util:net', 1337, () => {})
     await once(grape2, 'announce')
     const data = {
       v: 'hello world'
     }
+    const port = grape2.conf.api_port
     const { body: hash } = await post({
-      uri: 'http://127.0.0.1:40001/put',
+      uri: `http://127.0.0.1:${port}/put`,
       json: true,
       body: { rid: 'test', data: data }
     })
 
-    const normative = await getValue(hash)
-    assert.strictEqual(typeof normative.id, 'string')
-    assert.strictEqual(normative.id.length, 64)
-    assert.strictEqual(typeof normative.k, 'string')
-    assert.strictEqual(normative.k.length, 64)
-    assert.strictEqual(normative.v, 'hello world')
-    assert.strictEqual(normative.m, false)
-    assert.strictEqual(normative.seq, null)
-    assert.strictEqual(normative.sig, null)
+    const normative = await getValue(hash, port)
+    is(typeof normative.id, 'string')
+    is(normative.id.length, 64)
+    is(typeof normative.k, 'string')
+    is(normative.k.length, 64)
+    is(normative.v, 'hello world')
+    is(normative.m, false)
+    is(normative.seq, null)
+    is(normative.sig, null)
 
-    const explicit = await getValue({ hash, m: false })
-    assert.strictEqual(typeof explicit.id, 'string')
-    assert.strictEqual(explicit.id.length, 64)
-    assert.strictEqual(typeof explicit.k, 'string')
-    assert.strictEqual(explicit.k.length, 64)
-    assert.strictEqual(explicit.v, 'hello world')
-    assert.strictEqual(explicit.m, false)
-    assert.strictEqual(explicit.seq, null)
-    assert.strictEqual(explicit.sig, null)
+    const explicit = await getValue({ hash, m: false }, port)
+    is(typeof explicit.id, 'string')
+    is(explicit.id.length, 64)
+    is(typeof explicit.k, 'string')
+    is(explicit.k.length, 64)
+    is(explicit.v, 'hello world')
+    is(explicit.m, false)
+    is(explicit.seq, null)
+    is(explicit.sig, null)
 
-    const legacy = await getValue({ hash })
-    assert.strictEqual(typeof legacy.id, 'string')
-    assert.strictEqual(legacy.id.length, 64)
-    assert.strictEqual(typeof legacy.k, 'string')
-    assert.strictEqual(legacy.k.length, 64)
-    assert.strictEqual(legacy.v, 'hello world')
-    assert.strictEqual(legacy.m, false)
-    assert.strictEqual(legacy.seq, null)
-    assert.strictEqual(legacy.sig, null)
+    const legacy = await getValue({ hash }, port)
+    is(typeof legacy.id, 'string')
+    is(legacy.id.length, 64)
+    is(typeof legacy.k, 'string')
+    is(legacy.k.length, 64)
+    is(legacy.v, 'hello world')
+    is(legacy.m, false)
+    is(legacy.seq, null)
+    is(legacy.sig, null)
 
-    stop()
-  }).timeout(5000)
+    await stop()
+  })
 
-  it('stores and retrieves mutable data', async () => {
-    const { grape1, grape2, stop } = createTwoGrapes()
-    await once(grape1, 'ready')
+  test('stores and retrieves mutable data', { timeout: 5000 }, async ({ is }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
     grape1.announce('rest:util:net', 1337, () => {})
     await once(grape2, 'announce')
     const keypair = hypersign.keypair()
@@ -88,52 +89,52 @@ describe('put-get', () => {
       k: key,
       sig
     }
-
+    const port = grape2.conf.api_port
     const { body: hexKey } = await post({
-      uri: 'http://127.0.0.1:40001/put',
+      uri: `http://127.0.0.1:${port}/put`,
       json: true,
       body: { rid: 'test', data: data }
     })
 
-    assert.strictEqual(hexKey, key.toString('hex'))
+    is(hexKey, key.toString('hex'))
 
-    const normative = await getValue({ key: hexKey })
-    assert.strictEqual(typeof normative.id, 'string')
-    assert.strictEqual(normative.id.length, 64)
-    assert.strictEqual(normative.k, hexKey)
-    assert.strictEqual(normative.v, 'hello world')
-    assert.strictEqual(normative.m, true)
-    assert.strictEqual(normative.seq, 0)
-    assert.strictEqual(normative.sig, sig.toString('hex'))
-    assert.strictEqual(normative.salt, null)
+    const normative = await getValue({ key: hexKey }, port)
+    is(typeof normative.id, 'string')
+    is(normative.id.length, 64)
+    is(normative.k, hexKey)
+    is(normative.v, 'hello world')
+    is(normative.m, true)
+    is(normative.seq, 0)
+    is(normative.sig, sig.toString('hex'))
+    is(normative.salt, null)
 
-    const explicit = await getValue({ hash: hexKey, m: true })
-    assert.strictEqual(typeof explicit.id, 'string')
-    assert.strictEqual(explicit.id.length, 64)
-    assert.strictEqual(explicit.k, hexKey)
-    assert.strictEqual(explicit.v, 'hello world')
-    assert.strictEqual(explicit.m, true)
-    assert.strictEqual(explicit.seq, 0)
-    assert.strictEqual(explicit.sig, sig.toString('hex'))
-    assert.strictEqual(explicit.salt, null)
+    const explicit = await getValue({ hash: hexKey, m: true }, port)
+    is(typeof explicit.id, 'string')
+    is(explicit.id.length, 64)
+    is(explicit.k, hexKey)
+    is(explicit.v, 'hello world')
+    is(explicit.m, true)
+    is(explicit.seq, 0)
+    is(explicit.sig, sig.toString('hex'))
+    is(explicit.salt, null)
 
-    const legacy = await getValue({ hash: hexKey })
-    assert.strictEqual(typeof legacy.id, 'string')
-    assert.strictEqual(legacy.id.length, 64)
-    assert.strictEqual(typeof legacy.k, 'string')
-    assert.strictEqual(legacy.k.length, 64)
-    assert.strictEqual(legacy.v, 'hello world')
-    assert.strictEqual(legacy.m, true)
-    assert.strictEqual(legacy.seq, 0)
-    assert.strictEqual(legacy.sig, sig.toString('hex'))
-    assert.strictEqual(legacy.salt, null)
+    const legacy = await getValue({ hash: hexKey }, port)
+    is(typeof legacy.id, 'string')
+    is(legacy.id.length, 64)
+    is(typeof legacy.k, 'string')
+    is(legacy.k.length, 64)
+    is(legacy.v, 'hello world')
+    is(legacy.m, true)
+    is(legacy.seq, 0)
+    is(legacy.sig, sig.toString('hex'))
+    is(legacy.salt, null)
 
-    stop()
-  }).timeout(5000)
+    await stop()
+  })
 
-  it('stores and retrieves salted mutable data', async () => {
-    const { grape1, grape2, stop } = createTwoGrapes()
-    await once(grape1, 'ready')
+  test('stores and retrieves salted mutable data', { timeout: 5000 }, async ({ is }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
     grape1.announce('rest:util:net', 1337, () => {})
     await once(grape2, 'announce')
     const keypair = hypersign.keypair()
@@ -151,46 +152,46 @@ describe('put-get', () => {
       sig,
       salt
     }
-
+    const port = grape2.conf.api_port
     const { body: hexKey } = await post({
-      uri: 'http://127.0.0.1:40001/put',
+      uri: `http://127.0.0.1:${port}/put`,
       json: true,
       body: { rid: 'test', data: data }
     })
-    assert.strictEqual(hexKey, key.toString('hex'))
+    is(hexKey, key.toString('hex'))
 
-    const normative = await getValue({ key: hexKey, salt })
+    const normative = await getValue({ key: hexKey, salt }, port)
 
-    assert.strictEqual(typeof normative.id, 'string')
-    assert.strictEqual(normative.id.length, 64)
-    assert.strictEqual(normative.k, hexKey)
-    assert.strictEqual(normative.v, 'hello world')
-    assert.strictEqual(normative.m, true)
-    assert.strictEqual(normative.seq, 0)
-    assert.strictEqual(normative.sig, sig.toString('hex'))
-    assert.strictEqual(normative.salt, salt.toString('hex'))
+    is(typeof normative.id, 'string')
+    is(normative.id.length, 64)
+    is(normative.k, hexKey)
+    is(normative.v, 'hello world')
+    is(normative.m, true)
+    is(normative.seq, 0)
+    is(normative.sig, sig.toString('hex'))
+    is(normative.salt, salt.toString('hex'))
 
-    const explicit = await getValue({ hash: hexKey, m: true, salt })
-    assert.strictEqual(typeof explicit.id, 'string')
-    assert.strictEqual(explicit.id.length, 64)
-    assert.strictEqual(explicit.k, hexKey)
-    assert.strictEqual(explicit.v, 'hello world')
-    assert.strictEqual(explicit.m, true)
-    assert.strictEqual(explicit.seq, 0)
-    assert.strictEqual(explicit.sig, sig.toString('hex'))
-    assert.strictEqual(explicit.salt, salt.toString('hex'))
+    const explicit = await getValue({ hash: hexKey, m: true, salt }, port)
+    is(typeof explicit.id, 'string')
+    is(explicit.id.length, 64)
+    is(explicit.k, hexKey)
+    is(explicit.v, 'hello world')
+    is(explicit.m, true)
+    is(explicit.seq, 0)
+    is(explicit.sig, sig.toString('hex'))
+    is(explicit.salt, salt.toString('hex'))
 
-    const legacy = await getValue({ hash: hexKey, salt })
-    assert.strictEqual(typeof legacy.id, 'string')
-    assert.strictEqual(legacy.id.length, 64)
-    assert.strictEqual(typeof legacy.k, 'string')
-    assert.strictEqual(legacy.k.length, 64)
-    assert.strictEqual(legacy.v, 'hello world')
-    assert.strictEqual(legacy.m, true)
-    assert.strictEqual(legacy.seq, 0)
-    assert.strictEqual(legacy.sig, sig.toString('hex'))
-    assert.strictEqual(legacy.salt, salt.toString('hex'))
+    const legacy = await getValue({ hash: hexKey, salt }, port)
+    is(typeof legacy.id, 'string')
+    is(legacy.id.length, 64)
+    is(typeof legacy.k, 'string')
+    is(legacy.k.length, 64)
+    is(legacy.v, 'hello world')
+    is(legacy.m, true)
+    is(legacy.seq, 0)
+    is(legacy.sig, sig.toString('hex'))
+    is(legacy.salt, salt.toString('hex'))
 
-    stop()
-  }).timeout(5000)
+    await stop()
+  })
 })
