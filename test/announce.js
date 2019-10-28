@@ -4,6 +4,7 @@
 
 const { test } = require('tap')
 const { when, once } = require('nonsynchronous')
+const { sampleSize } = require('lodash')
 const {
   createGrapes,
   createTwoGrapes
@@ -136,12 +137,13 @@ test('service announce', async () => {
   test('should announce a simple service to lots of grapes', { timeout: 20000 }, async ({ error, strictSame }) => {
     const until = when()
     await createGrapes(100, (grapes, stop) => {
-      grapes[1].announce('B', 2000, (err) => {
+      const sample = sampleSize(grapes, 3)
+      sample[0].announce('B', 2000, (err) => {
         error(err)
-        grapes[2].lookup('B', (err, l) => {
+        sample[1].lookup('B', (err, l) => {
           error(err)
           strictSame(l, ['127.0.0.1:2000'])
-          grapes[3].lookup('B', (err, l) => {
+          sample[2].lookup('B', (err, l) => {
             error(err)
             strictSame(l, ['127.0.0.1:2000'])
             stop(until)
@@ -155,7 +157,7 @@ test('service announce', async () => {
   test('should work when services die and come back', { timeout: 20000 }, async ({ strictSame, error }) => {
     const until = when()
     await createGrapes(4, (grapes, stop) => {
-      const [g0, g1, g2, g3] = grapes
+      const [g0, g1, g2, g3] = sampleSize(grapes, 4)
       const one = startAnnouncing(g0, 'A', 3000)
       let two
 
@@ -228,7 +230,7 @@ test('service announce', async () => {
   test('should work when services die and come back (lots of grapes)', { timeout: 20000 }, async ({ error, strictSame }) => {
     const until = when()
     await createGrapes(40, (grapes, stop) => {
-      const [g0, g1, g2, g3] = grapes
+      const [g0, g1, g2, g3] = sampleSize(grapes, 4)
       const one = startAnnouncing(g0, 'A', 3000)
       let two
 
