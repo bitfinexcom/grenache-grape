@@ -10,7 +10,24 @@ const {
   createTwoGrapes
 } = require('./helper.js')
 
-test('service announce', async () => {
+test('service announce/lookup', async () => {
+
+  test('lookup non-existent key', { timeout: 5000 }, async ({ error, strictSame }) => {
+    const { grape1, stop } = await createTwoGrapes()
+
+    const until = when()
+
+    grape1.lookup('rest:util:net', (err, res) => {
+      error(err)
+      strictSame(res, [])
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+
   test('should find services', { timeout: 5000 }, async ({ error, strictSame }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
