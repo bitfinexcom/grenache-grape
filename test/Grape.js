@@ -57,6 +57,21 @@ test('Grape', async () => {
     await stop(grape)()
   })
 
+  test('stop event', async ({ pass }) => {
+    const grape = new Grape({
+      dht_port: await getPort(),
+      api_port: await getPort()
+    })
+    const until = when()
+    await start(grape)()
+    grape.once('close', () => {
+      pass('close event fired')
+      until()
+    })
+    grape.stop()
+    await until.done()
+  })
+
   test('requires an api port', async ({ ok, is }) => {
     const grape = new Grape({
       dht_port: await getPort()

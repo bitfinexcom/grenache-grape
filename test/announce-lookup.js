@@ -11,7 +11,6 @@ const {
 } = require('./helper.js')
 
 test('service announce/lookup', async () => {
-
   test('lookup non-existent key', { timeout: 5000 }, async ({ error, strictSame }) => {
     const { grape1, stop } = await createTwoGrapes()
 
@@ -26,7 +25,6 @@ test('service announce/lookup', async () => {
     await until.done()
     await stop()
   })
-
 
   test('should find services', { timeout: 5000 }, async ({ error, strictSame }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
