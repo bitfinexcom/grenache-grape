@@ -69,4 +69,16 @@ test('Grape', async () => {
     await until.done()
     await stop(grape)()
   })
+
+  test('address', async ({ throws, is }) => {
+    const grape = new Grape({
+      dht_port: await getPort(),
+      api_port: await getPort()
+    })
+    throws(() => { grape.address() })
+    await start(grape)()
+    const { port } = grape.address()
+    is(port, grape.conf.dht_port)
+    await stop(grape)()
+  })
 })
