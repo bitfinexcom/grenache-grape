@@ -61,4 +61,66 @@ test('service unannounce', async () => {
     })
     await until.done()
   })
+
+  test('unannounce own port', { timeout: 5000 }, async ({ error, strictSame }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    const until = when()
+
+    grape1.announce('rest:util:net', (err) => {
+      error(err)
+      grape2.lookup('rest:util:net', (err, res) => {
+        error(err)
+        strictSame(res, [`127.0.0.1:${grape1.conf.dht_port}`])
+        grape1.unannounce('rest:util:net', (err) => {
+          error(err)
+          grape2.lookup('rest:util:net', (err, res) => {
+            error(err)
+            strictSame(res, [])
+            until()
+          })
+        })
+      })
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('unannounce own port – fire and forget', { timeout: 5000 }, async ({ error, strictSame }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    const until = when()
+
+    grape1.announce('rest:util:net')
+    await once(grape2, 'announce')
+
+    grape2.lookup('rest:util:net', async (err, res) => {
+      error(err)
+      strictSame(res, [`127.0.0.1:${grape1.conf.dht_port}`])
+      grape1.unannounce('rest:util:net')
+      await once(grape2, 'unannounce')
+      grape2.lookup('rest:util:net', (err, res) => {
+        error(err)
+        strictSame(res, [])
+        until()
+      })
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('invalid port', async ({ is }) => {
+    const { grape1, stop } = await createTwoGrapes()
+    const until = when()
+    grape1.unannounce('rest:util:net', '1337', (err) => {
+      is(!!err, true)
+      is(err.message, 'ERR_GRAPE_SERVICE_PORT')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
 })

@@ -36,7 +36,7 @@
   },
   "scripts": {
     "test": "npm run unit && npm run lint -- --fix",
-    "ci": "npm run lint && npm run unit",
+    "ci": "npm run lint && npm run unit -- -R tap",
     "unit": "tap -j1 -R classic --no-esm --test-ignore='mininet|helper.js'",
     "cov": "npm run unit -- --coverage-report=html",
     "lint": "standard"
