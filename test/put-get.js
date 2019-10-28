@@ -5,11 +5,15 @@
 const { test } = require('tap')
 const request = require('request')
 const once = require('events.once')
-const { when, promisify, timeout } = require('nonsynchronous')
+const { when, promisify, promisifyOf, timeout } = require('nonsynchronous')
 const hypersign = require('@hyperswarm/hypersign')()
+const getPort = require('get-port')
 const {
   createTwoGrapes
 } = require('./helper.js')
+const { Grape } = require('..')
+const stop = promisifyOf('stop')
+const start = promisifyOf('start')
 const post = promisify(request.post)
 
 async function getValue (h, port) {
@@ -325,13 +329,30 @@ test('put-get', async () => {
       sign () { },
       salt
     }
-
+    const until = when()
     grape2.put(data, (err) => {
       ok(err)
       is(err.message, 'ERR_GRAPE_SIGN_NOT_SUPPORTED')
+      until()
     })
-
+    await until.done()
     await stop()
+  })
+
+  test('get - invalid get', async ({ is, ok }) => {
+    const grape = new Grape({
+      dht_port: await getPort(),
+      api_port: await getPort()
+    })
+    const until = when()
+    await start(grape)()
+    grape.get({not: 'valid'}, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INVALID_GET_OPTIONS')
+      until()
+    })
+    await until.done()
+    await stop(grape)()
   })
 
   test('rpc: stores and retrieves immutable data', { timeout: 5000 }, async ({ is }) => {

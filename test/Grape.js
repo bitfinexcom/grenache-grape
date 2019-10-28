@@ -3,7 +3,7 @@ const Events = require('events')
 const { promisifyOf, when } = require('nonsynchronous')
 const { test } = require('tap')
 const getPort = require('get-port')
-const Grape = require('./../lib/Grape')
+const { Grape } = require('..')
 const stop = promisifyOf('stop')
 const start = promisifyOf('start')
 
@@ -126,13 +126,15 @@ test('Grape', async () => {
 
   test('address', async ({ throws, is }) => {
     const grape = new Grape({
+      host: '127.0.0.1',
       dht_port: await getPort(),
       api_port: await getPort()
     })
     throws(() => { grape.address() })
     await start(grape)()
-    const { port } = grape.address()
+    const { address, port } = grape.address()
     is(port, grape.conf.dht_port)
+    is(address, grape.conf.host)
     await stop(grape)()
   })
 })
