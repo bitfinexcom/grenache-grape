@@ -18,6 +18,20 @@ test('Grape', async () => {
     await stop(grape)()
   })
 
+  test('start may be called multiple times', async ({ doesNotThrow, error }) => {
+    const grape = new Grape({
+      dht_port: await getPort(),
+      api_port: await getPort()
+    })
+    await start(grape)()
+    doesNotThrow(() => {
+      grape.start((err) => {
+        error(err)
+      })
+    })
+    await stop(grape)()
+  })
+
   test('should accept callback on starting a grape', async ({ error }) => {
     const grape = new Grape({
       dht_port: await getPort(),
@@ -43,14 +57,39 @@ test('Grape', async () => {
     await stop(grape)()
   })
 
-  test('requires an api port', async ({ ok }) => {
+  test('requires an api port', async ({ ok, is }) => {
     const grape = new Grape({
       dht_port: await getPort()
     })
     const until = when()
     grape.start((err) => {
       ok(err)
+      is(err.message, 'ERR_NO_PORT')
       grape.stop(until)
+    })
+    await until.done()
+  })
+
+  test('dht port collision', async ({ ok, is }) => {
+    const grape1 = new Grape({
+      dht_port: await getPort(),
+      api_port: await getPort()
+    })
+    const grape2 = new Grape({
+      dht_port: grape1.conf.dht_port,
+      api_port: await getPort()
+    })
+    const until = when()
+    await start(grape1)()
+    grape2.start((err) => {
+      ok(err)
+      const { code } = err
+      is(code, 'EADDRINUSE')
+      grape1.stop(() => {
+        grape2.stop(() => {
+          until()
+        })
+      })
     })
     await until.done()
   })
