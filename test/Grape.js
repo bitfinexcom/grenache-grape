@@ -1,11 +1,13 @@
 'use strict'
 const Events = require('events')
 const { promisifyOf, when } = require('nonsynchronous')
-const { test } = require('tap')
+const { test, teardown } = require('tap')
 const getPort = require('get-port')
 const { Grape } = require('..')
 const stop = promisifyOf('stop')
 const start = promisifyOf('start')
+
+const guard = (grape) => teardown(() => grape.stop())
 
 test('Grape', async () => {
   test('should be an instance of Events', async ({ ok }) => {
@@ -13,7 +15,7 @@ test('Grape', async () => {
       dht_port: await getPort(),
       api_port: await getPort()
     })
-
+    guard(grape)
     ok(grape instanceof Events)
     await stop(grape)()
   })
@@ -23,6 +25,7 @@ test('Grape', async () => {
       dht_port: await getPort(),
       api_port: await getPort()
     })
+    guard(grape)
     await start(grape)()
     doesNotThrow(() => {
       grape.start((err) => {
@@ -37,6 +40,7 @@ test('Grape', async () => {
       dht_port: await getPort(),
       api_port: await getPort()
     })
+    guard(grape)
     const until = when()
     grape.start((err) => {
       error(err)
@@ -54,6 +58,7 @@ test('Grape', async () => {
       dht_port: await getPort(),
       api_port: await getPort()
     })
+    guard(grape)
     await stop(grape)()
   })
 
@@ -62,6 +67,7 @@ test('Grape', async () => {
       dht_port: await getPort(),
       api_port: await getPort()
     })
+    guard(grape)
     const until = when()
     await start(grape)()
     grape.once('close', () => {
@@ -76,6 +82,7 @@ test('Grape', async () => {
     const grape = new Grape({
       dht_port: await getPort()
     })
+    guard(grape)
     const until = when()
     grape.start((err) => {
       ok(err)
@@ -94,6 +101,8 @@ test('Grape', async () => {
       dht_port: grape1.conf.dht_port,
       api_port: await getPort()
     })
+    guard(grape1)
+    guard(grape2)
     const until = when()
     await start(grape1)()
     grape2.start((err) => {
@@ -114,6 +123,7 @@ test('Grape', async () => {
       dht_port: await getPort(),
       api_port: await getPort()
     })
+    guard(grape)
     await start(grape)()
     const until = when()
     grape.put({ foo: 'bar' }, (err) => {
@@ -130,6 +140,7 @@ test('Grape', async () => {
       dht_port: await getPort(),
       api_port: await getPort()
     })
+    guard(grape)
     throws(() => { grape.address() })
     await start(grape)()
     const { address, port } = grape.address()

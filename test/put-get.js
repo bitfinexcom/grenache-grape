@@ -336,11 +336,12 @@ test('put-get', async () => {
     await stop()
   })
 
-  test('get - invalid get', async ({ is, ok }) => {
+  test('get - invalid get', async ({ is, ok, teardown }) => {
     const grape = new Grape({
       dht_port: await getPort(),
       api_port: await getPort()
     })
+    teardown(() => grape.stop())
     const until = when()
     await start(grape)()
     grape.get({ not: 'valid' }, (err) => {
