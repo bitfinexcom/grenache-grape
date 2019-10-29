@@ -3,9 +3,9 @@
 'use strict'
 
 const { test } = require('tap')
-const request = require('request')
+const supertest = require('supertest')
 const once = require('events.once')
-const { when, promisify, promisifyOf, timeout } = require('nonsynchronous')
+const { when, promisifyOf, timeout } = require('nonsynchronous')
 const hypersign = require('@hyperswarm/hypersign')()
 const getPort = require('get-port')
 const {
@@ -14,17 +14,13 @@ const {
 const { Grape } = require('..')
 const stop = promisifyOf('stop')
 const start = promisifyOf('start')
-const post = promisify(request.post)
 
 async function getValue (h, port) {
-  const res = await post({
-    uri: `http://127.0.0.1:${port}/get`,
-    json: true,
-    body: { rid: 'test', data: h }
-  })
-  if (/2.?.?/.test(res.statusCode) === false) {
-    throw Error(`${res.statusCode}: ${res.body}`)
-  }
+  const { post } = supertest(`http://127.0.0.1:${port}`)
+  const res = await post('/get')
+    .send({ rid: 'test', data: h })
+    .expect(200)
+
   return res.body
 }
 
@@ -365,11 +361,10 @@ test('put-get', async () => {
       v: 'hello world'
     }
     const port = grape2.conf.api_port
-    const { body: hash } = await post({
-      uri: `http://127.0.0.1:${port}/put`,
-      json: true,
-      body: { rid: 'test', data: data }
-    })
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    const { body: hash } = await post('/put')
+      .send({ rid: 'test', data: data })
+      .expect(200)
 
     const normative = await getValue(hash, port)
     is(typeof normative.id, 'string')
@@ -420,11 +415,10 @@ test('put-get', async () => {
       sig
     }
     const port = grape2.conf.api_port
-    const { body: hexKey } = await post({
-      uri: `http://127.0.0.1:${port}/put`,
-      json: true,
-      body: { rid: 'test', data: data }
-    })
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    const { body: hexKey } = await post('/put')
+      .send({ rid: 'test', data: data })
+      .expect(200)
 
     is(hexKey, key.toString('hex'))
 
@@ -483,11 +477,10 @@ test('put-get', async () => {
       salt
     }
     const port = grape2.conf.api_port
-    const { body: hexKey } = await post({
-      uri: `http://127.0.0.1:${port}/put`,
-      json: true,
-      body: { rid: 'test', data: data }
-    })
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    const { body: hexKey } = await post('/put')
+      .send({ rid: 'test', data: data })
+      .expect(200)
     is(hexKey, key.toString('hex'))
 
     const normative = await getValue({ key: hexKey, salt }, port)

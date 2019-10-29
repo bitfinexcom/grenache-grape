@@ -1,39 +1,24 @@
-/* eslint-env mocha */
-
 'use strict'
-
 const { test } = require('tap')
-const { PassThrough } = require('stream')
-const { once, when } = require('nonsynchronous')
+const { once } = require('nonsynchronous')
+const supertest = require('supertest')
 const {
   createTwoGrapes
 } = require('./helper.js')
 
-const request = require('request')
-
 test('dos vector', async () => {
-  test('rejects too large payloads', { timeout: 10000 }, async () => {
+  test('rejects oversized payloads', { timeout: 10000 }, async () => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
     grape1.announce('rest:util:net', 1337, () => {})
     await once(grape2, 'announce')
-    const until = when()
     const port = grape2.conf.api_port
-    const req = request({
-      uri: `http://127.0.0.1:${port}`,
-      method: 'POST'
-    }).on('error', () => {
-      until()
-    })
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    await post('/').send(Buffer.alloc(8193)).expect(
+      413,
+      'ERR_GRAPE_PAYLOAD_SIZE'
+    )
 
-    const writer = new PassThrough()
-    writer.pipe(req)
-
-    for (let i = 0; i < 999999; i++) {
-      writer.push('"pl":"blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;')
-    }
-
-    await until.done()
     await stop()
   })
 
@@ -42,20 +27,13 @@ test('dos vector', async () => {
 
     grape1.announce('rest:util:net', 1337, () => {})
     await once(grape2, 'announce')
-    const until = when()
     const port = grape2.conf.api_port
-    const req = request({
-      uri: `http://127.0.0.1:${port}`,
-      method: 'POST'
-    }).on('data', (data) => {
-      is(data.toString(), 'ERR_GRAPE_PAYLOAD_INVALID')
-      until()
-    })
-    const writer = new PassThrough()
-    writer.pipe(req)
-    writer.push('garbage')
-    writer.end('')
-    await until.done()
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    await post('/').send('garbage').expect(
+      500,
+      'ERR_GRAPE_PAYLOAD_INVALID'
+    )
+
     await stop()
   })
 })

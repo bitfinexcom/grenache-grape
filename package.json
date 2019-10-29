@@ -29,8 +29,8 @@
     "events.once": "^2.0.2",
     "get-port": "^5.0.0",
     "nonsynchronous": "^1.2.0",
-    "request": "^2.88.0",
     "standard": "^14.3.1",
+    "supertest": "^4.0.2",
     "tap": "^14.8.2"
   },
   "scripts": {
