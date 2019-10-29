@@ -330,6 +330,7 @@ test('put-get', async () => {
       salt
     }
     const until = when()
+    await start(grape1)()
     grape2.put(data, (err) => {
       ok(err)
       is(err.message, 'ERR_GRAPE_SIGN_NOT_SUPPORTED')
@@ -346,7 +347,7 @@ test('put-get', async () => {
     })
     const until = when()
     await start(grape)()
-    grape.get({not: 'valid'}, (err) => {
+    grape.get({ not: 'valid' }, (err) => {
       ok(err)
       is(err.message, 'ERR_GRAPE_INVALID_GET_OPTIONS')
       until()
