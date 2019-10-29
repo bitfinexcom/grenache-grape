@@ -3,20 +3,25 @@
 'use strict'
 
 const { test } = require('tap')
-const { when, once } = require('nonsynchronous')
+const { when, once, timeout } = require('nonsynchronous')
 const { sampleSize } = require('lodash')
+const supertest = require('supertest')
 const {
+  createGrape,
   createGrapes,
   createTwoGrapes
 } = require('./helper.js')
 
+const port = (grape) => grape.conf.api_port 
+const request = (grape) => supertest(`http://127.0.0.1:${port(grape)}`)
+
 test('service announce/lookup', async () => {
   test('lookup non-existent key', { timeout: 5000 }, async ({ error, strictSame }) => {
-    const { grape1, stop } = await createTwoGrapes()
+    const { grape, stop } = await createGrape()
 
     const until = when()
 
-    grape1.lookup('rest:util:net', (err, res) => {
+    grape.lookup('rest:util:net', (err, res) => {
       error(err)
       strictSame(res, [])
       until()
@@ -351,10 +356,10 @@ test('service announce/lookup', async () => {
     await stop()
   })
 
-  test('invalid port', async ({ is }) => {
-    const { grape1, stop } = await createTwoGrapes()
+  test('announce invalid port', async ({ is }) => {
+    const { grape, stop } = await createGrape()
     const until = when()
-    grape1.announce('rest:util:net', '1337', (err) => {
+    grape.announce('rest:util:net', '1337', (err) => {
       is(!!err, true)
       is(err.message, 'ERR_GRAPE_SERVICE_PORT')
       until()
@@ -363,6 +368,89 @@ test('service announce/lookup', async () => {
     await until.done()
     await stop()
   })
+
+  test('rpc: lookup non-existent key', { timeout: 5000 }, async () => {
+    const { grape, stop } = await createGrape()
+    const { post } = request(grape)
+    await post('/lookup').send({data: 'rest:util:net'}).expect(200, [])
+    await stop()
+  })
+
+  test('rpc: lookup invalid data', { timeout: 5000 }, async () => {
+    const { grape, stop } = await createGrape()
+    const { post } = request(grape)
+    await post('/lookup').send({data: ['rest:util:net']}).expect(400, '"ERR_GRAPE_LOOKUP"')
+    await stop()
+  })
+
+  test('rpc: should find services', { timeout: 5000 }, async () => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    await request(grape1).post('/announce').send({
+      data: ['rest:util:net', 1337]
+    }).expect(200)
+
+    await request(grape2).post('/lookup').send({
+      data: 'rest:util:net'
+    }).expect(200, ['127.0.0.1:1337'])
+
+    await stop()
+  })
+
+  test('rpc: should remove outdated services', { timeout: 5000 }, async () => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    await request(grape1).post('/announce').send({
+      data: ['rest:util:net', 1337]
+    }).expect(200)
+
+    await request(grape2).post('/lookup').send({
+      data: 'rest:util:net'
+    }).expect(200, ['127.0.0.1:1337'])
+
+    await timeout(300) // 300 because maxAge is at 200 in helper
+
+    await request(grape2).post('/lookup').send({
+      data: 'rest:util:net'
+    }).expect(200, [])
+
+    await stop()
+  })
+
+  test('rpc: should not cache dead peers when doing lookups', async () => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    await request(grape1).post('/announce').send({
+      data: ['test', 1337]
+    }).expect(200)
+
+    for (let i = 0; i <= 10; i++) {
+      await request(grape1).post('/lookup').send({
+        data: 'test'
+      }).expect(200, ['127.0.0.1:1337'])
+      await request(grape2).post('/lookup').send({
+        data: 'test'
+      }).expect(200, ['127.0.0.1:1337'])
+      timeout(10)
+    }
+
+    await stop()
+  })
+
+  test('rpc: announce invalid port', async () => {
+    const { grape, stop } = await createGrape()
+    const { post } = request(grape)
+    await post('/announce').send({data: ['rest:util:net', '1337']}).expect(400, '"ERR_GRAPE_SERVICE_PORT"')
+    await stop()
+  })
+
+  test('rpc: announce invalid data', async () => {
+    const { grape, stop } = await createGrape()
+    const { post } = request(grape)
+    await post('/announce').send({data: '"invalid"'}).expect(400, '"ERR_GRAPE_ANNOUNCE"')
+    await stop()
+  })
+
 })
 
 function startAnnouncing (grape, name, port) {

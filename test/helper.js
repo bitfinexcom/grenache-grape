@@ -2,6 +2,7 @@
 const { Grape } = require('./../')
 const { when, once } = require('nonsynchronous')
 const getPort = require('get-port')
+const { teardown } = require('tap')
 exports.createGrapes = createGrapes
 
 async function createGrapes (n, onstart = () => {}) {
@@ -40,6 +41,7 @@ async function createGrapes (n, onstart = () => {}) {
   }
   onstart(grapes, stop)
   grapes.stop = stop
+  teardown(stop)
   return grapes
 
   function stop (done = () => {}) {
@@ -64,4 +66,13 @@ async function createTwoGrapes () {
   const { stop } = grapes
   const [grape1, grape2] = grapes
   return { grape1, grape2, stop }
+}
+
+exports.createGrape = createGrape
+
+async function createGrape () {
+  const grapes = await createGrapes(1)
+  const { stop } = grapes
+  const [grape] = grapes
+  return { grape, stop }
 }

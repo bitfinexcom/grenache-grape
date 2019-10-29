@@ -22,33 +22,33 @@ test('rpc', async () => {
     await stop()
   })
 
-  // test('does not crash on invalid payloads', { timeout: 5000 }, async ({ is }) => {
-  //   const { grape1, grape2, stop } = await createTwoGrapes()
+  test('does not crash on invalid payloads', { timeout: 5000 }, async () => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
 
-  //   grape1.announce('rest:util:net', 1337, () => {})
-  //   await once(grape2, 'announce')
-  //   const port = grape2.conf.api_port
-  //   const { post } = supertest(`http://127.0.0.1:${port}`)
-  //   await post('/').send('garbage').expect(
-  //     500,
-  //     '"ERR_GRAPE_PAYLOAD_INVALID"'
-  //   )
+    grape1.announce('rest:util:net', 1337, () => {})
+    await once(grape2, 'announce')
+    const port = grape2.conf.api_port
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    await post('/').send('garbage').expect(
+      400,
+      '"ERR_GRAPE_PAYLOAD_INVALID"'
+    )
 
-  //   await stop()
-  // })
+    await stop()
+  })
 
-  // test('does not crash on invalid request route', { timeout: 5000 }, async ({ is }) => {
-  //   const { grape1, grape2, stop } = await createTwoGrapes()
+  test('does not crash on invalid request route', { timeout: 5000 }, async () => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
 
-  //   grape1.announce('rest:util:net', 1337, () => {})
-  //   await once(grape2, 'announce')
-  //   const port = grape2.conf.api_port
-  //   const { post } = supertest(`http://127.0.0.1:${port}`)
-  //   await post('/garbage').send({}).expect(
-  //     500,
-  //     '"ERR_REQ_NOTFOUND"'
-  //   )
+    grape1.announce('rest:util:net', 1337, () => {})
+    await once(grape2, 'announce')
+    const port = grape2.conf.api_port
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    await post('/garbage').send({}).expect(
+      404,
+      '"ERR_REQ_NOTFOUND"'
+    )
 
-  //   await stop()
-  // })
+    await stop()
+  })
 })
