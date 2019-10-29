@@ -12,7 +12,7 @@ const {
   createTwoGrapes
 } = require('./helper.js')
 
-const port = (grape) => grape.conf.api_port 
+const port = (grape) => grape.conf.api_port
 const request = (grape) => supertest(`http://127.0.0.1:${port(grape)}`)
 
 test('service announce/lookup', async () => {
@@ -372,14 +372,14 @@ test('service announce/lookup', async () => {
   test('rpc: lookup non-existent key', { timeout: 5000 }, async () => {
     const { grape, stop } = await createGrape()
     const { post } = request(grape)
-    await post('/lookup').send({data: 'rest:util:net'}).expect(200, [])
+    await post('/lookup').send({ data: 'rest:util:net' }).expect(200, [])
     await stop()
   })
 
   test('rpc: lookup invalid data', { timeout: 5000 }, async () => {
     const { grape, stop } = await createGrape()
     const { post } = request(grape)
-    await post('/lookup').send({data: ['rest:util:net']}).expect(400, '"ERR_GRAPE_LOOKUP"')
+    await post('/lookup').send({ data: ['rest:util:net'] }).expect(400, '"ERR_GRAPE_LOOKUP"')
     await stop()
   })
 
@@ -440,17 +440,16 @@ test('service announce/lookup', async () => {
   test('rpc: announce invalid port', async () => {
     const { grape, stop } = await createGrape()
     const { post } = request(grape)
-    await post('/announce').send({data: ['rest:util:net', '1337']}).expect(400, '"ERR_GRAPE_SERVICE_PORT"')
+    await post('/announce').send({ data: ['rest:util:net', '1337'] }).expect(400, '"ERR_GRAPE_SERVICE_PORT"')
     await stop()
   })
 
   test('rpc: announce invalid data', async () => {
     const { grape, stop } = await createGrape()
     const { post } = request(grape)
-    await post('/announce').send({data: '"invalid"'}).expect(400, '"ERR_GRAPE_ANNOUNCE"')
+    await post('/announce').send({ data: '"invalid"' }).expect(400, '"ERR_GRAPE_ANNOUNCE"')
     await stop()
   })
-
 })
 
 function startAnnouncing (grape, name, port) {
