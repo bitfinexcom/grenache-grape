@@ -4,7 +4,6 @@
 
 const { test } = require('tap')
 const supertest = require('supertest')
-const once = require('events.once')
 const { when, promisifyOf, timeout } = require('nonsynchronous')
 const hypersign = require('@hyperswarm/hypersign')()
 const getPort = require('get-port')
@@ -29,8 +28,6 @@ test('put-get', async () => {
   test('stores and retrieves immutable data', { timeout: 5000 }, async ({ is, error }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const until = when()
     const data = {
       v: 'hello world'
@@ -90,8 +87,6 @@ test('put-get', async () => {
   test('stores and retrieves mutable data', { timeout: 5000 }, async ({ is, error }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const keypair = hypersign.keypair()
     const { publicKey: key } = keypair
     const value = 'hello world'
@@ -158,8 +153,6 @@ test('put-get', async () => {
   test('stores and retrieves salted mutable data', { timeout: 5000 }, async ({ is, error }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const keypair = hypersign.keypair()
     const salt = 'test salt'
     const { publicKey: key } = keypair
@@ -238,8 +231,6 @@ test('put-get', async () => {
   test('put - fire and forget', async ({ is, error }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const keypair = hypersign.keypair()
     const salt = 'test salt'
     const { publicKey: key } = keypair
@@ -313,8 +304,6 @@ test('put-get', async () => {
   test('put - options.sign not supported', async ({ is, ok }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const keypair = hypersign.keypair()
     const salt = 'test salt'
     const { publicKey: key } = keypair
@@ -465,21 +454,67 @@ test('put-get', async () => {
     await stop()
   })
 
+  test('invalid get options', { timeout: 5000 }, async ({ is, ok }) => {
+    const { grape, stop } = await createGrape()
+
+    const until = when()
+    grape.get({}, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INVALID_GET_OPTIONS')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('invalid get options', { timeout: 5000 }, async ({ is, ok }) => {
+    const { grape, stop } = await createGrape()
+    const until = when()
+    grape.get({}, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INVALID_GET_OPTIONS')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('immutable get generic error propagation', { timeout: 5000 }, async ({ is, ok }) => {
+    const { grape, stop } = await createGrape()
+    const { get } = grape.node.immutable
+    // simulate generic thrown error
+    grape.node.immutable.get = (hash, cb) => {
+      grape.node.immutable.get = get
+      throw Error('test')
+    }
+    const hash = '256c83b297114d201b30179f3f0ef0cace9783622da5974326b436178aeef611'
+    const until = when()
+    grape.get(hash, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_GENERIC: test')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
   test('rpc: stores and retrieves immutable data', { timeout: 5000 }, async ({ is }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const data = {
       v: 'hello world'
     }
-    const port = grape2.conf.api_port
-    const { post } = supertest(`http://127.0.0.1:${port}`)
+    const port1 = grape1.conf.api_port
+    const port2 = grape2.conf.api_port
+    const { post } = supertest(`http://127.0.0.1:${port2}`)
     const { body: hash } = await post('/put')
       .send({ rid: 'test', data: data })
       .expect(200)
 
-    const normative = await getValue(hash, port)
+    const normative = await getValue(hash, port1)
     is(typeof normative.id, 'string')
     is(normative.id.length, 64)
     is(typeof normative.k, 'string')
@@ -489,7 +524,7 @@ test('put-get', async () => {
     is(normative.seq, null)
     is(normative.sig, null)
 
-    const explicit = await getValue({ hash, m: false }, port)
+    const explicit = await getValue({ hash, m: false }, port1)
     is(typeof explicit.id, 'string')
     is(explicit.id.length, 64)
     is(typeof explicit.k, 'string')
@@ -499,7 +534,7 @@ test('put-get', async () => {
     is(explicit.seq, null)
     is(explicit.sig, null)
 
-    const legacy = await getValue({ hash }, port)
+    const legacy = await getValue({ hash }, port1)
     is(typeof legacy.id, 'string')
     is(legacy.id.length, 64)
     is(typeof legacy.k, 'string')
@@ -515,8 +550,6 @@ test('put-get', async () => {
   test('rpc: stores and retrieves mutable data', { timeout: 5000 }, async ({ is }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const keypair = hypersign.keypair()
     const { publicKey: key } = keypair
     const value = 'hello world'
@@ -527,15 +560,16 @@ test('put-get', async () => {
       k: key,
       sig
     }
-    const port = grape2.conf.api_port
-    const { post } = supertest(`http://127.0.0.1:${port}`)
+    const port1 = grape1.conf.api_port
+    const port2 = grape2.conf.api_port
+    const { post } = supertest(`http://127.0.0.1:${port2}`)
     const { body: hexKey } = await post('/put')
       .send({ rid: 'test', data: data })
       .expect(200)
 
     is(hexKey, key.toString('hex'))
 
-    const normative = await getValue({ key: hexKey }, port)
+    const normative = await getValue({ key: hexKey }, port1)
     is(typeof normative.id, 'string')
     is(normative.id.length, 64)
     is(normative.k, hexKey)
@@ -545,7 +579,7 @@ test('put-get', async () => {
     is(normative.sig, sig.toString('hex'))
     is(normative.salt, null)
 
-    const explicit = await getValue({ hash: hexKey, m: true }, port)
+    const explicit = await getValue({ hash: hexKey, m: true }, port1)
     is(typeof explicit.id, 'string')
     is(explicit.id.length, 64)
     is(explicit.k, hexKey)
@@ -555,7 +589,7 @@ test('put-get', async () => {
     is(explicit.sig, sig.toString('hex'))
     is(explicit.salt, null)
 
-    const legacy = await getValue({ hash: hexKey }, port)
+    const legacy = await getValue({ hash: hexKey }, port1)
     is(typeof legacy.id, 'string')
     is(legacy.id.length, 64)
     is(typeof legacy.k, 'string')
@@ -572,8 +606,6 @@ test('put-get', async () => {
   test('rpc: stores and retrieves salted mutable data', { timeout: 5000 }, async ({ is }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const keypair = hypersign.keypair()
     const salt = 'test salt'
     const { publicKey: key } = keypair
@@ -589,14 +621,15 @@ test('put-get', async () => {
       sig,
       salt
     }
-    const port = grape2.conf.api_port
-    const { post } = supertest(`http://127.0.0.1:${port}`)
+    const port1 = grape1.conf.api_port
+    const port2 = grape2.conf.api_port
+    const { post } = supertest(`http://127.0.0.1:${port2}`)
     const { body: hexKey } = await post('/put')
       .send({ rid: 'test', data: data })
       .expect(200)
     is(hexKey, key.toString('hex'))
 
-    const normative = await getValue({ key: hexKey, salt }, port)
+    const normative = await getValue({ key: hexKey, salt }, port1)
 
     is(typeof normative.id, 'string')
     is(normative.id.length, 64)
@@ -607,7 +640,7 @@ test('put-get', async () => {
     is(normative.sig, sig.toString('hex'))
     is(normative.salt, salt.toString('hex'))
 
-    const explicit = await getValue({ hash: hexKey, m: true, salt }, port)
+    const explicit = await getValue({ hash: hexKey, m: true, salt }, port1)
     is(typeof explicit.id, 'string')
     is(explicit.id.length, 64)
     is(explicit.k, hexKey)
@@ -617,7 +650,7 @@ test('put-get', async () => {
     is(explicit.sig, sig.toString('hex'))
     is(explicit.salt, salt.toString('hex'))
 
-    const legacy = await getValue({ hash: hexKey, salt }, port)
+    const legacy = await getValue({ hash: hexKey, salt }, port1)
     is(typeof legacy.id, 'string')
     is(legacy.id.length, 64)
     is(typeof legacy.k, 'string')
@@ -632,10 +665,8 @@ test('put-get', async () => {
   })
 
   test('rpc: mutable put without sig results in 400 error', { timeout: 5000 }, async ({ is }) => {
-    const { grape1, grape2, stop } = await createTwoGrapes()
+    const { grape, stop } = await createGrape()
 
-    grape1.announce('rest:util:net', 1337, () => {})
-    await once(grape2, 'announce')
     const keypair = hypersign.keypair()
     const { publicKey: key } = keypair
     const value = 'hello world'
@@ -644,7 +675,7 @@ test('put-get', async () => {
       v: value,
       k: key
     }
-    const port = grape2.conf.api_port
+    const port = grape.conf.api_port
     const { post } = supertest(`http://127.0.0.1:${port}`)
     await post('/put')
       .send({ rid: 'test', data: data })

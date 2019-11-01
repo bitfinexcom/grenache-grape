@@ -47,7 +47,7 @@ test('service unannounce', async () => {
   test('should remove unannounced services (lots of grapes)', { timeout: 20000 }, async ({ error, strictSame }) => {
     const until = when()
     await createGrapes(100, (grapes, stop) => {
-      const sample = sampleSize(grapes, 4)
+      const sample = sampleSize(grapes, 3)
       sample[0].announce('B', 2000, (err) => {
         error(err)
         timeout(100)
@@ -57,8 +57,8 @@ test('service unannounce', async () => {
           timeout(100)
           sample[2].unannounce('B', 2000, (err) => {
             error(err)
-            timeout(500)
-            sample[3].lookup('B', (err, l) => {
+            timeout(100)
+            sample[1].lookup('B', (err, l) => {
               error(err)
               strictSame(l, [])
               stop(until)
