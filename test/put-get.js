@@ -9,6 +9,7 @@ const { when, promisifyOf, timeout } = require('nonsynchronous')
 const hypersign = require('@hyperswarm/hypersign')()
 const getPort = require('get-port')
 const {
+  createGrape,
   createTwoGrapes
 } = require('./helper.js')
 const { Grape } = require('..')
@@ -318,10 +319,11 @@ test('put-get', async () => {
     const salt = 'test salt'
     const { publicKey: key } = keypair
     const value = 'hello world'
-
+    const sig = hypersign.sign(Buffer.from(value), { keypair })
     const data = {
       v: value,
       k: key,
+      sig,
       sign () { },
       salt
     }
@@ -330,6 +332,48 @@ test('put-get', async () => {
     grape2.put(data, (err) => {
       ok(err)
       is(err.message, 'ERR_GRAPE_SIGN_NOT_SUPPORTED')
+      until()
+    })
+    await until.done()
+    await stop()
+  })
+
+  test('immutable put value exceed maximum', { timeout: 5000 }, async ({ is, ok }) => {
+    const { grape, stop } = await createGrape()
+
+    const until = when()
+    const data = {
+      v: Buffer.alloc(1001)
+    }
+
+    grape.put(data, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_GENERIC: Value size must be <= 1000')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('mutable put value exceed maximum', { timeout: 5000 }, async ({ is, ok }) => {
+    const { grape, stop } = await createGrape()
+
+    const keypair = hypersign.keypair()
+    const { publicKey: key } = keypair
+
+    const value = Buffer.alloc(1001)
+    const sig = hypersign.sign(Buffer.from(value).slice(-1), { keypair })
+
+    const data = {
+      v: value,
+      k: key,
+      sig
+    }
+    const until = when()
+    grape.put(data, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_GENERIC: Value size must be <= 1000')
       until()
     })
     await until.done()
@@ -351,6 +395,74 @@ test('put-get', async () => {
     })
     await until.done()
     await stop(grape)()
+  })
+
+  test('get non-existent immutable data', { timeout: 5000 }, async ({ is, error }) => {
+    const { grape, stop } = await createGrape()
+
+    const hash = '256c83b297114d201b30179f3f0ef0cace9783622da5974326b436178aeef611'
+
+    const untilNormative = when()
+    const untilExplicit = when()
+    const untilLegacy = when()
+    grape.get(hash, (err, normative) => {
+      error(err)
+      is(normative, undefined)
+      untilNormative()
+    })
+    await untilNormative.done()
+    grape.get({ hash, m: false }, (err, explicit) => {
+      error(err)
+
+      untilExplicit()
+    })
+    await untilExplicit.done()
+    grape.get({ hash }, (err, legacy) => {
+      error(err)
+
+      untilLegacy()
+    })
+    await untilLegacy.done()
+
+    await stop()
+  })
+
+  test('get non-existent mutable data', { timeout: 5000 }, async ({ is, error }) => {
+    const { grape, stop } = await createGrape()
+
+    const keypair = hypersign.keypair()
+    const { publicKey: key } = keypair
+    const hexKey = key.toString('hex')
+
+    const untilNormative = when()
+    const untilExplicit = when()
+    const untilLegacy = when()
+    grape.get({ key: hexKey }, (err, { id, v }) => {
+      error(err)
+      is(v, null)
+      is(id, null)
+      untilNormative()
+    })
+    await untilNormative.done()
+    grape.get({ hash: hexKey, m: true }, (err, { id, v }) => {
+      error(err)
+      is(v, null)
+      is(id, null)
+      untilExplicit()
+    })
+    await untilExplicit.done()
+    grape.get({ hash: hexKey }, (err, result) => {
+      // TODO MAKE SURE IMMUTABLE GET / MUTABLE GET RESPONSNE OF
+      // NON-EXISTENT DATA MATCHES BITTORRENT DHT
+      is(result, undefined)
+      error(err)
+      // is(v, null)
+      // is(id, null)
+      untilLegacy()
+    })
+    await untilLegacy.done()
+
+    await stop()
   })
 
   test('rpc: stores and retrieves immutable data', { timeout: 5000 }, async ({ is }) => {
@@ -516,6 +628,27 @@ test('put-get', async () => {
     is(legacy.sig, sig.toString('hex'))
     is(legacy.salt, salt.toString('hex'))
 
+    await stop()
+  })
+
+  test('rpc: mutable put without sig results in 400 error', { timeout: 5000 }, async ({ is }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    grape1.announce('rest:util:net', 1337, () => {})
+    await once(grape2, 'announce')
+    const keypair = hypersign.keypair()
+    const { publicKey: key } = keypair
+    const value = 'hello world'
+
+    const data = {
+      v: value,
+      k: key
+    }
+    const port = grape2.conf.api_port
+    const { post } = supertest(`http://127.0.0.1:${port}`)
+    await post('/put')
+      .send({ rid: 'test', data: data })
+      .expect(400, '"ERR_GRAPE_SIG_REQUIRED"')
     await stop()
   })
 })

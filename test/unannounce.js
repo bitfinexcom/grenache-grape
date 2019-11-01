@@ -57,7 +57,7 @@ test('service unannounce', async () => {
           timeout(100)
           sample[2].unannounce('B', 2000, (err) => {
             error(err)
-            timeout(200)
+            timeout(500)
             sample[3].lookup('B', (err, l) => {
               error(err)
               strictSame(l, [])
