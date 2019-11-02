@@ -31,6 +31,26 @@ test('service announce/lookup', async () => {
     await stop()
   })
 
+  test('lookup generic error propagation', { timeout: 5000 }, async ({ ok, is }) => {
+    const { grape, stop } = await createGrape()
+    const { lookup } = grape.node
+    // reliably simulate lookup error
+    grape.node.lookup = (key, cb) => {
+      grape.node.lookup = lookup
+      process.nextTick(cb, Error('test'))
+    }
+    const until = when()
+
+    grape.lookup('rest:util:net', (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_GENERIC: test')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
   test('should find services', { timeout: 5000 }, async ({ error, strictSame }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
@@ -160,15 +180,19 @@ test('service announce/lookup', async () => {
       const sample = sampleSize(grapes, 3)
       sample[0].announce('B', 2000, (err) => {
         error(err)
-        sample[1].lookup('B', (err, l) => {
-          error(err)
-          strictSame(l, ['127.0.0.1:2000'])
-          sample[2].lookup('B', (err, l) => {
+        setTimeout(() => {
+          sample[1].lookup('B', (err, l) => {
             error(err)
             strictSame(l, ['127.0.0.1:2000'])
-            stop(until)
+            setTimeout(() => {
+              sample[2].lookup('B', (err, l) => {
+                error(err)
+                strictSame(l, ['127.0.0.1:2000'])
+                stop(until)
+              })
+            }, 100)
           })
-        })
+        }, 100)
       })
     })
     await until.done()

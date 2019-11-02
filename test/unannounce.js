@@ -3,7 +3,7 @@
 'use strict'
 
 const { test } = require('tap')
-const { when, once, timeout } = require('nonsynchronous')
+const { when, once } = require('nonsynchronous')
 const { sampleSize } = require('lodash')
 const supertest = require('supertest')
 const {
@@ -50,21 +50,24 @@ test('service unannounce', async () => {
       const sample = sampleSize(grapes, 3)
       sample[0].announce('B', 2000, (err) => {
         error(err)
-        timeout(100)
-        sample[1].lookup('B', (err, l) => {
-          error(err)
-          strictSame(l, ['127.0.0.1:2000'])
-          timeout(100)
-          sample[2].unannounce('B', 2000, (err) => {
+        setTimeout(() => {
+          sample[1].lookup('B', (err, l) => {
             error(err)
-            timeout(100)
-            sample[1].lookup('B', (err, l) => {
-              error(err)
-              strictSame(l, [])
-              stop(until)
-            })
+            strictSame(l, ['127.0.0.1:2000'])
+            setTimeout(() => {
+              sample[2].unannounce('B', 2000, (err) => {
+                error(err)
+                setTimeout(() => {
+                  sample[1].lookup('B', (err, l) => {
+                    error(err)
+                    strictSame(l, [])
+                    stop(until)
+                  })
+                }, 100)
+              })
+            }, 100)
           })
-        })
+        }, 100)
       })
     })
     await until.done()
