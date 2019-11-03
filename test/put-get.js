@@ -558,12 +558,14 @@ test('put-get', async () => {
         untilNormative()
       })
       await untilNormative.done()
+      grape1.node._store.clear()
       grape1.get({ hash, m: false }, (err, { token }) => {
         error(err)
         ok(token)
         untilExplicit()
       })
       await untilExplicit.done()
+      grape1.node._store.clear()
       grape1.get({ hash }, (err, { token }) => {
         error(err)
         ok(token)
@@ -604,12 +606,14 @@ test('put-get', async () => {
         untilNormative()
       })
       await untilNormative.done()
+      grape1.node._store.clear()
       grape1.get({ hash: key, m: true }, (err, { token }) => {
         error(err)
         ok(token)
         untilExplicit()
       })
       await untilExplicit.done()
+      grape1.node._store.clear()
       grape1.get({ hash: key }, (err, { token }) => {
         error(err)
         ok(token)
