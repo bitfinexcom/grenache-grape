@@ -538,6 +538,91 @@ test('put-get', async () => {
     await stop()
   })
 
+  test('immutable get - token', { timeout: 5000 }, async ({ ok, error }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    const until = when()
+    const data = {
+      v: 'hello world'
+    }
+
+    grape2.put(data, async (err, hash) => {
+      error(err)
+      const untilNormative = when()
+      const untilExplicit = when()
+      const untilLegacy = when()
+      grape1.node._store.clear()
+      grape1.get(hash, (err, { token }) => {
+        error(err)
+        ok(token)
+        untilNormative()
+      })
+      await untilNormative.done()
+      grape1.get({ hash, m: false }, (err, { token }) => {
+        error(err)
+        ok(token)
+        untilExplicit()
+      })
+      await untilExplicit.done()
+      grape1.get({ hash }, (err, { token }) => {
+        error(err)
+        ok(token)
+        untilLegacy()
+      })
+      await untilLegacy.done()
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('mutable get - token', { timeout: 5000 }, async ({ ok, error }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+
+    const keypair = hypersign.keypair()
+    const { publicKey: key } = keypair
+    const value = 'hello world'
+    const sig = hypersign.sign(Buffer.from(value), { keypair })
+
+    const data = {
+      v: Buffer.from(value),
+      k: key,
+      sig
+    }
+    const until = when()
+
+    grape2.put(data, async (err, key) => {
+      error(err)
+      const untilNormative = when()
+      const untilExplicit = when()
+      const untilLegacy = when()
+      grape1.node._store.clear()
+      grape1.get({ key }, (err, { token }) => {
+        error(err)
+        ok(token)
+        untilNormative()
+      })
+      await untilNormative.done()
+      grape1.get({ hash: key, m: true }, (err, { token }) => {
+        error(err)
+        ok(token)
+        untilExplicit()
+      })
+      await untilExplicit.done()
+      grape1.get({ hash: key }, (err, { token }) => {
+        error(err)
+        ok(token)
+        untilLegacy()
+      })
+      await untilLegacy.done()
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
   test('get - invalid get', async ({ is, ok, teardown }) => {
     const grape = new Grape({
       dht_port: await getPort(),
@@ -614,7 +699,6 @@ test('put-get', async () => {
 
     await stop()
   })
-
 
   test('get non-existent mutable data', { timeout: 5000 }, async ({ is, error }) => {
     const { grape, stop } = await createGrape()

@@ -130,6 +130,7 @@ The response body of an Immutable Get takes the following form:
 
 ```js
 { id: <hex string of responding node id>,
+  token: <hex string of write token>, // may be null when results come from cache
   seq: null, // always null for immutable gets
   sig: null, // always null for immutable gets
   v: <stored value>,
@@ -167,6 +168,7 @@ The response body of a Mutable Get takes the following form:
 
 ```js
 { id: <hex string of responding node id>,
+  token: <hex string of write token>, // may be null when results come from cache
   seq: <monotonically increasing sequence number>,
   sig: <signature hex string>,
   v: <stored value>,
