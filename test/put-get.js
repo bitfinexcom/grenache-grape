@@ -565,29 +565,56 @@ test('put-get', async () => {
     const untilLegacy = when()
     grape.get(hash, (err, normative) => {
       error(err)
-      is(normative.id, null)
-      is(normative.v, null)
+      is(normative, undefined)
       untilNormative()
     })
     await untilNormative.done()
     grape.get({ hash, m: false }, (err, explicit) => {
       error(err)
-      is(explicit.id, null)
-      is(explicit.v, null)
+      is(explicit, undefined)
       untilExplicit()
     })
     await untilExplicit.done()
     grape.get({ hash }, (err, legacy) => {
       error(err)
-      is(legacy.id, null)
-      is(legacy.v, null)
-      is('m' in legacy, false)
+      is(legacy, undefined)
       untilLegacy()
     })
     await untilLegacy.done()
 
     await stop()
   })
+
+  test('get invalid hash (immutable)', { timeout: 5000 }, async ({ is, error }) => {
+    const { grape, stop } = await createGrape()
+
+    const hash = '256c83b297114d201b3not validf0cace9783622da5974326b436178aeef611'
+
+    const untilNormative = when()
+    const untilExplicit = when()
+    const untilLegacy = when()
+    grape.get(hash, (err, normative) => {
+      error(err)
+      is(normative, undefined)
+      untilNormative()
+    })
+    await untilNormative.done()
+    grape.get({ hash, m: false }, (err, explicit) => {
+      error(err)
+      is(explicit, undefined)
+      untilExplicit()
+    })
+    await untilExplicit.done()
+    grape.get({ hash }, (err, legacy) => {
+      error(err)
+      is(legacy, undefined)
+      untilLegacy()
+    })
+    await untilLegacy.done()
+
+    await stop()
+  })
+
 
   test('get non-existent mutable data', { timeout: 5000 }, async ({ is, error }) => {
     const { grape, stop } = await createGrape()
@@ -601,23 +628,51 @@ test('put-get', async () => {
     const untilLegacy = when()
     grape.get({ key: hexKey }, (err, normative) => {
       error(err)
-      is(normative.v, null)
-      is(normative.id, null)
+      is(normative, undefined)
       untilNormative()
     })
     await untilNormative.done()
     grape.get({ hash: hexKey, m: true }, (err, explicit) => {
       error(err)
-      is(explicit.v, null)
-      is(explicit.id, null)
+      is(explicit, undefined)
       untilExplicit()
     })
     await untilExplicit.done()
     grape.get({ hash: hexKey }, (err, legacy) => {
       error(err)
-      is(legacy.id, null)
-      is(legacy.v, null)
-      is('m' in legacy, false)
+      is(legacy, undefined)
+      untilLegacy()
+    })
+    await untilLegacy.done()
+
+    await stop()
+  })
+
+  test('get invalid hash (mutable)', { timeout: 5000 }, async ({ is, error }) => {
+    const { grape, stop } = await createGrape()
+
+    const keypair = hypersign.keypair()
+    const { publicKey: key } = keypair
+    const hexKey = key.toString('hex').slice(-24)
+
+    const untilNormative = when()
+    const untilExplicit = when()
+    const untilLegacy = when()
+    grape.get({ key: hexKey }, (err, normative) => {
+      error(err)
+      is(normative, undefined)
+      untilNormative()
+    })
+    await untilNormative.done()
+    grape.get({ hash: hexKey, m: true }, (err, explicit) => {
+      error(err)
+      is(explicit, undefined)
+      untilExplicit()
+    })
+    await untilExplicit.done()
+    grape.get({ hash: hexKey }, (err, legacy) => {
+      error(err)
+      is(legacy, undefined)
       untilLegacy()
     })
     await untilLegacy.done()
