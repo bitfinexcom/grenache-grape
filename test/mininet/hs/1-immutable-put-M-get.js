@@ -22,15 +22,15 @@ tapenet(`1 immutable put peer, ${NODES - 2} immutable get peers, ${RTS} gets per
       containers: [putter],
       ready (t, peer, state, next) {
         const crypto = require('crypto')
-        const value = crypto.randomBytes(32).toString('hex')
+        const value = crypto.randomBytes(32)
         next(null, { ...state, value })
       },
       run (t, peer, { value, $shared }, done) {
         peer.immutable.put(value, (err, key) => {
-          try {
+          try { 
             t.error(err, 'no announce error')
-            $shared.key = key
           } finally {
+            $shared.key = key
             done()
           }
         })
@@ -49,10 +49,10 @@ tapenet(`1 immutable put peer, ${NODES - 2} immutable get peers, ${RTS} gets per
             return
           }
           peer.immutable.get($shared.key, (err, v) => {
-            try {
+            try { 
               t.error(err, 'no get error')
               if (err) return
-              t.is(v, value)
+              t.is(value.equals(v), true)
             } finally {
               gets(n - 1)
             }

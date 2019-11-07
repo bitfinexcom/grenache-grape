@@ -26,17 +26,17 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
       containers: putters,
       ready (t, peer, state, next) {
         const crypto = require('crypto')
-        const hypersign = require('@hyperswarm/hypersign')
+        const hypersign = require('@hyperswarm/hypersign')()
         const keypair = hypersign.keypair()
         const { publicKey: key } = keypair
-        const value = crypto.randomBytes(32).toString('hex')
+        const value = crypto.randomBytes(32)
         const { $shared, $index } = state
         $shared.kv[$index] = { key, value }
         next(null, { ...state, keypair, value })
       },
       run (t, peer, { keypair, value }, done) {
         peer.mutable.put(value, { keypair }, (err) => {
-          try {
+          try { 
             t.error(err, 'no announce error')
           } finally {
             done()
@@ -48,6 +48,13 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
       containers: getters,
       options: { ephemeral: false },
       run (t, peer, { rts, $shared, $index }, done) {
+        if (!$shared.kv[$index]) {
+          try { 
+            throw Error('problem accessing kv')
+          } finally {
+            done()
+          }
+        }
         const { key, value } = $shared.kv[$index]
         const started = Date.now()
         gets(rts)
@@ -58,10 +65,10 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
             return
           }
           peer.mutable.get(key, (err, result) => {
-            try {
+            try { 
               t.error(err, 'no get error')
               if (err) return
-              t.is(result.value, value)
+              t.is(value.equals(result.value), true)
             } finally {
               gets(n - 1)
             }

@@ -22,15 +22,15 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
       containers: [putter],
       ready (t, peer, state, next) {
         const crypto = require('crypto')
-        const hypersign = require('@hyperswarm/hypersign')
+        const hypersign = require('@hyperswarm/hypersign')()
         const keypair = hypersign.keypair()
         const { publicKey: key } = keypair
-        const value = crypto.randomBytes(32).toString('hex')
+        const value = crypto.randomBytes(32)
         next(null, { ...state, key, keypair, value })
       },
       run (t, peer, { keypair, value }, done) {
         peer.mutable.put(value, { keypair }, (err) => {
-          try {
+          try { 
             t.error(err, 'no announce error')
           } finally {
             done()
@@ -50,11 +50,11 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
             done()
             return
           }
-          peer.get(key, (err, result) => {
-            try {
+          peer.mutable.get(key, (err, result) => {
+            try { 
               t.error(err, 'no get error')
               if (err) return
-              t.is(result.value, value)
+              t.is(value.equals(result.value), true)
             } finally {
               gets(n - 1)
             }
