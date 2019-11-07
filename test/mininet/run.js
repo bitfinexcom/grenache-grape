@@ -25,7 +25,7 @@ async function run (cmd, ...args) {
   const writer = (cmd === node)
     ? pipe(cp.stdout, fs.createWriteStream(join(results, `${basename(args[0])}.tap`)))
     : Promise.resolve()
-  if (cmd === node) cp.stdout.pipe(process.stdout)
+  if (cmd === node) { cp.stdout.pipe(process.stdout) }
   await Promise.race([
     once(cp, 'exit'),
     handleError(cp),

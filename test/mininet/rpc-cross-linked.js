@@ -86,9 +86,12 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
         requests(rts)
         function requests (n) {
           if (n === 0) {
-            t.same(actual, expected, 'correct data returned in correct order')
-            t.pass(`${rts} round trips took ${Date.now() - started} ms`)
-            done()
+            try {
+              t.same(actual, expected, 'correct data returned in correct order')
+              t.pass(`${rts} round trips took ${Date.now() - started} ms`)
+            } finally {
+              done()
+            }
             return
           }
 
@@ -98,9 +101,12 @@ tapenet(`1 cross-linked announcing server, 1 cross-linked lookup client, ${NODES
           // otherwise we're only testing the cache
           link.cache = {}
           client.request(topic, payload, { timeout: 10000 }, (err, data) => {
-            t.error(err, 'no request error')
-            actual.push(data)
-            requests(n - 1)
+            try {
+              t.error(err, 'no request error')
+            } finally {
+              actual.push(data)
+              requests(n - 1)
+            }
           })
         }
       }

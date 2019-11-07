@@ -61,10 +61,13 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
             return
           }
           peer.get({ key }, (err, { v } = {}) => {
-            t.error(err, 'no get error')
-            if (err) return
-            t.is(v, value)
-            gets(n - 1)
+            try {
+              t.error(err, 'no get error')
+              if (err) return
+              t.is(v, value)
+            } finally {
+              gets(n - 1)
+            }
           })
         }
       }

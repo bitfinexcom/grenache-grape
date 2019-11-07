@@ -34,8 +34,11 @@ tapenet(`1 lookup peer, ${NODES - 2} announcing peers, ${NODES - 2} topics, ${RT
       },
       run (t, peer, { topic }, done) {
         peer.announce(topic, (err) => {
-          t.error(err, 'no announce error')
-          done()
+          try {
+            t.error(err, 'no announce error')
+          } finally {
+            done()
+          }
         })
       }
     },
@@ -59,27 +62,30 @@ tapenet(`1 lookup peer, ${NODES - 2} announcing peers, ${NODES - 2} topics, ${RT
             return
           }
           peer.lookup(topic, (err, peers) => {
-            t.error(err, 'no lookup error')
-            if (err) return
-            const hasResult = peers.length > 0
-            t.is(hasResult, true, 'lookup has a result')
-            if (hasResult === false) return
-            const { port } = peer.address()
-            const expected = new Set([
-              ...bootstrap,
-              // the lookup node is non-ephemeral, so
-              // it may also respond to its own lookup:
-              `${ip}:${port}`,
-              ...Object.values(cfg).map(({ host, port }) => {
-                return `${host}:${port}`
-              })
-            ])
+            try {
+              t.error(err, 'no lookup error')
+              if (err) return
+              const hasResult = peers.length > 0
+              t.is(hasResult, true, 'lookup has a result')
+              if (hasResult === false) return
+              const { port } = peer.address()
+              const expected = new Set([
+                ...bootstrap,
+                // the lookup node is non-ephemeral, so
+                // it may also respond to its own lookup:
+                `${ip}:${port}`,
+                ...Object.values(cfg).map(({ host, port }) => {
+                  return `${host}:${port}`
+                })
+              ])
 
-            const peersMatch = peers.every((peer) => {
-              return expected.has(peer)
-            })
-            t.ok(peersMatch, 'peers match')
-            lookups(n - 1, i)
+              const peersMatch = peers.every((peer) => {
+                return expected.has(peer)
+              })
+              t.ok(peersMatch, 'peers match')
+            } finally {
+              lookups(n - 1, i)
+            }
           })
         }
       }

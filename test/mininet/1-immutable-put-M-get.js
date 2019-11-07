@@ -27,9 +27,12 @@ tapenet(`1 immutable put peer, ${NODES - 2} immutable get peers, ${RTS} gets per
       },
       run (t, peer, { value, $shared }, done) {
         peer.put({ v: value }, (err, key) => {
-          t.error(err, 'no announce error')
-          $shared.key = key
-          done()
+          try {
+            t.error(err, 'no announce error')
+            $shared.key = key
+          } finally {
+            done()
+          }
         })
       }
     },
@@ -46,10 +49,13 @@ tapenet(`1 immutable put peer, ${NODES - 2} immutable get peers, ${RTS} gets per
             return
           }
           peer.get($shared.key, (err, { v } = {}) => {
-            t.error(err, 'no get error')
-            if (err) return
-            t.is(v, value)
-            gets(n - 1)
+            try {
+              t.error(err, 'no get error')
+              if (err) return
+              t.is(v, value)
+            } finally {
+              gets(n - 1)
+            }
           })
         }
       }

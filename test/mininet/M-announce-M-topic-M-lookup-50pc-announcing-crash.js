@@ -41,8 +41,11 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (
       },
       run (t, peer, { topic, $index }, done) {
         peer.announce(topic, (err) => {
-          t.error(err, 'no announce error')
-          done()
+          try {
+            t.error(err, 'no announce error')
+          } finally {
+            done()
+          }
         })
         if ($index % 2) { // allow half of the nodes to crash
           tapenet.on('crash', () => {
@@ -85,23 +88,26 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (
             return
           }
           peer.lookup(topic, (err, peers) => {
-            t.error(err, 'no lookup error')
-            if (err) return
-            const hasResult = peers.length > 0
-            t.is(hasResult, true, 'lookup has a result')
-            if (hasResult === false) return
-            const expected = new Set([
-              ...bootstrap,
-              ...Object.values(cfg).map(({ host, port }) => {
-                return `${host}:${port}`
-              })
-            ])
+            try {
+              t.error(err, 'no lookup error')
+              if (err) return
+              const hasResult = peers.length > 0
+              t.is(hasResult, true, 'lookup has a result')
+              if (hasResult === false) return
+              const expected = new Set([
+                ...bootstrap,
+                ...Object.values(cfg).map(({ host, port }) => {
+                  return `${host}:${port}`
+                })
+              ])
 
-            const peersMatch = peers.every((peer) => {
-              return expected.has(peer)
-            })
-            t.ok(peersMatch, 'peers match')
-            lookups(n - 1, i)
+              const peersMatch = peers.every((peer) => {
+                return expected.has(peer)
+              })
+              t.ok(peersMatch, 'peers match')
+            } finally {
+              lookups(n - 1, i)
+            }
           })
         }
       }
