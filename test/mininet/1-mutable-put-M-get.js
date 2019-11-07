@@ -50,7 +50,7 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
             done()
             return
           }
-          peer.get({ key }, (err, { v }) => {
+          peer.get({ key }, (err, { v } = {}) => {
             t.error(err, 'no get error')
             if (err) return
             t.is(v, value)

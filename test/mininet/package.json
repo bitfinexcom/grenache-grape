@@ -10,7 +10,7 @@
     "tapenet": "^1.4.0"
   },
   "scripts": {
-    "test": "tapenet *.js",
+    "test": "node run.js",
     "hs": "tapenet hs/*.js"
   }
 }
