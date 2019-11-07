@@ -52,8 +52,11 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
           })
         }
         peer.announce(topic, (err) => {
-          t.error(err, 'no announce error')
-          done()
+          try {
+            t.error(err, 'no announce error')
+          } finally {
+            done()
+          }
         })
       }
     },
@@ -79,19 +82,22 @@ tapenet(`${NODES - 2} non-ephemeral peers, 20 peers announcing same topic, 1 eph
             return
           }
           peer.lookup(topic, (err, result) => {
-            t.error(err, 'no lookup error')
-            if (err) return
-            const hasResult = result.length > 0
-            t.is(hasResult, true, 'lookup has a result')
-            if (hasResult === false) return
-            if (expectToExclude) {
-              const { host, port } = expectToExclude
-              const match = result.some(({ node }) => {
-                return node.port === port && node.host === host
-              })
-              t.is(match, false, 'lookup result does not contain unannounced peer')
+            try {
+              t.error(err, 'no lookup error')
+              if (err) return
+              const hasResult = result.length > 0
+              t.is(hasResult, true, 'lookup has a result')
+              if (hasResult === false) return
+              if (expectToExclude) {
+                const { host, port } = expectToExclude
+                const match = result.some(({ node }) => {
+                  return node.port === port && node.host === host
+                })
+                t.is(match, false, 'lookup result does not contain unannounced peer')
+              }
+            } finally {
+              lookups(n - 1)
             }
-            lookups(n - 1)
           })
         }
       }

@@ -25,8 +25,11 @@ tapenet(`1 announcing peer, ${NODES - 2} lookup peers, ${RTS} lookups per peer`,
       },
       run (t, peer, { topic }, done) {
         peer.announce(topic, (err) => {
-          t.error(err, 'no announce error')
-          done()
+          try {
+            t.error(err, 'no announce error')
+          } finally {
+            done()
+          }
         })
       }
     },
@@ -43,14 +46,17 @@ tapenet(`1 announcing peer, ${NODES - 2} lookup peers, ${RTS} lookups per peer`,
             return
           }
           peer.lookup(topic, (err, result) => {
-            t.error(err, 'no lookup error')
-            if (err) return
-            const hasResult = result.length > 0
-            t.is(hasResult, true, 'lookup has a result')
-            if (hasResult === false) return
-            const [{ peers }] = result
-            t.is(peers[0].port, announcerPort, 'is announcer port')
-            lookups(n - 1)
+            try {
+              t.error(err, 'no lookup error')
+              if (err) return
+              const hasResult = result.length > 0
+              t.is(hasResult, true, 'lookup has a result')
+              if (hasResult === false) return
+              const [{ peers }] = result
+              t.is(peers[0].port, announcerPort, 'is announcer port')
+            } finally {
+              lookups(n - 1)
+            }
           })
         }
       }

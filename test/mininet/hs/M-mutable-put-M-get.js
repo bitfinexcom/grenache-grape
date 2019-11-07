@@ -36,8 +36,11 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
       },
       run (t, peer, { keypair, value }, done) {
         peer.mutable.put(value, { keypair }, (err) => {
-          t.error(err, 'no announce error')
-          done()
+          try {
+            t.error(err, 'no announce error')
+          } finally {
+            done()
+          }
         })
       }
     },
@@ -55,10 +58,13 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
             return
           }
           peer.mutable.get(key, (err, result) => {
-            t.error(err, 'no get error')
-            if (err) return
-            t.is(result.value, value)
-            gets(n - 1)
+            try {
+              t.error(err, 'no get error')
+              if (err) return
+              t.is(result.value, value)
+            } finally {
+              gets(n - 1)
+            }
           })
         }
       }

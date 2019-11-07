@@ -38,8 +38,11 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (
       },
       run (t, peer, { topic, $index }, done) {
         peer.announce(topic, (err) => {
-          t.error(err, 'no announce error')
-          done()
+          try {
+            t.error(err, 'no announce error')
+          } finally {
+            done()
+          }
         })
         if ($index % 2) { // allow half of the nodes to crash
           tapenet.on('crash', () => {
@@ -82,26 +85,29 @@ tapenet(`${lookups.length} lookup peers, ${announcers.length} announcing peers (
             return
           }
           peer.lookup(topic, (err, result) => {
-            t.error(err, 'no lookup error')
-            if (err) return
-            const hasResult = result.length > 0
-            t.is(hasResult, true, 'lookup has a result')
-            if (hasResult === false) return
-            const expected = new Set([
-              ...bootstrap,
-              ...Object.values(cfg).map(({ host, port }) => {
-                return `${host}:${port}`
-              })
-            ])
+            try {
+              t.error(err, 'no lookup error')
+              if (err) return
+              const hasResult = result.length > 0
+              t.is(hasResult, true, 'lookup has a result')
+              if (hasResult === false) return
+              const expected = new Set([
+                ...bootstrap,
+                ...Object.values(cfg).map(({ host, port }) => {
+                  return `${host}:${port}`
+                })
+              ])
 
-            const peersMatch = result.every(({ node, peers }) => {
-              const { host, port } = node
-              return expected.has(`${host}:${port}`) && peers.every(({ host, port }) => {
-                return expected.has(`${host}:${port}`)
+              const peersMatch = result.every(({ node, peers }) => {
+                const { host, port } = node
+                return expected.has(`${host}:${port}`) && peers.every(({ host, port }) => {
+                  return expected.has(`${host}:${port}`)
+                })
               })
-            })
-            t.ok(peersMatch, 'peers match')
-            lookups(n - 1, i)
+              t.ok(peersMatch, 'peers match')
+            } finally {
+              lookups(n - 1, i)
+            }
           })
         }
       }
