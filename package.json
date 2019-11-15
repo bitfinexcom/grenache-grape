@@ -10,7 +10,7 @@
     "micro-services"
   ],
   "dependencies": {
-    "@hyperswarm/dht": "git://github.com/hyperswarm/dht.git#1c9e67d",
+    "@hyperswarm/dht": "git://github.com/hyperswarm/dht.git#8b767a7",
     "debug": "^4.0.1",
     "lodash": "^4.17.11",
     "raw-body": "^2.3.2",
