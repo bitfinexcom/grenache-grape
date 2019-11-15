@@ -36,7 +36,7 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
       },
       run (t, peer, { keypair, value }, done) {
         peer.mutable.put(value, { keypair }, (err) => {
-          try { 
+          try {
             t.error(err, 'no announce error')
           } finally {
             done()
@@ -49,7 +49,7 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
       options: { ephemeral: false },
       run (t, peer, { rts, $shared, $index }, done) {
         if (!$shared.kv[$index]) {
-          try { 
+          try {
             throw Error('problem accessing kv')
           } finally {
             done()
@@ -65,7 +65,7 @@ tapenet(`1 mutable put peer, ${NODES - 2} mutable get peers, ${RTS} gets per pee
             return
           }
           peer.mutable.get(key, (err, result) => {
-            try { 
+            try {
               t.error(err, 'no get error')
               if (err) return
               t.is(value.equals(result.value), true)

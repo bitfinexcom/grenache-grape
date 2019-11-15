@@ -7,7 +7,8 @@ const hypersign = require('@hyperswarm/hypersign')()
 const getPort = require('get-port')
 const {
   createGrape,
-  createTwoGrapes
+  createTwoGrapes,
+  createGrapes
 } = require('./helper.js')
 const { Grape } = require('..')
 const stop = promisifyOf('stop')
@@ -538,7 +539,8 @@ test('put-get', async () => {
   })
 
   test('mutable put same seq', { timeout: 5000 }, async ({ is, ok, error }) => {
-    const { grape, stop } = await createGrape()
+    const { stop, ...grapes } = await createGrapes(3)
+    const [grape1, grape2, grape3] = Object.values(grapes)
 
     const keypair = hypersign.keypair()
     const { publicKey: key } = keypair
@@ -554,104 +556,22 @@ test('put-get', async () => {
     }
 
     const until = when()
-    grape.put(data, (err, hash) => {
+    grape1.put(data, (err) => {
       error(err)
-      grape.put(data, (err, hash) => {
-        ok(err)
-        is(err.code, 302)
-        is(err.message, '302 sequence number less than current')
-        until()
+      data.seq += 1
+      data.sig = hypersign.sign(Buffer.from(value), { keypair, seq: seq + 1 })
+      grape2.put(data, (err) => {
+        error(err)
+        data.seq = seq
+        data.sig = sig
+        grape3.put(data, (err) => {
+          ok(err)
+          is(err.code, 302)
+          is(err.message, '302 sequence number less than current')
+          until()
+        })
       })
     })
-    await until.done()
-    await stop()
-  })
-
-  test('immutable get - token', { timeout: 5000 }, async ({ ok, error }) => {
-    const { grape1, grape2, stop } = await createTwoGrapes()
-
-    const until = when()
-    const data = {
-      v: 'hello world'
-    }
-
-    grape2.put(data, async (err, hash) => {
-      error(err)
-      const untilNormative = when()
-      const untilExplicit = when()
-      const untilLegacy = when()
-      grape1.node._store.clear()
-      grape1.get(hash, (err, { token }) => {
-        error(err)
-        ok(token)
-        untilNormative()
-      })
-      await untilNormative.done()
-      grape1.node._store.clear()
-      grape1.get({ hash, m: false }, (err, { token }) => {
-        error(err)
-        ok(token)
-        untilExplicit()
-      })
-      await untilExplicit.done()
-      grape1.node._store.clear()
-      grape1.get({ hash }, (err, { token }) => {
-        error(err)
-        ok(token)
-        untilLegacy()
-      })
-      await untilLegacy.done()
-      until()
-    })
-
-    await until.done()
-    await stop()
-  })
-
-  test('mutable get - token', { timeout: 5000 }, async ({ ok, error }) => {
-    const { grape1, grape2, stop } = await createTwoGrapes()
-
-    const keypair = hypersign.keypair()
-    const { publicKey: key } = keypair
-    const value = 'hello world'
-    const sig = hypersign.sign(Buffer.from(value), { keypair })
-
-    const data = {
-      v: Buffer.from(value),
-      k: key,
-      sig
-    }
-    const until = when()
-
-    grape2.put(data, async (err, key) => {
-      error(err)
-      const untilNormative = when()
-      const untilExplicit = when()
-      const untilLegacy = when()
-      grape1.node._store.clear()
-      grape1.get({ key }, (err, { token }) => {
-        error(err)
-        ok(token)
-        untilNormative()
-      })
-      await untilNormative.done()
-      grape1.node._store.clear()
-      grape1.get({ hash: key, m: true }, (err, { token }) => {
-        error(err)
-        ok(token)
-        untilExplicit()
-      })
-      await untilExplicit.done()
-      grape1.node._store.clear()
-      grape1.get({ hash: key }, (err, { token }) => {
-        error(err)
-        ok(token)
-        untilLegacy()
-      })
-      await untilLegacy.done()
-      until()
-    })
-
     await until.done()
     await stop()
   })

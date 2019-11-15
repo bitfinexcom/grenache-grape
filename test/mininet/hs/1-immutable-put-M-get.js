@@ -27,7 +27,7 @@ tapenet(`1 immutable put peer, ${NODES - 2} immutable get peers, ${RTS} gets per
       },
       run (t, peer, { value, $shared }, done) {
         peer.immutable.put(value, (err, key) => {
-          try { 
+          try {
             t.error(err, 'no announce error')
           } finally {
             $shared.key = key
@@ -49,7 +49,7 @@ tapenet(`1 immutable put peer, ${NODES - 2} immutable get peers, ${RTS} gets per
             return
           }
           peer.immutable.get($shared.key, (err, v) => {
-            try { 
+            try {
               t.error(err, 'no get error')
               if (err) return
               t.is(value.equals(v), true)

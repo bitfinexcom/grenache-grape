@@ -10,7 +10,7 @@
     "micro-services"
   ],
   "dependencies": {
-    "@hyperswarm/dht": "git://github.com/hyperswarm/dht.git#6a2b008",
+    "@hyperswarm/dht": "git://github.com/hyperswarm/dht.git#1c9e67d",
     "debug": "^4.0.1",
     "lodash": "^4.17.11",
     "raw-body": "^2.3.2",
@@ -31,7 +31,7 @@
     "nonsynchronous": "^1.2.0",
     "standard": "^14.3.1",
     "supertest": "^4.0.2",
-    "tap": "^14.8.2"
+    "tap": "^14.9.2"
   },
   "scripts": {
     "test": "npm run unit -- --100 && npm run lint -- --fix",
