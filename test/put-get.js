@@ -542,6 +542,97 @@ test('put-get', async () => {
     await stop()
   })
 
+  test('put - options.sign ed25519-supercop compat', async ({ is, error, teardown }) => {
+    const { grape1, grape2, stop } = await createTwoGrapes()
+    const ed = require('ed25519-supercop')
+    const keypair = ed.createKeyPair(ed.createSeed())
+    const { publicKey: key } = keypair
+    const value = 'hello world'
+    var sig = null
+    const data = {
+      v: value,
+      k: key,
+      sign (buf) {
+        sig = ed.sign(
+          buf, keypair.publicKey, keypair.secretKey
+        )
+        return sig
+      }
+    }
+
+    const until = when()
+    await start(grape1)()
+    grape2.put(data, async (err, hexKey) => {
+      error(err)
+      is(hexKey, key.toString('hex'))
+      const untilNormative = when()
+      const untilExplicit = when()
+      const untilLegacy = when()
+      const untilSlow = when()
+
+      grape1.get({ key: hexKey }, (err, normative) => {
+        error(err)
+        is(typeof normative, 'object')
+        is(typeof normative.id, 'string')
+        is(normative.id.length, 64)
+        is(normative.k, hexKey)
+        is(normative.v, 'hello world')
+        is(normative.m, true)
+        is(normative.seq, 0)
+        is(normative.sig, sig.toString('hex'))
+        is(normative.salt, undefined)
+        untilNormative()
+      })
+      await untilNormative.done()
+      grape1.get({ hash: hexKey, m: true }, (err, explicit) => {
+        error(err)
+        is(typeof explicit, 'object')
+        is(typeof explicit.id, 'string')
+        is(explicit.id.length, 64)
+        is(explicit.k, hexKey)
+        is(explicit.v, 'hello world')
+        is(explicit.m, true)
+        is(explicit.seq, 0)
+        is(explicit.sig, sig.toString('hex'))
+        is(explicit.salt, undefined)
+        untilExplicit()
+      })
+      await untilExplicit.done()
+      grape1.get({ hash: hexKey }, (err, legacy) => {
+        error(err)
+        is(typeof legacy, 'object')
+        is(typeof legacy.id, 'string')
+        is(legacy.id.length, 64)
+        is(typeof legacy.k, 'string')
+        is(legacy.k.length, 64)
+        is(legacy.v, 'hello world')
+        is(legacy.m, true)
+        is(legacy.seq, 0)
+        is(legacy.sig, sig.toString('hex'))
+        is(legacy.salt, undefined)
+        untilLegacy()
+      })
+      await untilLegacy.done()
+      grape1.get(hexKey, (err, slow) => {
+        error(err)
+        is(typeof slow.id, 'string')
+        is(slow.id.length, 64)
+        is(typeof slow.k, 'string')
+        is(slow.k.length, 64)
+        is(slow.v, 'hello world')
+        is(slow.m, true)
+        is(slow.seq, 0)
+        is(slow.sig, sig.toString('hex'))
+        is(slow.salt, undefined)
+        untilSlow()
+      })
+      await untilSlow.done()
+      until()
+    })
+    await until.done()
+    await stop()
+  })
+
   test('put - options.sig or options.sign but not both', async ({ is, ok }) => {
     const { grape1, grape2, stop } = await createTwoGrapes()
 
