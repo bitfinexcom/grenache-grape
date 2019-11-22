@@ -11,6 +11,7 @@
   ],
   "dependencies": {
     "@hyperswarm/dht": "git://github.com/hyperswarm/dht.git#8b767a7",
+    "@hyperswarm/hypersign": "^2.1.0",
     "debug": "^4.0.1",
     "lodash": "^4.17.11",
     "raw-body": "^2.3.2",
@@ -25,7 +26,6 @@
   },
   "main": "index.js",
   "devDependencies": {
-    "@hyperswarm/hypersign": "^2.0.0",
     "events.once": "^2.0.2",
     "get-port": "^5.0.0",
     "nonsynchronous": "^1.2.0",
