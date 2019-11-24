@@ -178,7 +178,7 @@ test('service announce/lookup', async () => {
     const until = when()
     await createGrapes(100, (grapes, stop) => {
       const sample = sampleSize(grapes, 3)
-      sample[0].announce('B', 2000, (err, hits) => {
+      sample[0].announce('B', 2000, (err) => {
         error(err)
         setTimeout(() => {
           sample[1].lookup('B', (err, l) => {
