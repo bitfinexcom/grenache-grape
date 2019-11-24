@@ -1088,7 +1088,7 @@ test('put-get', async () => {
       return qsMock
     }
     const hash = '256c83b297114d201b30179f3f0ef0cace9783622da5974326b436178aeef611'
-    grape.get({ hash }, () => {})
+    grape.get({ hash, m: true }, () => {})
 
     const [warning] = await once(grape, 'warning')
     is(warning, 'test')
@@ -1322,6 +1322,78 @@ test('put-get', async () => {
     await post('/put')
       .send({ rid: 'test', data: data })
       .expect(400, '"ERR_GRAPE_SIG_OR_SIGN_REQUIRED"')
+    await stop()
+  })
+
+  test('immutable put after init error', async ({ ok, is }) => {
+    const { grape, stop } = await createGrape()
+    const data = {
+      v: Buffer.alloc(1001)
+    }
+    const until = when()
+    grape._initError = Error('ERR_GRAPE_INIT: test') // simulate init error
+    grape.put(data, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INIT: test')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('mutable put after init error', async ({ ok, is }) => {
+    const { grape, stop } = await createGrape()
+    const keypair = hypersign.keypair()
+    const { publicKey: key } = keypair
+
+    const value = Buffer.alloc(1001)
+    const sig = hypersign.sign(Buffer.from(value).slice(-1), { keypair })
+
+    const data = {
+      v: value,
+      k: key,
+      sig
+    }
+    const until = when()
+    grape._initError = Error('ERR_GRAPE_INIT: test') // simulate init error
+    grape.put(data, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INIT: test')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('immutable get after init error', async ({ ok, is }) => {
+    const { grape, stop } = await createGrape()
+    const hash = '256c83b297114d201b3not validf0cace9783622da5974326b436178aeef611'
+    const until = when()
+    grape._initError = Error('ERR_GRAPE_INIT: test') // simulate init error
+    grape.get(hash, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INIT: test')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('mutable get after init error', async ({ ok, is }) => {
+    const { grape, stop } = await createGrape()
+    const key = '256c83b297114d201b3not validf0cace9783622da5974326b436178aeef611'
+    const until = when()
+    grape._initError = Error('ERR_GRAPE_INIT: test') // simulate init error
+    grape.get({ key }, (err) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INIT: test')
+      until()
+    })
+
+    await until.done()
     await stop()
   })
 })

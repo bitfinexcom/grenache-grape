@@ -474,6 +474,36 @@ test('service announce/lookup', async () => {
     await post('/announce').send({ data: '"invalid"' }).expect(400, '"ERR_GRAPE_ANNOUNCE"')
     await stop()
   })
+
+  test('announce after init error', async ({ ok, is }) => {
+    const { grape, stop } = await createGrape()
+
+    const until = when()
+    grape._initError = Error('ERR_GRAPE_INIT: test') // simulate init error
+    grape.announce('rest:util:net', (err, res) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INIT: test')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
+
+  test('lookup after init error', async ({ ok, is }) => {
+    const { grape, stop } = await createGrape()
+
+    const until = when()
+    grape._initError = Error('ERR_GRAPE_INIT: test') // simulate init error
+    grape.lookup('rest:util:net', (err, res) => {
+      ok(err)
+      is(err.message, 'ERR_GRAPE_INIT: test')
+      until()
+    })
+
+    await until.done()
+    await stop()
+  })
 })
 
 function startAnnouncing (grape, name, port) {

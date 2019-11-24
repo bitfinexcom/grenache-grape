@@ -118,6 +118,74 @@ test('Grape', async () => {
     await until.done()
   })
 
+  test('emits error when no callback supplied', async ({ ok, is }) => {
+    const grape1 = new Grape({
+      dht_port: await getPort(),
+      api_port: await getPort()
+    })
+    const grape2 = new Grape({
+      dht_port: grape1.conf.dht_port,
+      api_port: await getPort()
+    })
+    guard(grape1)
+    guard(grape2)
+    const until = when()
+    await start(grape1)()
+    grape2.start()
+    const err = await once(grape2, 'error')
+    ok(err)
+    const { code } = err
+    is(code, 'EADDRINUSE')
+    grape1.stop(() => {
+      grape2.stop(() => {
+        until()
+      })
+    })
+    await until.done()
+  })
+
+  test('avoids multi start callback on init error race condition', async ({ ok, is }) => {
+    const grape1 = new Grape({
+      dht_port: await getPort(),
+      api_port: await getPort()
+    })
+    const grape2 = new Grape({
+      dht_port: grape1.conf.dht_port,
+      api_port: await getPort()
+    })
+    guard(grape1)
+    guard(grape2)
+    const until = when()
+    await start(grape1)()
+    var dht = null
+    // reliably simulate race condition scenario
+    Object.defineProperty(grape2, 'dht', {
+      get () {
+        return dht
+      },
+      set (v) {
+        dht = v
+        dht.listen = (host, port, cb) => {
+          dht.emit('error', Error('test'))
+          process.nextTick(cb)
+        }
+        return dht
+      }
+    })
+    grape2.start((err) => {
+      ok(err)
+      const { message } = err
+      is(message, 'test')
+      grape1.stop(() => {
+        grape2.stop(() => {
+          until()
+        })
+      })
+    })
+
+    await until.done()
+  })
+
   test('keeps running on invalid put payload', async ({ ok }) => {
     const grape = new Grape({
       dht_port: await getPort(),
