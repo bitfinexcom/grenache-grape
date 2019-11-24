@@ -167,7 +167,7 @@ test('Grape', async () => {
         dht = v
         dht.listen = (host, port, cb) => {
           dht.emit('error', Error('test'))
-          process.nextTick(cb)
+          cb()
         }
         return dht
       }
