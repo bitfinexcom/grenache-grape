@@ -178,7 +178,7 @@ test('service announce/lookup', async () => {
     const until = when()
     await createGrapes(100, (grapes, stop) => {
       const sample = sampleSize(grapes, 3)
-      sample[0].announce('B', 2000, (err) => {
+      sample[0].announce('B', 2000, (err, hits) => {
         error(err)
         setTimeout(() => {
           sample[1].lookup('B', (err, l) => {
@@ -193,6 +193,18 @@ test('service announce/lookup', async () => {
             }, 100)
           })
         }, 100)
+      })
+    })
+    await until.done()
+  })
+
+  test('announce callback second param is amount of peers reached', { timeout: 20000 }, async ({ error, is }) => {
+    const until = when()
+    await createGrapes(13, (grapes, stop) => {
+      grapes[0].announce('B', 2000, (err, hits) => {
+        error(err)
+        is(hits, 13)
+        stop(until)
       })
     })
     await until.done()
