@@ -11,6 +11,8 @@
   },
   "scripts": {
     "test": "node run.js",
-    "hs": "tapenet hs/*.js"
+    "stress-test": "for i in {0..20}; do node run.js; sleep 5; done",
+    "test-hs": "pushd hs; node run.js; popd",
+    "stress-test-hs": "pushd hs; for i in {0..20}; do node run.js; sleep 5; done; popd"
   }
 }
