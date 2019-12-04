@@ -69,7 +69,8 @@ function spinup (size, { t, scenario, state, bs }) {
           const run = ${fnStringify(run)}
           const { Grape } = require('../..')
           const { bootstrap } = state
-          const peer = new Grape({ 
+          const peer = new Grape({
+            api_port: 40002,
             dht_bootstrap: bootstrap, 
             ...${JSON.stringify(options)} 
           })
