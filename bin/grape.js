@@ -60,7 +60,6 @@ const apiPort = program.aph
 const bind = program.b
 const maxDhtPeerAge = program.dpa
 const maxDhtValues = program.dht_maxValues
-const dhtNodeLiveness = program.dnl
 const maxPayloadSize = program.check_maxPayloadSize
 
 const dhtBoostrap = _.reduce((program.bn || '').split(','), (acc, e) => {
