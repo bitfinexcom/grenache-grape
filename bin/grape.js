@@ -42,11 +42,6 @@ const program = require('yargs')
     alias: 'dpa',
     type: 'number'
   })
-  .option('dnl', {
-    alias: 'dht_nodeLiveness',
-    describe: 'Interval in ms to check for dead nodes',
-    type: 'number'
-  })
   .option('check_maxPayloadSize', {
     describe: 'Limit for max payload size',
     type: 'number'
@@ -81,7 +76,6 @@ const g = new Grape({
   dht_port: dhtPort,
   dht_bootstrap: dhtBoostrap,
   dht_maxValues: maxDhtValues,
-  dht_nodeLiveness: dhtNodeLiveness,
   api_port: apiPort,
   dht_peer_maxAge: maxDhtPeerAge,
   check_maxPayloadSize: maxPayloadSize

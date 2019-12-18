@@ -36,7 +36,6 @@ Options:
   --bn, --bootstrap          Bootstrap nodes                 [string] [required]
   --aph, --api_port          HTTP api port                   [number] [required]
   --dht_peer_maxAge, --dpa   Max age for peers in DHT                   [number]
-  --dnl, --dht_nodeLiveness  Interval in ms to check for dead nodes     [number]
   --check_maxPayloadSize     Limit for max payload size                 [number]
   --help                     Show help                                 [boolean]
   --version                  Show version number                       [boolean]
