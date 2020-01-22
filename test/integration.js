@@ -1,31 +1,35 @@
 /* eslint-env mocha */
 
 'use strict'
-
+const { test } = require('tap')
+const getPort = require('get-port')
+const { promisifyOf } = require('nonsynchronous')
 const { Grape } = require('./../')
+const stop = promisifyOf('stop')
+const start = promisifyOf('start')
 
-describe('Grape integration', () => {
-  it('should emit a ready event', (done) => {
+test('Grape integration', async () => {
+  test('should emit a ready event', { timeout: 5000 }, async ({ pass }) => {
+    const g1Port = await getPort()
+    const g2Port = await getPort()
     const grape1 = new Grape({
-      dht_port: 20002,
-      dht_bootstrap: [ '127.0.0.1:20001' ],
-      api_port: 40001
+      dht_port: g1Port,
+      dht_bootstrap: [`127.0.0.1:${g2Port}`],
+      api_port: await getPort()
     })
 
-    grape1.start(() => {})
+    await start(grape1)()
 
     const grape2 = new Grape({
-      dht_port: 20001,
-      dht_bootstrap: [ '127.0.0.1:20002' ],
-      api_port: 30002
+      dht_port: g2Port,
+      dht_bootstrap: [`127.0.0.1:${g1Port}`],
+      api_port: await getPort()
     })
 
-    grape2.start(() => {})
+    await start(grape2)()
 
-    grape1.on('ready', () => {
-      grape1.stop()
-      grape2.stop()
-      done()
-    })
-  }).timeout(5000)
+    await stop(grape1)()
+    await stop(grape2)()
+    pass('grape ready')
+  })
 })

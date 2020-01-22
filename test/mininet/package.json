@@ -2,12 +2,17 @@
   "name": "grenache-network",
   "version": "0.0.0",
   "description": "Test grenache using Mininet",
-  "dependencies": {
+  "devDependencies": {
+    "bittorrent-dht": "^9.0.3",
     "grenache-nodejs-http": "^0.7.1",
     "grenache-nodejs-link": "bitfinexcom/grenache-nodejs-link",
+    "lodash.mergewith": "^4.6.2",
     "tapenet": "^1.4.0"
   },
   "scripts": {
-    "test": "tapenet *.js"
+    "test": "node run.js",
+    "stress-test": "for i in {0..20}; do node run.js; sleep 5; done",
+    "test-hs": "pushd hs; node run.js; popd",
+    "stress-test-hs": "pushd hs; for i in {0..20}; do node run.js; sleep 5; done; popd"
   }
 }
