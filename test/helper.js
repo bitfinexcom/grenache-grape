@@ -5,17 +5,26 @@ const getPort = require('get-port')
 const { teardown } = require('tap')
 exports.createGrapes = createGrapes
 
-async function createGrapes (n, onstart = () => {}) {
-  const grapes = []
+async function createBootstrap (ephemeral = false) {
   const bsPort = await getPort()
-  const bootstrap = new Grape({
+  const bs = new Grape({
+    dht_ephemeral: ephemeral,
     dht_port: bsPort,
     dht_bootstrap: false,
     api_port: await getPort(bsPort + 1),
     dht_peer_maxAge: 200
   })
-  bootstrap.start()
-  await once(bootstrap, 'ready')
+  bs.start()
+  await once(bs, 'ready')
+  bs.dht_bootstrap = [`127.0.0.1:${bsPort}`]
+  return bs
+}
+
+exports.createBootstrap = createBootstrap
+
+async function createGrapes (n, onstart = () => {}) {
+  const grapes = []
+  const bootstrap = await createBootstrap()
 
   const ports = async (n, offset = 0) => {
     const result = new Array(n)
@@ -31,7 +40,7 @@ async function createGrapes (n, onstart = () => {}) {
   for (const [i, port] of dhtPorts.entries()) {
     const grape = new Grape({
       dht_port: port,
-      dht_bootstrap: [`127.0.0.1:${bsPort}`],
+      dht_bootstrap: bootstrap.dht_bootstrap,
       api_port: apiPorts[i],
       dht_peer_maxAge: 200
     })

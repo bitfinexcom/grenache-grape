@@ -19,7 +19,12 @@ const program = require('yargs')
   .option('de', {
     describe: 'DHT node epemerality',
     alias: 'dht_ephemeral',
-    type: 'number'
+    type: 'boolean'
+  })
+  .option('de', {
+    describe: 'DHT node adaptive ephemerality',
+    alias: 'dht_adaptive',
+    type: 'boolean'
   })
   .option('dht_maxValues', {
     describe: 'DHT max values',
