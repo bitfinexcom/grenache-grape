@@ -1,6 +1,6 @@
 'use strict'
 const Events = require('events')
-const { promisifyOf, when, timeout, once } = require('nonsynchronous')
+const { promisifyOf, when, once } = require('nonsynchronous')
 const { test, teardown } = require('tap')
 const getPort = require('get-port')
 const { Grape } = require('..')
@@ -252,18 +252,8 @@ test('Grape', async () => {
   })
 })
 
-test('adaptive ephemerality', async ({ is, pass, resolves, rejects, tearDown }) => {
-  const { setTimeout } = global
-  const { random } = Math
-  const divideTimeBy = 10000
-  const wait = (1000 * 60 * 25) / divideTimeBy
-  global.setTimeout = (fn, t, ...args) => {
-    return setTimeout(fn, t / divideTimeBy, ...args)
-  }
-  Math.random = () => 0.5
+test('adaptive ephemerality', async ({ is, ok, resolves, rejects, tearDown }) => {
   tearDown(() => {
-    global.setTimeout = setTimeout
-    Math.random = random
     peer.stop()
     adapt.stop()
     bs.stop()
@@ -292,24 +282,30 @@ test('adaptive ephemerality', async ({ is, pass, resolves, rejects, tearDown }) 
   await once(peer, 'ready')
   const topic = 'rest:util:net'
   await rejects(announce(peer)(topic, 1234), Error('No close nodes responded'), 'expected no nodes found')
-
-  const { setEphemeral } = adapt.dht
-  let setEphemeralCalled = false
-  adapt.dht.setEphemeral = (bool, cb) => {
-    setEphemeralCalled = true
-    is(bool, false)
-    return setEphemeral.call(adapt.dht, bool, cb)
+  const t = adapt.dht._adaptiveTimeout
+  ok(t._idleTimeout >= 1.2e+6) // >= 20 mins
+  ok(t._idleTimeout <= 1.8e+6) // <= 30 mins
+  const { persistent } = adapt.dht
+  let persistentCalled = false
+  adapt.dht.persistent = (cb) => {
+    persistentCalled = true
+    return persistent.call(adapt.dht, cb)
   }
   is(adapt.ephemeral, true)
   const dhtJoined = once(adapt, 'persistent')
   resolves(dhtJoined, 'dht joined event fired')
-  is(setEphemeralCalled, false)
-  await timeout(wait)
-  is(setEphemeralCalled, true)
+  is(persistentCalled, false)
+  // fake holepunchable
+  adapt.dht.holepunchable = () => true
+  // force the timeout to resolve:
+  t._onTimeout()
+  clearTimeout(t)
   await dhtJoined
+  is(persistentCalled, true)
   is(adapt.ephemeral, false)
+  const bootstrap = promisifyOf('bootstrap')
+  await bootstrap(peer.dht) // speed up discovery of now non-ephemeral "adapt" peer
   await announce(peer)(topic, 1234)
-
   lookup(peer)(topic)
   const [, { referrer }] = await once(peer, 'peer')
   is(Buffer.compare(referrer.id, adapt.dht.id), 0)

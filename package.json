@@ -10,7 +10,7 @@
     "micro-services"
   ],
   "dependencies": {
-    "@hyperswarm/dht": "git+https://github.com/hyperswarm/dht.git#adaptive-ephemerality",
+    "@hyperswarm/dht": "^3.4.0",
     "@hyperswarm/hypersign": "^2.1.0",
     "debug": "^4.0.1",
     "lodash": "^4.17.11",
