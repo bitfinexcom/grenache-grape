@@ -6,7 +6,7 @@ const getPort = require('get-port')
 const { Grape } = require('..')
 const stop = promisifyOf('stop')
 const start = promisifyOf('start')
-
+const { createBootstrap } = require('./helper.js')
 const guard = (grape) => teardown(() => grape.stop())
 
 test('Grape', async () => {
@@ -90,6 +90,26 @@ test('Grape', async () => {
       grape.stop(until)
     })
     await until.done()
+  })
+
+  test('dht_adaptive true when dht_ephemeral false', async ({ rejects, resolves }) => {
+    rejects(async () => {
+      new Grape({ // eslint-disable-line no-new
+        dht_port: await getPort(),
+        dht_ephemeral: false,
+        dht_adaptive: true
+      })
+    }, Error('dht_adaptive can only applied when dht_ephemeral: true'))
+    rejects(async () => {
+      new Grape({ // eslint-disable-line no-new
+        dht_port: await getPort(),
+        dht_adaptive: true
+      })
+    }, Error('dht_adaptive can only applied when dht_ephemeral: true'))
+    resolves(async () => {
+      const grape = new Grape({ dht_port: await getPort(), dht_adaptive: true, dht_ephemeral: true })
+      grape.stop()
+    })
   })
 
   test('dht port collision', async ({ ok, is }) => {
@@ -230,4 +250,63 @@ test('Grape', async () => {
     is(warning, 'test')
     await stop(grape)()
   })
+})
+
+test('adaptive ephemerality', async ({ is, ok, resolves, rejects, tearDown }) => {
+  tearDown(() => {
+    peer.stop()
+    adapt.stop()
+    bs.stop()
+  })
+
+  const bs = await createBootstrap(true)
+
+  const adapt = new Grape({
+    api_port: await getPort(),
+    dht_port: await getPort(),
+    dht_ephemeral: true,
+    dht_adaptive: true,
+    dht_bootstrap: bs.dht_bootstrap
+  })
+  adapt.start()
+  await once(adapt, 'ready')
+  const peer = new Grape({
+    api_port: await getPort(),
+    dht_port: await getPort(),
+    dht_ephemeral: true,
+    dht_bootstrap: bs.dht_bootstrap
+  })
+  peer.start()
+  const announce = promisifyOf('announce')
+  const lookup = promisifyOf('lookup')
+  await once(peer, 'ready')
+  const topic = 'rest:util:net'
+  await rejects(announce(peer)(topic, 1234), Error('No close nodes responded'), 'expected no nodes found')
+  const t = adapt.dht._adaptiveTimeout
+  ok(t._idleTimeout >= 1.2e+6) // >= 20 mins
+  ok(t._idleTimeout <= 1.8e+6) // <= 30 mins
+  const { persistent } = adapt.dht
+  let persistentCalled = false
+  adapt.dht.persistent = (cb) => {
+    persistentCalled = true
+    return persistent.call(adapt.dht, cb)
+  }
+  is(adapt.ephemeral, true)
+  const dhtJoined = once(adapt, 'persistent')
+  resolves(dhtJoined, 'dht joined event fired')
+  is(persistentCalled, false)
+  // fake holepunchable
+  adapt.dht.holepunchable = () => true
+  // force the timeout to resolve:
+  t._onTimeout()
+  clearTimeout(t)
+  await dhtJoined
+  is(persistentCalled, true)
+  is(adapt.ephemeral, false)
+  const bootstrap = promisifyOf('bootstrap')
+  await bootstrap(peer.dht) // speed up discovery of now non-ephemeral "adapt" peer
+  await announce(peer)(topic, 1234)
+  lookup(peer)(topic)
+  const [, { referrer }] = await once(peer, 'peer')
+  is(Buffer.compare(referrer.id, adapt.dht.id), 0)
 })

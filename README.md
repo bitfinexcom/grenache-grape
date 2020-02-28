@@ -31,7 +31,8 @@ bind-to-address]
 Options:
   -b, --bind                 Listening host                             [string]
   --dp, --dht_port           DHT listening port              [number] [required]
-  --de, --dht_ephemeral      DHT node epemerality                       [number]
+  --de, --dht_ephemeral      DHT node epemerality                       [boolean]
+  --da, --dht_adaptive       DHT node adaptive ephemerality             [boolean]
   --dht_maxValues            DHT max values                             [number]
   --bn, --bootstrap          Bootstrap nodes                 [string] [required]
   --aph, --api_port          HTTP api port                   [number] [required]
@@ -74,6 +75,7 @@ g.start()
  - `options` &lt;Object&gt; Options for the link
     - `host` &lt;String&gt; IP to bind to. If null, Grape binds to all interfaces
     - `dht_ephemeral` &lt;Boolean&gt; Whether to join the DHT (false) or just query it (true). Default is false
+    - `dht_adaptive` &lt;Boolean&gt; Upgrade ephemeral node to persistent (join DHT) after 20-30 minutes uptime. Default is false
     - `dht_maxValues` &lt;Number&gt; Maximum number of DHT values
     - `dht_port` &lt;Number&gt; Port for DHT
     - `dht_bootstrap`: &lt;Array&gt; Bootstrap servers
@@ -96,11 +98,9 @@ Emitted when a potential peer is found.
 
 Emitted when the DHT finds a new node.
 
-
 #### Event: 'warning'
 
 Emitted when a warning occurs in the DHT.
-
 
 #### Event: 'announce'
 
@@ -109,6 +109,10 @@ Emitted when a peer announces itself in order to be stored in the DHT.
 #### Event: 'unannounce'
 
 Emitted when a peer unannounces itself in order to be removed from the DHT.
+
+#### Event: 'persistent'
+
+Emitted when a peer turns from ephemeral to persistent. Only applies when `dht_ephemeral` and `dht_adaptive` are both `true` at initialization.
 
 ## RPC API
 
