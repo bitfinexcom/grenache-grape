@@ -14,7 +14,7 @@
     "bittorrent-dht": "^9.0.0",
     "cbq": "0.0.1",
     "debug": "^4.0.1",
-    "ed25519-supercop": "^1.2.0",
+    "ed25519-supercop": "^2.0.0",
     "lodash": "^4.17.11",
     "raw-body": "^2.3.2",
     "record-cache": "^1.1.0",
