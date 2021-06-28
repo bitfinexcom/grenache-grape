@@ -18,7 +18,7 @@
     "lodash": "^4.17.11",
     "raw-body": "^2.3.2",
     "record-cache": "^1.1.0",
-    "yargs": "^17.0.1"
+    "yargs": "^13.3.2"
   },
   "engine": {
     "node": ">=6.0"
