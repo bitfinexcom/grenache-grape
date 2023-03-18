@@ -31,13 +31,13 @@ describe('put-get-bep44', () => {
 
     grape2.on('announce', () => {
       const data = {
-        'v': 'hello world'
+        v: 'hello world'
       }
 
       request.post({
         uri: 'http://127.0.0.1:40001/put',
         json: true,
-        body: { rid: 'test', data: data }
+        body: { rid: 'test', data }
       }, (err, res, hash) => {
         if (err) throw err
 
@@ -46,7 +46,7 @@ describe('put-get-bep44', () => {
 
           assert.strictEqual(res.v, 'hello world')
 
-          getValue({ hash: hash }, (err, res) => {
+          getValue({ hash }, (err, res) => {
             if (err) throw err
 
             assert.strictEqual(res.v, 'hello world')

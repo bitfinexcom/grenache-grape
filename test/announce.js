@@ -19,7 +19,7 @@ describe('service announce', () => {
     grape2.on('announce', () => {
       grape2.lookup('rest:util:net', (err, res) => {
         assert.strictEqual(err, null)
-        assert.deepStrictEqual(res, [ '127.0.0.1:1337' ])
+        assert.deepStrictEqual(res, ['127.0.0.1:1337'])
         stop(done)
       })
     })
@@ -35,7 +35,7 @@ describe('service announce', () => {
     grape2.on('announce', () => {
       grape2.lookup('rest:util:net', (err, res) => {
         assert.strictEqual(err, null)
-        assert.deepStrictEqual(res, [ '127.0.0.1:1337' ])
+        assert.deepStrictEqual(res, ['127.0.0.1:1337'])
         setTimeout(lookup, 300)
       })
     })
@@ -191,7 +191,7 @@ describe('service announce', () => {
 
       function lookup (onlookup) {
         let missing = 4
-        let res = [{}, {}]
+        const res = [{}, {}]
 
         get(g2, 'A')
         get(g2, 'B')
@@ -260,7 +260,7 @@ describe('service announce', () => {
 
       function lookup (onlookup) {
         let missing = 4
-        let res = [{}, {}]
+        const res = [{}, {}]
 
         get(g2, 'A')
         get(g2, 'B')

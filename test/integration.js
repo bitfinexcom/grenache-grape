@@ -8,7 +8,7 @@ describe('Grape integration', () => {
   it('should emit a ready event', (done) => {
     const grape1 = new Grape({
       dht_port: 20002,
-      dht_bootstrap: [ '127.0.0.1:20001' ],
+      dht_bootstrap: ['127.0.0.1:20001'],
       api_port: 40001
     })
 
@@ -16,7 +16,7 @@ describe('Grape integration', () => {
 
     const grape2 = new Grape({
       dht_port: 20001,
-      dht_bootstrap: [ '127.0.0.1:20002' ],
+      dht_bootstrap: ['127.0.0.1:20002'],
       api_port: 30002
     })
 

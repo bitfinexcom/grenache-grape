@@ -25,7 +25,7 @@ function bootstrap (tapenet, t) {
 
       const grape = new Grape({
         dht_port: 20001,
-        dht_bootstrap: [ node ],
+        dht_bootstrap: [node],
         api_port: 40001
       })
 
