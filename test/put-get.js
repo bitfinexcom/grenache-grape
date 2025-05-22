@@ -3,22 +3,44 @@
 'use strict'
 
 const assert = require('assert')
-const request = require('request')
+const fetch = require('node-fetch')
 
 const {
   createTwoGrapes
 } = require('./helper.js')
 
-function getValue (h, cb) {
-  request.post({
-    uri: 'http://127.0.0.1:40001/get',
-    json: true,
-    body: { rid: 'test', data: h }
-  }, (err, res, body) => {
-    if (err) return cb(err)
+async function jsonPost (url, data, cb) {
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
 
-    cb(null, body)
-  })
+    let res = await resp.text()
+    try {
+      res = JSON.parse(res)
+    } catch (err) {
+      // noop
+    }
+
+    if (!resp.ok) {
+      const err = new Error(res)
+      err.code = resp.status
+      throw err
+    }
+
+    return cb(null, res)
+  } catch (err) {
+    console.log(err)
+    return cb(err)
+  }
+}
+
+function getValue (h, cb) {
+  return jsonPost('http://127.0.0.1:40001/get', { rid: 'test', data: h }, cb)
 }
 
 describe('put-get-bep44', () => {
@@ -26,7 +48,7 @@ describe('put-get-bep44', () => {
     const { grape1, grape2, stop } = createTwoGrapes()
 
     grape1.on('ready', () => {
-      grape1.announce('rest:util:net', 1337, () => {})
+      grape1.announce('rest:util:net', 1337, () => { })
     })
 
     grape2.on('announce', () => {
@@ -34,11 +56,7 @@ describe('put-get-bep44', () => {
         v: 'hello world'
       }
 
-      request.post({
-        uri: 'http://127.0.0.1:40001/put',
-        json: true,
-        body: { rid: 'test', data }
-      }, (err, res, hash) => {
+      jsonPost('http://127.0.0.1:40001/put', { rid: 'test', data }, (err, hash) => {
         if (err) throw err
 
         getValue(hash, (err, res) => {

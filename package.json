@@ -10,14 +10,13 @@
     "micro-services"
   ],
   "dependencies": {
-    "async": "^3.2.4",
-    "bittorrent-dht": "^10.0.0",
+    "async": "3.2.6",
+    "bittorrent-dht": "10.0.0",
     "cbq": "0.0.1",
-    "debug": "^4.0.1",
-    "lodash": "^4.17.21",
-    "raw-body": "^2.5.2",
-    "record-cache": "^1.2.0",
-    "yargs": "^17.7.1"
+    "debug": "4.4.1",
+    "raw-body": "2.5.2",
+    "record-cache": "1.2.0",
+    "yargs": "17.7.2"
   },
   "engine": {
     "node": ">=6.0"
@@ -27,15 +26,18 @@
   },
   "main": "index.js",
   "devDependencies": {
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0",
-    "request": "^2.88.0",
-    "standard": "^17.0.0"
+    "chai": "4.5.0",
+    "duplexify": "4.1.3",
+    "mocha": "11.4.0",
+    "node-fetch": "2.7.0",
+    "pump": "3.0.2",
+    "standard": "17.1.2"
   },
   "scripts": {
     "test": "npm run lint && npm run unit",
     "unit": "mocha",
-    "lint": "standard"
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "license": "Apache-2.0",
   "repository": {
