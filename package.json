@@ -18,8 +18,8 @@
     "record-cache": "1.2.0",
     "yargs": "17.7.2"
   },
-  "engine": {
-    "node": ">=6.0"
+  "engines": {
+    "node": ">=16.0"
   },
   "bin": {
     "grape": "bin/grape.js"
