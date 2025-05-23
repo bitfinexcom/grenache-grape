@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 'use strict'
 
-const _ = require('lodash')
 const Grape = require('../lib/Grape')
 
 const program = require('yargs')
@@ -78,7 +77,7 @@ const maxDhtConcurrency = program.dht_concurrency
 const dhtNodeLiveness = program.dnl
 const maxPayloadSize = program.check_maxPayloadSize
 
-const dhtBoostrap = _.reduce((program.bn || '').split(','), (acc, e) => {
+const dhtBoostrap = (program.bn || '').split(',').reduce((acc, e) => {
   if (e) {
     acc.push(e)
   }
