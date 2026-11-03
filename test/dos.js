@@ -1,8 +1,6 @@
-/* eslint-env mocha */
-
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const duplexify = require('duplexify')
 const http = require('http')
 const pump = require('pump')
@@ -35,48 +33,58 @@ function streamRequest (uri) {
   return duplexify(reqStream, resStream)
 }
 
-describe('dos vector', () => {
-  it('rejects too large payloads', (done) => {
+test('dos vector', async (t) => {
+  await t.test('rejects too large payloads', { timeout: 10000 }, async (t) => {
     const { grape1, grape2, stop } = createTwoGrapes()
 
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => { })
     })
 
-    grape2.on('announce', () => {
-      const req = streamRequest('http://127.0.0.1:40001')
-      req.on('error', () => {
-        stop(done)
+    await new Promise(resolve => {
+      grape2.on('announce', () => {
+        const req = streamRequest('http://127.0.0.1:40001')
+        let done = false
+        const finish = () => {
+          if (done) return
+          done = true
+          stop(resolve)
+        }
+        req.on('error', finish) // caught by node < 18
+        req.on('close', finish) // caught by node >= 18
+
+        const writer = new PassThrough()
+        writer
+          .pipe(req)
+
+        for (let i = 0; i < 999999; i++) {
+          writer.push('"pl":"blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;')
+        }
       })
-
-      const writer = new PassThrough()
-      writer
-        .pipe(req)
-
-      for (let i = 0; i < 999999; i++) {
-        writer.push('"pl":"blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;blerg;')
-      }
     })
-  }).timeout(10000)
+    t.pass()
+  })
 
-  it('does not crash on invalid payloads', (done) => {
+  await t.test('does not crash on invalid payloads', { timeout: 5000 }, async (t) => {
     const { grape1, grape2, stop } = createTwoGrapes()
 
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => { })
     })
 
-    grape2.on('announce', () => {
-      const req = streamRequest('http://127.0.0.1:40001')
-      req.on('data', (data) => {
-        assert.strictEqual(data.toString(), 'ERR_GRAPE_PAYLOAD_INVALID')
-        stop(done)
-      })
-      const writer = new PassThrough()
-      writer.pipe(req)
+    await new Promise(resolve => {
+      grape2.on('announce', () => {
+        const req = streamRequest('http://127.0.0.1:40001')
+        req.on('data', (data) => {
+          t.is(data.toString(), 'ERR_GRAPE_PAYLOAD_INVALID')
+          stop(resolve)
+        })
+        const writer = new PassThrough()
+        writer.pipe(req)
 
-      writer.push('garbage')
-      writer.end('')
+        writer.push('garbage')
+        writer.end('')
+      })
     })
-  }).timeout(5000)
+  })
 })
