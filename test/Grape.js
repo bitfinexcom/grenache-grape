@@ -1,71 +1,76 @@
-/* eslint-env mocha */
-
 'use strict'
 
-const assert = require('chai').assert
+const test = require('brittle')
 
 const Events = require('events')
 
 const Grape = require('./../lib/Grape')
 
-describe('Grape', () => {
-  it('should be an instance of Events', () => {
+test('Grape', { timeout: 20000 }, async (t) => {
+  t.test('should be an instance of Events', async (t) => {
     const grape = new Grape({
       dht_port: 20000,
       api_port: 20001
     })
 
-    assert(grape instanceof Events)
+    t.ok(grape instanceof Events)
   })
 
-  it('should accept callback on starting a grape', (done) => {
+  t.test('should accept callback on starting a grape', async (t) => {
     const grape = new Grape({
       dht_port: 20002,
       api_port: 30000
     })
 
-    grape.start((err) => {
-      assert.ifError(err)
-
-      grape.stop((err) => {
-        assert.ifError(err)
-        done()
+    const stopped = await new Promise((resolve, reject) => {
+      grape.start((err) => {
+        if (err) return reject(err)
+        grape.stop((err) => {
+          if (err) return reject(err)
+          resolve(true)
+        })
       })
     })
+    t.ok(stopped)
   })
 
-  it('calling stop on an unstarted Grape is fine', (done) => {
+  t.test('calling stop on an unstarted Grape is fine', async (t) => {
     const grape = new Grape({
       dht_port: 20000,
       api_port: 20001
     })
 
-    grape.stop(done)
+    await new Promise(resolve => grape.stop(resolve))
+    t.ok(true)
   })
 
-  it('requires a port', (done) => {
+  t.test('requires a port', async (t) => {
     const grape = new Grape({
       dht_port: 20000
     })
 
-    grape.start((err) => {
-      assert.ok(err)
-      grape.stop(done)
-    })
+    await t.exception(new Promise((resolve, reject) => {
+      grape.start((err) => {
+        grape.stop(() => err ? reject(err.message) : resolve())
+      })
+    }), 'ERR_NO_PORT')
   })
 
-  it('keeps running on invalid put payload', (done) => {
+  t.test('keeps running on invalid put payload', async (t) => {
     const grape = new Grape({
-      dht_port: 20000,
-      api_port: 20001
+      dht_port: 20003,
+      api_port: 30003
     })
 
-    grape.start((err) => {
-      if (err) throw err
-      grape.put({ foo: 'bar' }, (err) => {
-        assert.ok(err)
-        grape.stop(done)
+    await t.exception(new Promise((resolve, reject) => {
+      grape.start((err) => {
+        if (err) return grape.stop(reject)
+        grape.put({ foo: 'bar' }, (err) => {
+          grape.stop(() => {
+            err ? reject(err) : resolve()
+          })
+        })
       })
-    })
+    }), 'opts.v not given')
   })
 })

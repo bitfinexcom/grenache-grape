@@ -1,8 +1,6 @@
-/* eslint-env mocha */
-
 'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const fetch = require('node-fetch')
 
 const {
@@ -43,36 +41,38 @@ function getValue (h, cb) {
   return jsonPost('http://127.0.0.1:40001/get', { rid: 'test', data: h }, cb)
 }
 
-describe('put-get-bep44', () => {
-  it('works with hashes', (done) => {
+test('put-get-bep44', (t) => {
+  t.test('works with hashes', { timeout: 5000 }, async (t) => {
     const { grape1, grape2, stop } = createTwoGrapes()
 
     grape1.on('ready', () => {
       grape1.announce('rest:util:net', 1337, () => { })
     })
 
-    grape2.on('announce', () => {
-      const data = {
-        v: 'hello world'
-      }
+    await new Promise(resolve => {
+      grape2.on('announce', () => {
+        const data = {
+          v: 'hello world'
+        }
 
-      jsonPost('http://127.0.0.1:40001/put', { rid: 'test', data }, (err, hash) => {
-        if (err) throw err
-
-        getValue(hash, (err, res) => {
+        jsonPost('http://127.0.0.1:40001/put', { rid: 'test', data }, (err, hash) => {
           if (err) throw err
 
-          assert.strictEqual(res.v, 'hello world')
-
-          getValue({ hash }, (err, res) => {
+          getValue(hash, (err, res) => {
             if (err) throw err
 
-            assert.strictEqual(res.v, 'hello world')
+            t.is(res.v, 'hello world')
 
-            stop(done)
+            getValue({ hash }, (err, res) => {
+              if (err) throw err
+
+              t.is(res.v, 'hello world')
+
+              stop(resolve)
+            })
           })
         })
       })
     })
-  }).timeout(5000)
+  })
 })

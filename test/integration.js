@@ -1,11 +1,10 @@
-/* eslint-env mocha */
-
 'use strict'
 
+const test = require('brittle')
 const { Grape } = require('./../')
 
-describe('Grape integration', () => {
-  it('should emit a ready event', (done) => {
+test('Grape integration', { timeout: 5000 }, (t) => {
+  t.test('should emit a ready event', async (t) => {
     const grape1 = new Grape({
       dht_port: 20002,
       dht_bootstrap: ['127.0.0.1:20001'],
@@ -22,10 +21,13 @@ describe('Grape integration', () => {
 
     grape2.start(() => {})
 
-    grape1.on('ready', () => {
-      grape1.stop()
-      grape2.stop()
-      done()
+    await new Promise(resolve => {
+      grape1.on('ready', () => {
+        grape1.stop()
+        grape2.stop()
+        resolve()
+      })
     })
-  }).timeout(5000)
+    t.pass()
+  })
 })
