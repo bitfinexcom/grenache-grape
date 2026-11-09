@@ -1,6 +1,6 @@
 {
   "name": "grenache-grape",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Grenache Grape - DHT for micro-services",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
   "keywords": [
@@ -12,7 +12,7 @@
   "dependencies": {
     "async": "3.2.6",
     "bittorrent-dht": "10.0.0",
-    "cbq": "0.0.1",
+    "cbq": "1.0.0",
     "debug": "4.4.1",
     "raw-body": "2.5.2",
     "record-cache": "1.2.0",
